@@ -1,8 +1,8 @@
 'use server';
 
 /**
- * @fileOverview An AI tutor that answers academic questions in Hindi,
- *  also providing the subject and difficulty level of the question.
+ * @fileOverview An AI assistant that answers questions in Hindi,
+ *  also providing the subject and difficulty level if the question is academic.
  *
  * - askAcademicQuestion - A function that handles the academic question answering process.
  * - AskAcademicQuestionInput - The input type for the askAcademicQuestion function.
@@ -32,16 +32,11 @@ const prompt = ai.definePrompt({
   name: 'askAcademicQuestionPrompt',
   input: {schema: AskAcademicQuestionInputSchema},
   output: {schema: AskAcademicQuestionOutputSchema},
-  prompt: `You are an AI tutor specializing in answering academic questions in Hindi.
+  prompt: `You are a helpful AI assistant that answers questions in Hindi. For any given question, provide an answer in Hindi. If the question is academic, also determine its subject and difficulty level (e.g., Easy, Medium, Hard). If the question is not academic, set the subject to 'General' and the difficulty level to 'N/A'.
 
-  Answer the following question in Hindi, and also provide the subject and difficulty level of the question.
+Question: {{{question}}}
 
-  Question: {{{question}}}
-
-  Format your response as a JSON object with the following keys:
-  - answer: The answer to the question in Hindi.
-  - subject: The subject of the question.
-  - difficultyLevel: The difficulty level of the question (e.g., Easy, Medium, Hard).`,
+Ensure your response is a JSON object with "answer", "subject", and "difficultyLevel" keys.`,
 });
 
 const askAcademicQuestionFlow = ai.defineFlow(
