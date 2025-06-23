@@ -1,55 +1,61 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for checking scholarship results based on roll number.
+ * @fileOverview A general purpose AI chatbot for the academy.
  *
- * - checkScholarshipResult - A function that takes a roll number as input and returns the scholarship result (pass/fail).
- * - CheckScholarshipResultInput - The input type for the checkScholarshipResult function.
- * - CheckScholarshipResultOutput - The return type for the checkScholarshipResult function.
+ * - generalChat - A function that handles the conversation.
+ * - GeneralChatInput - The input type for the generalChat function.
+ * - GeneralChatOutput - The return type for the generalChat function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const CheckScholarshipResultInputSchema = z.object({
-  rollNumber: z
-    .string()
-    .describe('The roll number of the student.'),
+const MessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  content: z.string(),
 });
-export type CheckScholarshipResultInput = z.infer<typeof CheckScholarshipResultInputSchema>;
 
-const CheckScholarshipResultOutputSchema = z.object({
-  result: z
-    .string()
-    .describe('The scholarship result in Hindi (e.g., "Pass", "Fail", or a detailed message).'),
+export const GeneralChatInputSchema = z.object({
+  messages: z.array(MessageSchema).describe('The history of the conversation.'),
 });
-export type CheckScholarshipResultOutput = z.infer<typeof CheckScholarshipResultOutputSchema>;
+export type GeneralChatInput = z.infer<typeof GeneralChatInputSchema>;
 
-export async function checkScholarshipResult(input: CheckScholarshipResultInput): Promise<CheckScholarshipResultOutput> {
-  return checkScholarshipResultFlow(input);
+export const GeneralChatOutputSchema = z.object({
+  answer: z.string().describe("The AI's response."),
+});
+export type GeneralChatOutput = z.infer<typeof GeneralChatOutputSchema>;
+
+
+export async function generalChat(input: GeneralChatInput): Promise<GeneralChatOutput> {
+    return generalChatFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'checkScholarshipResultPrompt',
-  input: {schema: CheckScholarshipResultInputSchema},
-  output: {schema: CheckScholarshipResultOutputSchema},
-  prompt: `आप एक AI सहायक हैं जिसे छात्रों को उनके रोल नंबर के आधार पर छात्रवृत्ति परिणाम प्रदान करने के लिए डिज़ाइन किया गया है।
 
-  दिए गए रोल नंबर: {{{rollNumber}}} के लिए, छात्रवृत्ति परिणाम प्रदान करें। परिणाम हिंदी में होना चाहिए और यह बताना चाहिए कि छात्र पास हुआ या फेल, और कोई अन्य प्रासंगिक जानकारी।
-  अपनी प्रतिक्रिया में उत्साहजनक और सहायक बनें।
-  यदि कोई छात्र पास हो गया है, तो उन्हें बधाई दें और उल्लेख करें कि उन्हें छात्रवृत्ति के लिए चुना गया है। यदि वे असफल रहे, तो उन्हें अगले साल फिर से प्रयास करने के लिए प्रोत्साहित करें।
-  किसी भी छात्र के बारे में कोई भी व्यक्तिगत पहचान योग्य जानकारी शामिल न करें। केवल यह बताएं कि वे पास हुए या फेल।
-  उदाहरण प्रतिक्रिया यदि छात्र पास हो गया: "बधाई हो! आपका परिणाम पास है। आपको छात्रवृत्ति के लिए चुना गया है।"
-  उदाहरण प्रतिक्रिया यदि छात्र असफल रहा: "हमें आपको यह बताते हुए खेद है कि आपका परिणाम फेल है। कृपया अगले साल फिर से प्रयास करें।"`,
+const generalChatFlow = ai.defineFlow({
+    name: 'generalChatFlow',
+    inputSchema: GeneralChatInputSchema,
+    outputSchema: GeneralChatOutputSchema,
+}, async (input) => {
+    const systemPrompt = `आप 'गो स्वामी डिफेंस एकेडमी' के लिए एक सहायक AI सहायक हैं। आपका लक्ष्य छात्रों को अकादमी, उसके पाठ्यक्रमों और इस ऐप का उपयोग करने के तरीके के बारे में उनके सवालों में मदद करना है। हमेशा मित्रवत और सहायक रहें। जब तक उपयोगकर्ता अंग्रेजी में बात न करे, तब तक हिंदी में जवाब दें।
+
+अगर आपसे पूछा जाए कि सर्टिफ़िकेट कैसे डाउनलोड करें, तो समझाएं कि वे दो तरह के सर्टिफ़िकेट डाउनलोड कर सकते हैं:
+1.  **छात्रवृत्ति आवेदन सर्टिफ़िकेट:** यह 'छात्रवृत्ति फॉर्म' पेज से फ़ॉर्म जमा करने के बाद मिलता है।
+2.  **AI टेस्ट प्रदर्शन सर्टिफ़िकेट:** यह 'AI टेस्ट' पेज से टेस्ट पूरा करने के बाद मिलता है।
+
+संक्षेप में और सीधे जवाब दें।`;
+    
+    const validMessages = input.messages.filter(m => m.content.trim() !== '');
+
+    const llmResponse = await ai.generate({
+        prompt: {
+            system: systemPrompt,
+            messages: validMessages.map(msg => ({ role: msg.role, content: [{ text: msg.content }] })),
+        },
+        model: 'googleai/gemini-2.0-flash',
+        config: {
+            temperature: 0.5,
+        },
+    });
+
+    return { answer: llmResponse.text() };
 });
-
-const checkScholarshipResultFlow = ai.defineFlow(
-  {
-    name: 'checkScholarshipResultFlow',
-    inputSchema: CheckScholarshipResultInputSchema,
-    outputSchema: CheckScholarshipResultOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);

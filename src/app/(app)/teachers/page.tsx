@@ -7,7 +7,7 @@ const teachers = [
     subject: 'गणित और संस्थापक',
     experience: 'एक दशक से अधिक के अनुभव के साथ एक दूरदर्शी शिक्षक, श्री गोस्वामी ने शीर्ष स्तरीय रक्षा कोचिंग प्रदान करने के लिए अकादमी की स्थापना की।',
     photo: 'https://placehold.co/100x100.png',
-    hint: 'male teacher'
+    hint: 'male founder'
   },
   {
     name: 'श्री दिनेश त्यागी (डी.सी. त्यागी)',
