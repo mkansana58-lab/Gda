@@ -140,11 +140,11 @@ export default function CutoffCheckerPage() {
               />
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="marksObtained" render={({ field }) => (
-                    <FormItem><FormLabel>प्राप्त अंक</FormLabel><FormControl><Input type="number" placeholder="जैसे, 110" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>प्राप्त अंक</FormLabel><FormControl><Input type="number" placeholder="जैसे, 110" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                   )}
                 />
                 <FormField control={form.control} name="totalMarks" render={({ field }) => (
-                    <FormItem><FormLabel>कुल अंक</FormLabel><FormControl><Input type="number" placeholder="जैसे, 150" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>कुल अंक</FormLabel><FormControl><Input type="number" placeholder="जैसे, 150" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                   )}
                 />
               </div>

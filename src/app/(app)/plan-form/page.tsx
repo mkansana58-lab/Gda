@@ -159,7 +159,7 @@ export default function ScholarshipFormPage() {
               <FormField control={form.control} name="age" render={({ field }) => (
                   <FormItem>
                     <FormLabel>आयु</FormLabel>
-                    <FormControl><Input type="number" placeholder="आपकी आयु" {...field} /></FormControl>
+                    <FormControl><Input type="number" placeholder="आपकी आयु" {...field} value={field.value ?? ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
