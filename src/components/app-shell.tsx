@@ -11,7 +11,7 @@ import {
   Phone,
   Scaling,
   ShieldCheck,
-  ClipboardCheck
+  ClipboardCheck,
 } from 'lucide-react';
 
 import {
@@ -25,11 +25,12 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarInset,
-  useSidebar
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { UserNav } from './user-nav';
 import { useUser } from '@/context/user-context';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { BottomNav } from './bottom-nav';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -37,7 +38,7 @@ const navItems = [
   { href: '/learning-hub', icon: BookOpen, label: 'Learning Hub' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI Tutor' },
   { href: '/ai-chat', icon: Bot, label: 'AI Chat' },
-  { href: '/ai-test', icon: ClipboardCheck, label: 'AI Test'},
+  { href: '/ai-test', icon: ClipboardCheck, label: 'AI Test' },
   { href: '/cutoff-checker', icon: Scaling, label: 'Cut-Off Checker' },
   { href: '/contact', icon: Phone, label: 'Contact' },
 ];
@@ -51,7 +52,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     if (isMobile) {
       setOpenMobile(false);
     }
-  }
+  };
 
   return (
     <>
@@ -61,7 +62,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             <ShieldCheck className="h-8 w-8 text-primary" />
             <div className="flex flex-col">
               <h2 className="font-headline text-lg font-semibold">Go Swami</h2>
-              <p className="text-xs text-muted-foreground -mt-1">Defence Academy</p>
+              <p className="text-xs text-muted-foreground -mt-1">
+                Defence Academy
+              </p>
             </div>
           </div>
         </SidebarHeader>
@@ -86,14 +89,14 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </SidebarContent>
         <SidebarFooter>
           <div className="flex items-center gap-3 p-2 border-t">
-              <Avatar>
-                <AvatarImage src={user?.profilePhotoUrl} alt={user?.name ?? ''} />
-                <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <p className="font-semibold text-sm">{user?.name}</p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
+            <Avatar>
+              <AvatarImage src={user?.profilePhotoUrl} alt={user?.name ?? ''} />
+              <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <p className="font-semibold text-sm">{user?.name}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
+            </div>
           </div>
         </SidebarFooter>
       </Sidebar>
@@ -103,12 +106,14 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           <div className="flex-1" />
           <UserNav />
         </header>
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-6">
+          <div className="w-full max-w-7xl mx-auto">{children}</div>
+        </main>
+        <BottomNav />
       </SidebarInset>
     </>
   );
 }
-
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (

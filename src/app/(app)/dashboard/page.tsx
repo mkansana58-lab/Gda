@@ -6,8 +6,11 @@ import {
   GraduationCap,
   Phone,
   Scaling,
+  ClipboardCheck,
+  Trophy,
+  Users,
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { useUser } from '@/context/user-context';
 
@@ -17,42 +20,54 @@ const features = [
     description: 'Apply for various exams.',
     icon: FileText,
     href: '/plan-form',
-    color: 'text-blue-500',
   },
   {
     title: 'Learning Hub',
-    description: 'Access classes and materials.',
+    description: 'Access classes & materials.',
     icon: BookOpen,
     href: '/learning-hub',
-    color: 'text-green-500',
   },
   {
     title: 'AI Tutor',
     description: 'Get answers to your questions.',
     icon: GraduationCap,
     href: '/ai-tutor',
-    color: 'text-purple-500',
   },
   {
     title: 'AI Chat',
     description: 'Check your scholarship results.',
     icon: Bot,
     href: '/ai-chat',
-    color: 'text-cyan-500',
+  },
+  {
+    title: 'AI Test',
+    description: 'Take a practice test.',
+    icon: ClipboardCheck,
+    href: '/ai-test',
   },
   {
     title: 'Cut-Off Checker',
     description: 'View previous year cut-offs.',
     icon: Scaling,
     href: '/cutoff-checker',
-    color: 'text-red-500',
+  },
+  {
+    title: "Toppers List",
+    description: "See our top performing students.",
+    icon: Trophy,
+    href: "/toppers",
+  },
+  {
+    title: "Our Teachers",
+    description: "Meet our expert faculty.",
+    icon: Users,
+    href: "/teachers",
   },
   {
     title: 'Contact Us',
     description: 'Get in touch with us.',
     icon: Phone,
     href: '/contact',
-    color: 'text-yellow-500',
   },
 ];
 
@@ -66,45 +81,25 @@ export default function DashboardPage() {
           Welcome back, {user?.name?.split(' ')[0]}!
         </h1>
         <p className="text-muted-foreground">
-          Here's your personal dashboard.
-        </p>
-      </div>
-      
-      <div className="relative w-full overflow-hidden bg-primary/10 rounded-lg p-4">
-        <p className="text-primary font-semibold whitespace-nowrap animate-marquee">
           सपनों को हकीकत बनाना है, तो आज से मेहनत शुरू करो।
         </p>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
         {features.map((feature) => (
           <Link href={feature.href} key={feature.title}>
-            <Card className="h-full hover:border-primary hover:shadow-lg transition-all duration-200 group">
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <feature.icon className={`w-8 h-8 ${feature.color} transition-transform duration-200 group-hover:scale-110`} />
-                  <div>
-                    <CardTitle className="font-headline group-hover:text-primary transition-colors">
-                      {feature.title}
-                    </CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
+            <Card className="h-full hover:border-primary hover:shadow-lg transition-all duration-200 group aspect-square flex flex-col items-center justify-center text-center p-4">
+              <div className="p-3 bg-primary/10 rounded-full mb-3">
+                <feature.icon className="w-8 h-8 text-primary transition-transform duration-200 group-hover:scale-110" />
+              </div>
+              <h3 className="font-headline text-lg font-semibold group-hover:text-primary transition-colors">
+                {feature.title}
+              </h3>
+              <p className="text-xs text-muted-foreground">{feature.description}</p>
             </Card>
           </Link>
         ))}
       </div>
-      <style jsx>{`
-        @keyframes marquee {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-          display: inline-block;
-          animation: marquee 15s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }
