@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   BookOpen,
-  Bot,
   FilePen,
   GraduationCap,
   Home,
@@ -14,6 +13,7 @@ import {
   ClipboardCheck,
   Trophy,
   Users,
+  MessageSquare,
 } from 'lucide-react';
 
 import {
@@ -39,7 +39,7 @@ const navItems = [
   { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
   { href: '/learning-hub', icon: BookOpen, label: 'लर्निंग हब' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
-  { href: '/ai-chat', icon: Bot, label: 'AI चैट' },
+  { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
   { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },

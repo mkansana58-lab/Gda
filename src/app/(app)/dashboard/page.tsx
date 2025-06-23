@@ -1,7 +1,6 @@
 'use client';
 import {
   BookOpen,
-  Bot,
   FilePen,
   GraduationCap,
   Phone,
@@ -9,7 +8,7 @@ import {
   ClipboardCheck,
   Trophy,
   Users,
-  MessageCircle,
+  MessageSquare,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -37,8 +36,8 @@ const features = [
   },
   {
     title: 'AI चैट',
-    description: 'अपनी छात्रवृत्ति का परिणाम जांचें।',
-    icon: Bot,
+    description: 'AI सहायक से बात करें।',
+    icon: MessageSquare,
     href: '/ai-chat',
   },
   {
@@ -108,7 +107,7 @@ export default function DashboardPage() {
        <Card className="bg-gradient-to-r from-green-500 to-teal-500 text-white">
         <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <MessageCircle className="w-12 h-12" />
+            <MessageSquare className="w-12 h-12" />
             <div>
               <h3 className="text-xl font-bold font-headline">हमारे समुदाय में शामिल हों!</h3>
               <p className="opacity-90">व्हाट्सएप पर अपडेट, नोट्स प्राप्त करें और साथियों के साथ बातचीत करें।</p>

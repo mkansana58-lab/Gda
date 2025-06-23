@@ -23,7 +23,7 @@ const QuestionSchema = z.object({
 });
 
 const GenerateAiTestOutputSchema = z.object({
-    questions: z.array(QuestionSchema).describe('An array of 10 questions for the test in Hindi.'),
+    questions: z.array(QuestionSchema).describe('An array of 25 questions for the test in Hindi.'),
 });
 export type GenerateAiTestOutput = z.infer<typeof GenerateAiTestOutputSchema>;
 export type AiQuestion = z.infer<typeof QuestionSchema>;
@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
   name: 'generateAiTestPrompt',
   input: {schema: GenerateAiTestInputSchema},
   output: {schema: GenerateAiTestOutputSchema},
-  prompt: `आप छात्रों के लिए एक विशेषज्ञ परीक्षा निर्माता हैं। निम्नलिखित विषय के लिए हिंदी में 10-प्रश्नों का बहुविकल्पीय परीक्षण उत्पन्न करें: {{{subject}}}।
+  prompt: `आप छात्रों के लिए एक विशेषज्ञ परीक्षा निर्माता हैं। निम्नलिखित विषय के लिए हिंदी में 25-प्रश्नों का बहुविकल्पीय परीक्षण उत्पन्न करें: {{{subject}}}।
   प्रत्येक प्रश्न के 4 विकल्प होने चाहिए, और आपको सही उत्तर निर्दिष्ट करना होगा।
   प्रश्न कक्षा 6-9 के छात्रों के लिए उपयुक्त होने चाहिए जो RMS, RIMC, और JNV जैसी प्रतियोगी परीक्षाओं की तैयारी कर रहे हैं। प्रश्न चुनौतीपूर्ण होने चाहिए और विषय के भीतर कई विषयों को कवर करना चाहिए।
   सुनिश्चित करें कि प्रतिक्रिया आउटपुट स्कीमा से मेल खाने वाला एक मान्य JSON ऑब्जेक्ट है। सभी प्रश्न और उत्तर हिंदी में होने चाहिए।

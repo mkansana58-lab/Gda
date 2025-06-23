@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { generalChat } from '@/ai/flows/general-chat';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, User, Bot } from 'lucide-react';
+import { Loader2, Send, User, Bot, MessageSquare } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,17 +16,19 @@ type Message = {
   content: string;
 };
 
+const initialMessage: Message = {
+  role: 'model',
+  content: 'नमस्ते! मैं गो स्वामी डिफेंस एकेडमी का AI सहायक हूँ। मैं आपकी क्या मदद कर सकता हूँ?',
+};
+
 export default function AiChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'model',
-      content: 'नमस्ते! मैं गो स्वामी डिफेंस एकेडमी का AI सहायक हूँ। मैं आपकी क्या मदद कर सकता हूँ?',
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { user } = useUser();
+
+  const displayedMessages = [initialMessage, ...messages];
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -35,19 +37,21 @@ export default function AiChatPage() {
             viewport.scrollTop = viewport.scrollHeight;
         }
     }
-  }, [messages]);
+  }, [displayedMessages]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const currentHistory = [...messages, userMessage];
+    
+    setMessages(currentHistory);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await generalChat({ messages: [...messages, userMessage] });
+      const response = await generalChat({ messages: currentHistory });
       const modelMessage: Message = { role: 'model', content: response.answer };
       setMessages((prev) => [...prev, modelMessage]);
     } catch (error) {
@@ -74,7 +78,7 @@ export default function AiChatPage() {
       <Card className="flex flex-col flex-grow">
         <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
           <div className="space-y-6">
-            {messages.map((message, index) => (
+            {displayedMessages.map((message, index) => (
               <div
                 key={index}
                 className={cn('flex items-start gap-3', {
