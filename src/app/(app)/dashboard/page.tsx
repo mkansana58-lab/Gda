@@ -9,10 +9,12 @@ import {
   ClipboardCheck,
   Trophy,
   Users,
+  MessageCircle,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { useUser } from '@/context/user-context';
+import { Button } from '@/components/ui/button';
 
 const features = [
   {
@@ -80,12 +82,14 @@ export default function DashboardPage() {
         <h1 className="font-headline text-3xl font-bold tracking-tight">
           Welcome back, {user?.name?.split(' ')[0]}!
         </h1>
-        <p className="text-muted-foreground">
-          सपनों को हकीकत बनाना है, तो आज से मेहनत शुरू करो।
-        </p>
+        <div className="w-full overflow-hidden whitespace-nowrap mt-2">
+            <p className="marquee-text text-muted-foreground">
+                सपनों को हकीकत बनाना है, तो आज से मेहनत शुरू करो।
+            </p>
+        </div>
       </div>
       
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
         {features.map((feature) => (
           <Link href={feature.href} key={feature.title}>
             <Card className="h-full hover:border-primary hover:shadow-lg transition-all duration-200 group aspect-square flex flex-col items-center justify-center text-center p-4">
@@ -100,6 +104,27 @@ export default function DashboardPage() {
           </Link>
         ))}
       </div>
+
+       <Card className="bg-gradient-to-r from-green-500 to-teal-500 text-white">
+        <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <MessageCircle className="w-12 h-12" />
+            <div>
+              <h3 className="text-xl font-bold font-headline">Join our Community!</h3>
+              <p className="opacity-90">Get updates, notes, and interact with peers on WhatsApp.</p>
+            </div>
+          </div>
+          <Button
+            asChild
+            className="bg-white text-green-600 hover:bg-gray-100 font-bold sm:w-auto w-full"
+          >
+            <a href="https://chat.whatsapp.com/H36NUumZ77h9QfyOSncJAR" target="_blank" rel="noopener noreferrer">
+              Join WhatsApp Group
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }

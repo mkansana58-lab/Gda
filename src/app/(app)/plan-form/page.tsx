@@ -97,7 +97,7 @@ export default function ScholarshipFormPage() {
                         Download Certificate
                     </Button>
                     <Button asChild>
-                        <a href={`mailto:mohitKansana82@gemali.com?subject=New Scholarship Application for ${submittedData.name}&body=${emailBody}`}>
+                        <a href={`mailto:mohitkansana82@gmail.com?subject=New Scholarship Application for ${submittedData.name}&body=${emailBody}`}>
                         <Send className="mr-2 h-4 w-4" />
                         सबमिट करें
                         </a>

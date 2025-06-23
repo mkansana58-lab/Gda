@@ -36,13 +36,12 @@ export function LoginForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    const handleLogin = (profilePhotoUrl: string) => {
       try {
-        const user = {
-          ...values,
-          profilePhotoUrl: 'https://placehold.co/100x100.png', // Dummy photo
-        };
+        // Create user object without the file list
+        const { profilePhoto, ...userData } = values;
+        const user = { ...userData, profilePhotoUrl };
         localStorage.setItem('user', JSON.stringify(user));
         toast({
           title: 'Login Successful',
@@ -55,10 +54,37 @@ export function LoginForm() {
           title: 'Login Failed',
           description: 'An error occurred. Please try again.',
         });
+      } finally {
         setIsLoading(false);
       }
-    }, 1000);
+    };
+
+    const photoFile = values.profilePhoto?.[0];
+
+    if (photoFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleLogin(reader.result as string);
+      };
+      reader.onerror = () => {
+        toast({
+          variant: 'destructive',
+          title: 'Photo Upload Failed',
+          description: 'Could not read the selected photo. Please try again or continue without one.',
+        });
+        handleLogin('https://placehold.co/100x100.png');
+      };
+      reader.readAsDataURL(photoFile);
+    } else {
+      setTimeout(() => {
+        handleLogin('https://placehold.co/100x100.png');
+      }, 500);
+    }
   }
+
+  // Use a different name for the form field to avoid conflict with the native `name` property
+  const { register, ...restOfForm } = form;
+  const profilePhotoRef = register('profilePhoto');
 
   return (
     <Form {...form}>
@@ -122,7 +148,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Profile Photo</FormLabel>
               <FormControl>
-                <Input type="file" accept="image/*" {...field} />
+                <Input type="file" accept="image/*" {...profilePhotoRef} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -10,21 +10,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, MessageSquare } from 'lucide-react';
 import { useUser } from '@/context/user-context';
+import { useToast } from '@/hooks/use-toast';
 
 const emailFormSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  message: z.string().min(10),
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
 const smsFormSchema = z.object({
-  name: z.string().min(2),
-  mobile: z.string().regex(/^\d{10}$/),
-  question: z.string().min(5),
+  name: z.string().min(2, "Name is required"),
+  mobile: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
+  question: z.string().min(5, "Question must be at least 5 characters"),
+  address: z.string().min(5, "Address is required"),
 });
 
 export default function ContactPage() {
     const { user } = useUser();
+    const { toast } = useToast();
 
     const emailForm = useForm<z.infer<typeof emailFormSchema>>({
         resolver: zodResolver(emailFormSchema),
@@ -33,18 +36,20 @@ export default function ContactPage() {
 
     const smsForm = useForm<z.infer<typeof smsFormSchema>>({
         resolver: zodResolver(smsFormSchema),
-        defaultValues: { name: user?.name || '', mobile: user?.mobile || '', question: '' },
+        defaultValues: { name: user?.name || '', mobile: user?.mobile || '', question: '', address: user?.address || '' },
     });
 
     function onEmailSubmit(values: z.infer<typeof emailFormSchema>) {
         const subject = encodeURIComponent(`Contact Form Inquiry from ${values.name}`);
         const body = encodeURIComponent(values.message);
-        window.location.href = `mailto:mohitKansana82@gemali.com?subject=${subject}&body=${body}`;
+        window.location.href = `mailto:mohitkansana82@gmail.com?subject=${subject}&body=${body}`;
+        toast({ title: "Opening Email App", description: "Please complete sending the email in your email client." });
     }
 
     function onSmsSubmit(values: z.infer<typeof smsFormSchema>) {
-        const body = encodeURIComponent(`From ${values.name}: ${values.question}`);
+        const body = encodeURIComponent(`Query from ${values.name} (${values.address}): ${values.question}`);
         window.location.href = `sms:9694251069?body=${body}`;
+        toast({ title: "Opening SMS App", description: "Please complete sending the message in your SMS app." });
     }
 
   return (
@@ -52,7 +57,7 @@ export default function ContactPage() {
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">Contact Us</h1>
         <p className="text-muted-foreground">
-          Have a question? We'd love to hear from you.
+          Have a question? We'd love to hear from you. Reach out via email or SMS.
         </p>
       </div>
 
@@ -60,7 +65,7 @@ export default function ContactPage() {
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><Mail/> Email Us</CardTitle>
-                <CardDescription>Send us an email and we'll get back to you shortly.</CardDescription>
+                <CardDescription>Send us an email for detailed inquiries.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...emailForm}>
@@ -83,7 +88,7 @@ export default function ContactPage() {
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><MessageSquare/> Send an SMS</CardTitle>
-                <CardDescription>Send us a text message for a quick response.</CardDescription>
+                <CardDescription>Send a text for a quick response.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...smsForm}>
@@ -92,12 +97,15 @@ export default function ContactPage() {
                             <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="Your name" {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={smsForm.control} name="mobile" render={({ field }) => (
-                            <FormItem><FormLabel>Mobile</FormLabel><FormControl><Input type="tel" placeholder="Your mobile number" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Mobile</FormLabel><FormControl><Input type="tel" placeholder="Your 10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={smsForm.control} name="address" render={({ field }) => (
+                            <FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="Your address" {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={smsForm.control} name="question" render={({ field }) => (
                             <FormItem><FormLabel>Question</FormLabel><FormControl><Textarea placeholder="Your question..." {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
-                        <Button type="submit">Open SMS App</Button>
+                        <Button type="submit">Send SMS</Button>
                     </form>
                 </Form>
             </CardContent>
