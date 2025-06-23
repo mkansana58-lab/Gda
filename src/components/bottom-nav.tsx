@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, GraduationCap, FileText } from 'lucide-react';
+import { Home, BookOpen, GraduationCap, FilePen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
   { href: '/learning-hub', icon: BookOpen, label: 'Learn' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'Tutor' },
-  { href: '/plan-form', icon: FileText, label: 'Apply' },
+  { href: '/plan-form', icon: FilePen, label: 'Scholarship' },
 ];
 
 export function BottomNav() {

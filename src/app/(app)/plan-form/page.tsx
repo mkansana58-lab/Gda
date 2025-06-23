@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useRef } from 'react';
-import { Loader2, Mail, Download } from 'lucide-react';
+import { Loader2, Mail, Download, Send } from 'lucide-react';
 import { Certificate } from '@/components/certificate';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
@@ -28,7 +28,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function PlanFormPage() {
+export default function ScholarshipFormPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [submittedData, setSubmittedData] = useState<FormValues | null>(null);
   const { toast } = useToast();
@@ -63,37 +63,49 @@ export default function PlanFormPage() {
 
   const handleDownload = () => {
     if (certificateRef.current) {
-      html2canvas(certificateRef.current, { backgroundColor: null }).then((canvas) => {
+      html2canvas(certificateRef.current, { backgroundColor: null, scale: 2 }).then((canvas) => {
         const link = document.createElement('a');
-        link.download = 'certificate.png';
+        link.download = 'scholarship-certificate.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
+        toast({ title: 'Certificate Downloaded' });
       });
     }
   };
 
   const emailBody = submittedData ? encodeURIComponent(
-    `New Plan Application:\n\nExam: ${submittedData.exam}\nName: ${submittedData.name}\nAge: ${submittedData.age}\nClass: ${submittedData.class}\nSchool: ${submittedData.school}\nMobile: ${submittedData.mobile}\nEmail: ${submittedData.email}\nAddress: ${submittedData.address}`
+    `New Scholarship Application:\n\nExam: ${submittedData.exam}\nName: ${submittedData.name}\nAge: ${submittedData.age}\nClass: ${submittedData.class}\nSchool: ${submittedData.school}\nMobile: ${submittedData.mobile}\nEmail: ${submittedData.email}\nAddress: ${submittedData.address}\n\n---\nPlease find the certificate attached.`
   ) : '';
 
   if (submittedData) {
     return (
       <div className="flex flex-col items-center gap-6">
-        <div ref={certificateRef}>
+        <div ref={certificateRef} className="p-4 bg-background">
           <Certificate data={submittedData} />
         </div>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Button onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Download Certificate
-          </Button>
-          <Button asChild variant="outline">
-            <a href={`mailto:mohitKansana82@gemali.com?subject=New Plan Application&body=${emailBody}`}>
-              <Mail className="mr-2 h-4 w-4" />
-              Email to Academy
-            </a>
-          </Button>
-        </div>
+        <Card className="w-full max-w-2xl">
+            <CardHeader>
+                <CardTitle>Next Steps</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+                <p className="text-muted-foreground">
+                    Please download your certificate, then click 'Submit' to open your email app. You will need to manually attach the downloaded file.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                    <Button onClick={handleDownload}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Certificate
+                    </Button>
+                    <Button asChild>
+                        <a href={`mailto:mohitKansana82@gemali.com?subject=New Scholarship Application for ${submittedData.name}&body=${emailBody}`}>
+                        <Send className="mr-2 h-4 w-4" />
+                        सबमिट करें
+                        </a>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+
          <Button variant="link" onClick={() => setSubmittedData(null)}>Submit Another Application</Button>
       </div>
     );
@@ -102,8 +114,8 @@ export default function PlanFormPage() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Plan Application Form</CardTitle>
-        <CardDescription>Fill out the form to apply for an exam plan.</CardDescription>
+        <CardTitle className="font-headline text-2xl">Scholarship Application Form</CardTitle>
+        <CardDescription>Fill out the form to apply for a scholarship plan.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -197,7 +209,7 @@ export default function PlanFormPage() {
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit Application
+              Generate Certificate
             </Button>
           </form>
         </Form>

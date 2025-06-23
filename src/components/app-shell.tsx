@@ -5,13 +5,15 @@ import { usePathname } from 'next/navigation';
 import {
   BookOpen,
   Bot,
-  FileText,
+  FilePen,
   GraduationCap,
   Home,
   Phone,
   Scaling,
   ShieldCheck,
   ClipboardCheck,
+  Trophy,
+  Users,
 } from 'lucide-react';
 
 import {
@@ -34,12 +36,14 @@ import { BottomNav } from './bottom-nav';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Dashboard' },
-  { href: '/plan-form', icon: FileText, label: 'Plan Form' },
+  { href: '/plan-form', icon: FilePen, label: 'Scholarship Form' },
   { href: '/learning-hub', icon: BookOpen, label: 'Learning Hub' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI Tutor' },
   { href: '/ai-chat', icon: Bot, label: 'AI Chat' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI Test' },
   { href: '/cutoff-checker', icon: Scaling, label: 'Cut-Off Checker' },
+  { href: '/toppers', icon: Trophy, label: 'Toppers' },
+  { href: '/teachers', icon: Users, label: 'Teachers' },
   { href: '/contact', icon: Phone, label: 'Contact' },
 ];
 
@@ -93,9 +97,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               <AvatarImage src={user?.profilePhotoUrl} alt={user?.name ?? ''} />
               <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <p className="font-semibold text-sm">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+            <div className="flex flex-col overflow-hidden">
+              <p className="font-semibold text-sm truncate">{user?.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             </div>
           </div>
         </SidebarFooter>

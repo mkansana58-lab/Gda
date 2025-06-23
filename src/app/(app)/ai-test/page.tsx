@@ -5,15 +5,24 @@ import { generateAiTest, AiQuestion } from '@/ai/flows/generate-ai-test';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Timer, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, Timer, CheckCircle, XCircle, Crown } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/context/user-context';
 
 type TestStatus = 'not-started' | 'in-progress' | 'finished';
-
 const TEST_DURATION_SECONDS = 300; // 5 minutes
+
+interface Topper {
+  name: string;
+  score: number;
+  subject: string;
+  date: string;
+  photo: string;
+  hint: string;
+}
 
 export default function AiTestPage() {
   const [subject, setSubject] = useState('');
@@ -25,9 +34,9 @@ export default function AiTestPage() {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TEST_DURATION_SECONDS);
   const { toast } = useToast();
+  const { user } = useUser();
 
   const handleTestFinish = useCallback(() => {
-    setStatus('finished');
     let finalScore = 0;
     questions.forEach((q, index) => {
       if (q.correctAnswer === userAnswers[index]) {
@@ -35,7 +44,30 @@ export default function AiTestPage() {
       }
     });
     setScore(finalScore);
-  }, [questions, userAnswers]);
+    setStatus('finished');
+
+    // Update toppers list
+    if (user) {
+        const newTopper: Topper = {
+            name: user.name,
+            score: finalScore,
+            subject: subject,
+            date: new Date().toISOString(),
+            photo: user.profilePhotoUrl || 'https://placehold.co/100x100.png',
+            hint: 'student portrait'
+        };
+
+        const storedToppers = localStorage.getItem('ai-test-toppers');
+        const toppers: Topper[] = storedToppers ? JSON.parse(storedToppers) : [];
+        
+        toppers.push(newTopper);
+        toppers.sort((a, b) => b.score - a.score);
+        const top5 = toppers.slice(0, 5);
+
+        localStorage.setItem('ai-test-toppers', JSON.stringify(top5));
+    }
+
+  }, [questions, userAnswers, user, subject]);
 
 
   useEffect(() => {
@@ -45,7 +77,7 @@ export default function AiTestPage() {
       handleTestFinish();
       toast({
         title: "Time's up!",
-        description: "The test has ended.",
+        description: "The test has ended. See your results below.",
       });
       return;
     }
@@ -109,7 +141,7 @@ export default function AiTestPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-center justify-center gap-4 h-full">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <p className="text-muted-foreground">Generating your test, please wait...</p>
       </div>
@@ -124,11 +156,23 @@ export default function AiTestPage() {
                 <CardDescription>You scored {score} out of {questions.length} in {subject}.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+                {score > 3 && (
+                    <Alert variant="default" className="bg-green-100 dark:bg-green-900/30 border-green-500">
+                        <Crown className="h-4 w-4 text-green-600" />
+                        <AlertTitle>Excellent Work!</AlertTitle>
+                        <AlertDescription>
+                        You might have made it to the toppers list! Check the Hall of Fame.
+                        </AlertDescription>
+                    </Alert>
+                )}
                 {questions.map((q, index) => (
-                    <div key={index} className={`p-3 rounded-md ${userAnswers[index] === q.correctAnswer ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
-                        <p className="font-semibold">{index + 1}. {q.question}</p>
-                        <p className="text-sm text-muted-foreground">Your answer: {userAnswers[index] || 'Not answered'}</p>
-                        <p className="text-sm font-bold text-primary">Correct answer: {q.correctAnswer}</p>
+                    <div key={index} className={`p-3 rounded-md flex items-start gap-3 ${userAnswers[index] === q.correctAnswer ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                        {userAnswers[index] === q.correctAnswer ? <CheckCircle className="w-5 h-5 text-green-600 mt-1"/> : <XCircle className="w-5 h-5 text-red-600 mt-1"/>}
+                        <div>
+                            <p className="font-semibold">{index + 1}. {q.question}</p>
+                            <p className="text-sm text-muted-foreground">Your answer: <span className="font-medium">{userAnswers[index] || 'Not answered'}</span></p>
+                            <p className="text-sm font-bold text-primary">Correct answer: <span className="font-medium">{q.correctAnswer}</span></p>
+                        </div>
                     </div>
                 ))}
             </CardContent>
@@ -149,7 +193,7 @@ export default function AiTestPage() {
                     <CardTitle className="font-headline">{subject} Test</CardTitle>
                     <CardDescription>Question {currentQuestionIndex + 1} of {questions.length}</CardDescription>
                 </div>
-                <Badge variant="outline" className="flex items-center gap-2 text-lg">
+                <Badge variant="outline" className="flex items-center gap-2 text-lg py-2 px-4">
                     <Timer className="w-5 h-5"/>
                     {formatTime(timeLeft)}
                 </Badge>
@@ -163,7 +207,7 @@ export default function AiTestPage() {
                             key={option}
                             variant={userAnswers[currentQuestionIndex] === option ? 'default' : 'outline'}
                             onClick={() => handleAnswer(option)}
-                            className="justify-start h-auto py-3"
+                            className="justify-start h-auto py-3 text-left"
                         >
                             {option}
                         </Button>

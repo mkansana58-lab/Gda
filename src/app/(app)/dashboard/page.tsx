@@ -2,7 +2,7 @@
 import {
   BookOpen,
   Bot,
-  FileText,
+  FilePen,
   GraduationCap,
   Phone,
   Scaling,
@@ -16,9 +16,9 @@ import { useUser } from '@/context/user-context';
 
 const features = [
   {
-    title: 'Plan Form',
-    description: 'Apply for various exams.',
-    icon: FileText,
+    title: 'Scholarship Form',
+    description: 'Apply for scholarships.',
+    icon: FilePen,
     href: '/plan-form',
   },
   {
@@ -47,7 +47,7 @@ const features = [
   },
   {
     title: 'Cut-Off Checker',
-    description: 'View previous year cut-offs.',
+    description: 'Check selection chances.',
     icon: Scaling,
     href: '/cutoff-checker',
   },
@@ -85,7 +85,7 @@ export default function DashboardPage() {
         </p>
       </div>
       
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-3 md:grid-cols-3">
         {features.map((feature) => (
           <Link href={feature.href} key={feature.title}>
             <Card className="h-full hover:border-primary hover:shadow-lg transition-all duration-200 group aspect-square flex flex-col items-center justify-center text-center p-4">

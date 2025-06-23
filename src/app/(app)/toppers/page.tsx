@@ -1,32 +1,81 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Image from "next/image";
+'use client';
 
-const toppers = [
-  { name: 'Aarav Sharma', rank: 1, exam: 'RMS 2023', photo: 'https://placehold.co/100x100.png', hint: 'student portrait' },
-  { name: 'Priya Singh', rank: 2, exam: 'RIMC 2023', photo: 'https://placehold.co/100x100.png', hint: 'student smiling' },
-  { name: 'Rohan Verma', rank: 3, exam: 'Military School 2023', photo: 'https://placehold.co/100x100.png', hint: 'teenager portrait' },
-]
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Crown } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+interface Topper {
+  name: string;
+  score: number;
+  subject: string;
+  date: string;
+  photo: string;
+  hint: string;
+}
+
+const staticToppers: Topper[] = [
+  { name: 'Aarav Sharma', score: 5, subject: 'RMS 2023', date: '2023-01-01', photo: 'https://placehold.co/100x100.png', hint: 'student portrait' },
+  { name: 'Priya Singh', score: 5, subject: 'RIMC 2023', date: '2023-01-01', photo: 'https://placehold.co/100x100.png', hint: 'student smiling' },
+  { name: 'Rohan Verma', score: 5, subject: 'Military School 2023', date: '2023-01-01', photo: 'https://placehold.co/100x100.png', hint: 'teenager portrait' },
+];
+
 
 export default function ToppersPage() {
+  const [toppers, setToppers] = useState<Topper[]>([]);
+
+  useEffect(() => {
+    const storedToppers = localStorage.getItem('ai-test-toppers');
+    if (storedToppers) {
+      setToppers(JSON.parse(storedToppers));
+    } else {
+        setToppers(staticToppers);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">Hall of Fame</h1>
-        <p className="text-muted-foreground">Celebrating our top achievers.</p>
+        <p className="text-muted-foreground">Celebrating our top achievers from AI Tests and Exams.</p>
       </div>
 
+       <Alert>
+        <Crown className="h-4 w-4" />
+        <AlertTitle>AI Test Toppers!</AlertTitle>
+        <AlertDescription>
+          This list shows the top 5 performers from our AI-powered practice tests. Take a test to get on the leaderboard!
+        </AlertDescription>
+      </Alert>
+
+      {toppers.length === 0 && (
+         <Card>
+            <CardContent className="pt-6 text-center">
+                <p className="text-muted-foreground">No toppers from the AI Test yet. Be the first one!</p>
+            </CardContent>
+         </Card>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {toppers.map((topper) => (
-          <Card key={topper.name}>
+        {toppers.map((topper, index) => (
+          <Card key={`${topper.name}-${index}`} className="relative overflow-hidden">
+            {index < 3 && (
+                <Crown className={`absolute -top-4 -right-4 w-16 h-16 opacity-10 ${
+                    index === 0 ? 'text-yellow-400' : index === 1 ? 'text-slate-400' : 'text-amber-600'
+                }`} />
+            )}
             <CardContent className="pt-6 flex flex-col items-center text-center">
               <Avatar className="w-24 h-24 mb-4 border-4 border-primary/20">
                 <AvatarImage src={topper.photo} alt={topper.name} data-ai-hint={topper.hint} />
                 <AvatarFallback>{topper.name[0]}</AvatarFallback>
               </Avatar>
               <h3 className="text-xl font-bold font-headline">{topper.name}</h3>
-              <p className="text-muted-foreground">{topper.exam}</p>
-              <p className="text-2xl font-bold text-primary mt-2">Rank #{topper.rank}</p>
+              <p className="text-muted-foreground">{topper.subject}</p>
+              <p className="text-2xl font-bold text-primary mt-2">Score: {topper.score}/5</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {new Date(topper.date).toLocaleDateString()}
+              </p>
             </CardContent>
           </Card>
         ))}
