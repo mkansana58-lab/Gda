@@ -11,9 +11,16 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
 
 type TestStatus = 'not-started' | 'in-progress' | 'finished';
-const TEST_DURATION_SECONDS = 300; // 5 minutes
+const TEST_DURATION_SECONDS = 1800; // 30 minutes
+const TOTAL_QUESTIONS = 25;
 
 interface Topper {
   name: string;
@@ -24,8 +31,15 @@ interface Topper {
   hint: string;
 }
 
+const testSetupSchema = z.object({
+    name: z.string().min(2, "Name is required"),
+    mobile: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
+    class: z.string().min(1, "Class is required."),
+    subject: z.string().min(1, "Please select a subject."),
+});
+type TestSetupFormValues = z.infer<typeof testSetupSchema>;
+
 export default function AiTestPage() {
-  const [subject, setSubject] = useState('');
   const [questions, setQuestions] = useState<AiQuestion[]>([]);
   const [status, setStatus] = useState<TestStatus>('not-started');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +49,29 @@ export default function AiTestPage() {
   const [timeLeft, setTimeLeft] = useState(TEST_DURATION_SECONDS);
   const { toast } = useToast();
   const { user } = useUser();
+  const [testSubject, setTestSubject] = useState('');
+
+  const form = useForm<TestSetupFormValues>({
+      resolver: zodResolver(testSetupSchema),
+      defaultValues: {
+          name: user?.name || '',
+          mobile: user?.mobile || '',
+          class: '',
+          subject: '',
+      },
+  });
+
+  useEffect(() => {
+      if (user) {
+          form.reset({
+              name: user.name,
+              mobile: user.mobile,
+              class: '',
+              subject: '',
+          });
+      }
+  }, [user, form]);
+
 
   const handleTestFinish = useCallback(() => {
     let finalScore = 0;
@@ -51,7 +88,7 @@ export default function AiTestPage() {
         const newTopper: Topper = {
             name: user.name,
             score: finalScore,
-            subject: subject,
+            subject: testSubject,
             date: new Date().toISOString(),
             photo: user.profilePhotoUrl || 'https://placehold.co/100x100.png',
             hint: 'student portrait'
@@ -67,7 +104,7 @@ export default function AiTestPage() {
         localStorage.setItem('ai-test-toppers', JSON.stringify(top5));
     }
 
-  }, [questions, userAnswers, user, subject]);
+  }, [questions, userAnswers, user, testSubject]);
 
 
   useEffect(() => {
@@ -89,14 +126,11 @@ export default function AiTestPage() {
     return () => clearInterval(timer);
   }, [status, timeLeft, handleTestFinish, toast]);
 
-  const startTest = async () => {
-    if (!subject) {
-        toast({ variant: 'destructive', title: 'Please select a subject.'});
-        return;
-    }
+  const startTest = async (values: TestSetupFormValues) => {
     setIsLoading(true);
+    setTestSubject(values.subject);
     try {
-      const result = await generateAiTest({ subject });
+      const result = await generateAiTest({ subject: values.subject });
       if (result.questions && result.questions.length > 0) {
         setQuestions(result.questions);
         setStatus('in-progress');
@@ -104,9 +138,11 @@ export default function AiTestPage() {
         setUserAnswers(new Array(result.questions.length).fill(''));
         setTimeLeft(TEST_DURATION_SECONDS);
         setScore(0);
+      } else {
+         toast({ variant: 'destructive', title: 'Failed to generate test.', description: 'No questions were returned. Please try again.'});
       }
     } catch (e) {
-      toast({ variant: 'destructive', title: 'Failed to generate test.', description: 'Please try again later.'});
+      toast({ variant: 'destructive', title: 'Failed to generate test.', description: 'An error occurred. Please check your API key and try again.'});
     } finally {
       setIsLoading(false);
     }
@@ -128,9 +164,10 @@ export default function AiTestPage() {
 
   const resetTest = () => {
     setStatus('not-started');
-    setSubject('');
+    setTestSubject('');
     setQuestions([]);
     setIsLoading(false);
+    form.reset();
   }
 
   const formatTime = (seconds: number) => {
@@ -152,14 +189,14 @@ export default function AiTestPage() {
     return (
         <Card className="w-full max-w-2xl mx-auto animate-in fade-in">
             <CardHeader>
-                <CardTitle className="font-headline text-2xl">Test Results</CardTitle>
-                <CardDescription>You scored {score} out of {questions.length} in {subject}.</CardDescription>
+                <CardTitle className="font-headline text-2xl">Test Results / परीक्षा परिणाम</CardTitle>
+                <CardDescription>You scored {score} out of {TOTAL_QUESTIONS} in {testSubject}.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                {score > 3 && (
+                {score > (TOTAL_QUESTIONS * 0.8) && (
                     <Alert variant="default" className="bg-green-100 dark:bg-green-900/30 border-green-500">
                         <Crown className="h-4 w-4 text-green-600" />
-                        <AlertTitle>Excellent Work!</AlertTitle>
+                        <AlertTitle>Excellent Work! / बहुत बढ़िया!</AlertTitle>
                         <AlertDescription>
                         You might have made it to the toppers list! Check the Hall of Fame.
                         </AlertDescription>
@@ -177,7 +214,7 @@ export default function AiTestPage() {
                 ))}
             </CardContent>
             <CardFooter>
-                <Button onClick={resetTest}>Take Another Test</Button>
+                <Button onClick={resetTest}>दूसरा टेस्ट दें</Button>
             </CardFooter>
         </Card>
     )
@@ -190,7 +227,7 @@ export default function AiTestPage() {
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle className="font-headline">{subject} Test</CardTitle>
+                    <CardTitle className="font-headline">{testSubject} Test</CardTitle>
                     <CardDescription>Question {currentQuestionIndex + 1} of {questions.length}</CardDescription>
                 </div>
                 <Badge variant="outline" className="flex items-center gap-2 text-lg py-2 px-4">
@@ -215,8 +252,9 @@ export default function AiTestPage() {
                 </div>
             </CardContent>
             <CardFooter className="justify-end">
+                 <Button onClick={handleTestFinish} variant="secondary" className="mr-auto">जल्दी सबमिट करें</Button>
                 <Button onClick={goToNextQuestion} disabled={!userAnswers[currentQuestionIndex]}>
-                    {currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Finish Test'}
+                    {currentQuestionIndex < questions.length - 1 ? 'अगला प्रश्न' : 'टेस्ट खत्म करें'}
                 </Button>
             </CardFooter>
         </Card>
@@ -229,42 +267,56 @@ export default function AiTestPage() {
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">AI Test Center</h1>
         <p className="text-muted-foreground">
-          Select a subject and start a timed test generated by AI.
+          Fill in your details and start a timed test generated by AI.
         </p>
       </div>
 
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle className="font-headline">Start a New Test</CardTitle>
-          <CardDescription>Choose a subject to begin.</CardDescription>
+          <CardTitle className="font-headline">Start a New Test / नया टेस्ट शुरू करें</CardTitle>
+          <CardDescription>Fill in your details to begin.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Select onValueChange={setSubject} value={subject}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a subject" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Maths">Maths</SelectItem>
-              <SelectItem value="Science">Science</SelectItem>
-              <SelectItem value="History">History</SelectItem>
-              <SelectItem value="Geography">Geography</SelectItem>
-              <SelectItem value="General Knowledge">General Knowledge</SelectItem>
-            </SelectContent>
-          </Select>
-          <Alert>
-            <Timer className="h-4 w-4" />
-            <AlertTitle>Timed Test</AlertTitle>
-            <AlertDescription>
-              You will have 5 minutes to complete 5 questions.
-            </AlertDescription>
-          </Alert>
+        <CardContent>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(startTest)} className="space-y-4">
+                    <FormField control={form.control} name="name" render={({ field }) => (
+                        <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="Your name" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="mobile" render={({ field }) => (
+                        <FormItem><FormLabel>Mobile</FormLabel><FormControl><Input type="tel" placeholder="Your mobile number" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="class" render={({ field }) => (
+                        <FormItem><FormLabel>Class</FormLabel><FormControl><Input placeholder="e.g., 9th" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="subject" render={({ field }) => (
+                        <FormItem><FormLabel>Subject</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Maths">Maths</SelectItem>
+                                    <SelectItem value="Science">Science</SelectItem>
+                                    <SelectItem value="History">History</SelectItem>
+                                    <SelectItem value="Geography">Geography</SelectItem>
+                                    <SelectItem value="General Knowledge">General Knowledge</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        <FormMessage /></FormItem>
+                    )} />
+
+                    <Alert>
+                        <Timer className="h-4 w-4" />
+                        <AlertTitle>Timed Test</AlertTitle>
+                        <AlertDescription>
+                        You will have {TEST_DURATION_SECONDS / 60} minutes to complete {TOTAL_QUESTIONS} questions.
+                        </AlertDescription>
+                    </Alert>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        टेस्ट शुरू करें
+                    </Button>
+                </form>
+            </Form>
         </CardContent>
-        <CardFooter>
-          <Button onClick={startTest} className="w-full" disabled={!subject || isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Start Test
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

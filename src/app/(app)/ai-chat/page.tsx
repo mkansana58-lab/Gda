@@ -13,7 +13,7 @@ const initialState: { output: CheckScholarshipResultOutput | null; error?: strin
 };
 
 export default function AiChatPage() {
-  const [state, formAction] = useActionState(async (_prevState: any, formData: FormData) => {
+  const [state, formAction, isSubmitting] = useActionState(async (_prevState: any, formData: FormData) => {
     const rollNumber = formData.get('rollNumber') as string;
     if (!rollNumber) {
       return { output: null, error: 'Please enter a roll number.' };
@@ -22,11 +22,10 @@ export default function AiChatPage() {
       const output = await checkScholarshipResult({ rollNumber });
       return { output };
     } catch (e: any) {
-      return { output: null, error: e.message || 'An unexpected error occurred.' };
+      return { output: null, error: e.message || 'An unexpected error occurred. Check your API Key.' };
     }
   }, initialState);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isPass = state.output?.result.toLowerCase().includes('pass');
 
@@ -40,14 +39,7 @@ export default function AiChatPage() {
       </div>
 
       <Card>
-        <form
-          action={(formData) => {
-            setIsSubmitting(true);
-            formAction(formData);
-          }}
-          onSubmit={() => setIsSubmitting(true)}
-          onChange={() => setIsSubmitting(false)}
-        >
+        <form action={formAction}>
           <CardHeader>
             <CardTitle className="font-headline">Check Your Result</CardTitle>
             <CardDescription>

@@ -23,7 +23,7 @@ const QuestionSchema = z.object({
 });
 
 const GenerateAiTestOutputSchema = z.object({
-    questions: z.array(QuestionSchema).describe('An array of 5 questions for the test.'),
+    questions: z.array(QuestionSchema).describe('An array of 25 questions for the test.'),
 });
 export type GenerateAiTestOutput = z.infer<typeof GenerateAiTestOutputSchema>;
 export type AiQuestion = z.infer<typeof QuestionSchema>;
@@ -37,9 +37,9 @@ const prompt = ai.definePrompt({
   name: 'generateAiTestPrompt',
   input: {schema: GenerateAiTestInputSchema},
   output: {schema: GenerateAiTestOutputSchema},
-  prompt: `You are an expert test creator for students. Generate a 5-question multiple-choice test for the following subject: {{{subject}}}.
+  prompt: `You are an expert test creator for students. Generate a 25-question multiple-choice test for the following subject: {{{subject}}}.
   Each question must have 4 options, and you must specify the correct answer.
-  The questions should be suitable for students in grades 6-9.
+  The questions should be suitable for students in grades 6-9 preparing for competitive exams like RMS, RIMC, and JNV. The questions should be challenging and cover a range of topics within the subject.
   Ensure the response is a valid JSON object matching the output schema.
   `,
 });

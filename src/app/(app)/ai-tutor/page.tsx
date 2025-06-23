@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useActionState } from 'react';
+import { useActionState } from 'react';
 import { askAcademicQuestion, AskAcademicQuestionOutput } from '@/ai/flows/academic-question-tutor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,7 @@ const initialState: { output: AskAcademicQuestionOutput | null; error?: string }
 };
 
 export default function AiTutorPage() {
-  const [state, formAction] = useActionState(async (_prevState: any, formData: FormData) => {
+  const [state, formAction, isSubmitting] = useActionState(async (_prevState: any, formData: FormData) => {
     const question = formData.get('question') as string;
     if (!question) {
       return { output: null, error: 'Please enter a question.' };
@@ -23,11 +23,10 @@ export default function AiTutorPage() {
       const output = await askAcademicQuestion({ question });
       return { output };
     } catch (e: any) {
-      return { output: null, error: e.message || 'An unexpected error occurred.' };
+      return { output: null, error: e.message || 'An unexpected error occurred. Check your API Key.' };
     }
   }, initialState);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <div className="flex flex-col gap-8">
@@ -39,14 +38,7 @@ export default function AiTutorPage() {
       </div>
 
       <Card>
-        <form
-          action={(formData) => {
-            setIsSubmitting(true);
-            formAction(formData);
-          }}
-          onSubmit={() => setIsSubmitting(true)}
-          onChange={() => setIsSubmitting(false)}
-        >
+        <form action={formAction}>
           <CardHeader>
             <CardTitle className="font-headline">अपना शैक्षणिक सवाल पूछें</CardTitle>
             <CardDescription>Enter your question below to get a detailed answer.</CardDescription>

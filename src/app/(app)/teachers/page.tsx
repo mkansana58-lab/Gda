@@ -2,40 +2,19 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const teachers = [
-  { 
-    name: 'Mr. Lokesh Goswami', 
-    subject: 'Mathematics & Founder', 
+  {
+    name: 'Mr. Lokesh Goswami',
+    subject: 'Mathematics & Founder',
     experience: 'A visionary educator with over a decade of experience, Mr. Goswami founded the academy to provide top-tier defence coaching.',
-    photo: 'https://placehold.co/100x100.png', 
-    hint: 'male teacher' 
+    photo: 'https://placehold.co/100x100.png',
+    hint: 'male teacher'
   },
-  { 
-    name: 'Mr. Dinesh Tyagi (D.C. Tyagi)', 
-    subject: 'English', 
+  {
+    name: 'Mr. Dinesh Tyagi (D.C. Tyagi)',
+    subject: 'English',
     experience: 'With profound knowledge and innovative teaching methods, Mr. Tyagi makes learning English grammar and literature an engaging experience.',
-    photo: 'https://placehold.co/100x100.png', 
-    hint: 'man portrait' 
-  },
-  { 
-    name: 'Mr. Rajesh Kumar', 
-    subject: 'Mathematics', 
-    experience: '15+ Years', 
-    photo: 'https://placehold.co/100x100.png', 
-    hint: 'male teacher professional' 
-  },
-  { 
-    name: 'Mrs. Sunita Devi', 
-    subject: 'Science', 
-    experience: '12+ Years', 
-    photo: 'https://placehold.co/100x100.png', 
-    hint: 'female teacher professional' 
-  },
-  { 
-    name: 'Mr. Vikram Singh', 
-    subject: 'General Knowledge', 
-    experience: '20+ Years (Retd. Army Officer)', 
-    photo: 'https://placehold.co/100x100.png', 
-    hint: 'older man portrait'
+    photo: 'https://placehold.co/100x100.png',
+    hint: 'man portrait'
   },
 ]
 
@@ -47,7 +26,7 @@ export default function TeachersPage() {
         <p className="text-muted-foreground">Meet the experts behind our success.</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         {teachers.map((teacher) => (
           <Card key={teacher.name} className="flex flex-col">
              <CardContent className="pt-6 flex flex-col items-center text-center flex-grow">
