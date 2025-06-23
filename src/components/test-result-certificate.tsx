@@ -52,8 +52,8 @@ export function TestResultCertificate({
 
 
             <div className="text-center mb-6">
-                <div className="inline-block p-3 bg-blue-600/10 rounded-full mb-2">
-                    <ShieldCheck className="h-16 w-16 text-blue-600" />
+                <div className="inline-block p-4 bg-blue-600 rounded-full mb-2 shadow-inner">
+                    <ShieldCheck className="h-16 w-16 text-white" />
                 </div>
                 <h1 className="font-headline text-4xl font-bold text-blue-800 dark:text-blue-300">गो स्वामी डिफेंस एकेडमी</h1>
                 <p className="text-muted-foreground font-semibold">"राष्ट्र प्रथम, शिक्षा सर्वोपरि"</p>
@@ -91,7 +91,7 @@ export function TestResultCertificate({
                     <Award className="h-12 w-12 text-yellow-500 mx-auto" />
                 </div>
                 <div className="text-center">
-                    <p className="font-headline font-bold text-2xl italic text-blue-600/80">गो स्वामी</p>
+                    <p className="font-signature font-bold text-3xl text-gray-800 dark:text-gray-300">Lokesh Goswami</p>
                     <Separator className="my-1 bg-foreground/50"/>
                     <p className="text-sm text-muted-foreground">निदेशक</p>
                 </div>

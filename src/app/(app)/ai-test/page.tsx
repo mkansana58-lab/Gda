@@ -23,8 +23,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 type TestStatus = 'not-started' | 'in-progress' | 'finished';
-const TEST_DURATION_SECONDS = 1800; // 30 minutes
-const TOTAL_QUESTIONS = 25;
+const TEST_DURATION_SECONDS = 900; // 15 minutes
+const TOTAL_QUESTIONS = 10;
 
 interface Topper {
   name: string;
@@ -99,9 +99,9 @@ export default function AiTestPage() {
     const percentage = (finalScore / questions.length) * 100;
     let performanceStatus: 'पास' | 'औसत' | 'फेल';
 
-    if (finalScore > 20) {
+    if (percentage >= 80) {
         performanceStatus = 'पास';
-    } else if (finalScore >= 16) {
+    } else if (percentage >= 50) {
         performanceStatus = 'औसत';
     } else {
         performanceStatus = 'फेल';
