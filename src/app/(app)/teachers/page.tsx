@@ -3,16 +3,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const teachers = [
   {
-    name: 'Mr. Lokesh Goswami',
-    subject: 'Mathematics & Founder',
-    experience: 'A visionary educator with over a decade of experience, Mr. Goswami founded the academy to provide top-tier defence coaching.',
+    name: 'श्री लोकेश गोस्वामी',
+    subject: 'गणित और संस्थापक',
+    experience: 'एक दशक से अधिक के अनुभव के साथ एक दूरदर्शी शिक्षक, श्री गोस्वामी ने शीर्ष स्तरीय रक्षा कोचिंग प्रदान करने के लिए अकादमी की स्थापना की।',
     photo: 'https://placehold.co/100x100.png',
     hint: 'male teacher'
   },
   {
-    name: 'Mr. Dinesh Tyagi (D.C. Tyagi)',
-    subject: 'English',
-    experience: 'With profound knowledge and innovative teaching methods, Mr. Tyagi makes learning English grammar and literature an engaging experience.',
+    name: 'श्री दिनेश त्यागी (डी.सी. त्यागी)',
+    subject: 'अंग्रेजी',
+    experience: 'गहन ज्ञान और नवीन शिक्षण विधियों के साथ, श्री त्यागी अंग्रेजी व्याकरण और साहित्य सीखने को एक आकर्षक अनुभव बनाते हैं।',
     photo: 'https://placehold.co/100x100.png',
     hint: 'man portrait'
   },
@@ -22,8 +22,8 @@ export default function TeachersPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Our Faculty</h1>
-        <p className="text-muted-foreground">Meet the experts behind our success.</p>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">हमारे शिक्षक</h1>
+        <p className="text-muted-foreground">हमारी सफलता के पीछे के विशेषज्ञों से मिलें।</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

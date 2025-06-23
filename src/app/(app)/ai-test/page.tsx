@@ -32,10 +32,10 @@ interface Topper {
 }
 
 const testSetupSchema = z.object({
-    name: z.string().min(2, "Name is required"),
-    mobile: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
-    class: z.string().min(1, "Class is required."),
-    subject: z.string().min(1, "Please select a subject."),
+    name: z.string().min(2, "नाम आवश्यक है"),
+    mobile: z.string().regex(/^\d{10}$/, "कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।"),
+    class: z.string().min(1, "कक्षा आवश्यक है।"),
+    subject: z.string().min(1, "कृपया एक विषय चुनें।"),
 });
 type TestSetupFormValues = z.infer<typeof testSetupSchema>;
 
@@ -83,7 +83,6 @@ export default function AiTestPage() {
     setScore(finalScore);
     setStatus('finished');
 
-    // Update toppers list
     if (user) {
         const newTopper: Topper = {
             name: user.name,
@@ -113,8 +112,8 @@ export default function AiTestPage() {
     if (timeLeft <= 0) {
       handleTestFinish();
       toast({
-        title: "Time's up!",
-        description: "The test has ended. See your results below.",
+        title: "समय समाप्त!",
+        description: "परीक्षा समाप्त हो गई है। अपने परिणाम नीचे देखें।",
       });
       return;
     }
@@ -139,10 +138,10 @@ export default function AiTestPage() {
         setTimeLeft(TEST_DURATION_SECONDS);
         setScore(0);
       } else {
-         toast({ variant: 'destructive', title: 'Failed to generate test.', description: 'No questions were returned. Please try again.'});
+         toast({ variant: 'destructive', title: 'परीक्षा उत्पन्न करने में विफल।', description: 'कोई प्रश्न वापस नहीं किया गया। कृपया पुनः प्रयास करें।'});
       }
     } catch (e) {
-      toast({ variant: 'destructive', title: 'Failed to generate test.', description: 'An error occurred. Please check your API key and try again.'});
+      toast({ variant: 'destructive', title: 'परीक्षा उत्पन्न करने में विफल।', description: 'एक त्रुटि हुई। कृपया अपनी API कुंजी जांचें और पुनः प्रयास करें।'});
     } finally {
       setIsLoading(false);
     }
@@ -180,7 +179,7 @@ export default function AiTestPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 h-full">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="text-muted-foreground">Generating your test, please wait...</p>
+        <p className="text-muted-foreground">आपकी परीक्षा तैयार हो रही है, कृपया प्रतीक्षा करें...</p>
       </div>
     );
   }
@@ -189,16 +188,16 @@ export default function AiTestPage() {
     return (
         <Card className="w-full max-w-2xl mx-auto animate-in fade-in">
             <CardHeader>
-                <CardTitle className="font-headline text-2xl">Test Results / परीक्षा परिणाम</CardTitle>
-                <CardDescription>You scored {score} out of {TOTAL_QUESTIONS} in {testSubject}.</CardDescription>
+                <CardTitle className="font-headline text-2xl">परीक्षा परिणाम</CardTitle>
+                <CardDescription>{testSubject} में {TOTAL_QUESTIONS} में से {score} अंक प्राप्त हुए।</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 {score > (TOTAL_QUESTIONS * 0.8) && (
                     <Alert variant="default" className="bg-green-100 dark:bg-green-900/30 border-green-500">
                         <Crown className="h-4 w-4 text-green-600" />
-                        <AlertTitle>Excellent Work! / बहुत बढ़िया!</AlertTitle>
+                        <AlertTitle>बहुत बढ़िया!</AlertTitle>
                         <AlertDescription>
-                        You might have made it to the toppers list! Check the Hall of Fame.
+                        आप टॉपर्स सूची में जगह बना सकते हैं! हॉल ऑफ फेम देखें।
                         </AlertDescription>
                     </Alert>
                 )}
@@ -207,8 +206,8 @@ export default function AiTestPage() {
                         {userAnswers[index] === q.correctAnswer ? <CheckCircle className="w-5 h-5 text-green-600 mt-1"/> : <XCircle className="w-5 h-5 text-red-600 mt-1"/>}
                         <div>
                             <p className="font-semibold">{index + 1}. {q.question}</p>
-                            <p className="text-sm text-muted-foreground">Your answer: <span className="font-medium">{userAnswers[index] || 'Not answered'}</span></p>
-                            <p className="text-sm font-bold text-primary">Correct answer: <span className="font-medium">{q.correctAnswer}</span></p>
+                            <p className="text-sm text-muted-foreground">आपका उत्तर: <span className="font-medium">{userAnswers[index] || 'उत्तर नहीं दिया'}</span></p>
+                            <p className="text-sm font-bold text-primary">सही उत्तर: <span className="font-medium">{q.correctAnswer}</span></p>
                         </div>
                     </div>
                 ))}
@@ -227,8 +226,8 @@ export default function AiTestPage() {
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle className="font-headline">{testSubject} Test</CardTitle>
-                    <CardDescription>Question {currentQuestionIndex + 1} of {questions.length}</CardDescription>
+                    <CardTitle className="font-headline">{testSubject} परीक्षा</CardTitle>
+                    <CardDescription>प्रश्न {currentQuestionIndex + 1} / {questions.length}</CardDescription>
                 </div>
                 <Badge variant="outline" className="flex items-center gap-2 text-lg py-2 px-4">
                     <Timer className="w-5 h-5"/>
@@ -265,39 +264,39 @@ export default function AiTestPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">AI Test Center</h1>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">AI टेस्ट सेंटर</h1>
         <p className="text-muted-foreground">
-          Fill in your details and start a timed test generated by AI.
+          अपना विवरण भरें और AI द्वारा उत्पन्न एक समयबद्ध परीक्षा शुरू करें।
         </p>
       </div>
 
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle className="font-headline">Start a New Test / नया टेस्ट शुरू करें</CardTitle>
-          <CardDescription>Fill in your details to begin.</CardDescription>
+          <CardTitle className="font-headline">नया टेस्ट शुरू करें</CardTitle>
+          <CardDescription>शुरू करने के लिए अपना विवरण भरें।</CardDescription>
         </CardHeader>
         <CardContent>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(startTest)} className="space-y-4">
                     <FormField control={form.control} name="name" render={({ field }) => (
-                        <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="Your name" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>नाम</FormLabel><FormControl><Input placeholder="आपका नाम" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="mobile" render={({ field }) => (
-                        <FormItem><FormLabel>Mobile</FormLabel><FormControl><Input type="tel" placeholder="Your mobile number" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>मोबाइल</FormLabel><FormControl><Input type="tel" placeholder="आपका मोबाइल नंबर" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="class" render={({ field }) => (
-                        <FormItem><FormLabel>Class</FormLabel><FormControl><Input placeholder="e.g., 9th" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>कक्षा</FormLabel><FormControl><Input placeholder="जैसे, 9वीं" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="subject" render={({ field }) => (
-                        <FormItem><FormLabel>Subject</FormLabel>
+                        <FormItem><FormLabel>विषय</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger></FormControl>
+                                <FormControl><SelectTrigger><SelectValue placeholder="एक विषय चुनें" /></SelectTrigger></FormControl>
                                 <SelectContent>
-                                    <SelectItem value="Maths">Maths</SelectItem>
-                                    <SelectItem value="Science">Science</SelectItem>
-                                    <SelectItem value="History">History</SelectItem>
-                                    <SelectItem value="Geography">Geography</SelectItem>
-                                    <SelectItem value="General Knowledge">General Knowledge</SelectItem>
+                                    <SelectItem value="Maths">गणित</SelectItem>
+                                    <SelectItem value="Science">विज्ञान</SelectItem>
+                                    <SelectItem value="History">इतिहास</SelectItem>
+                                    <SelectItem value="Geography">भूगोल</SelectItem>
+                                    <SelectItem value="General Knowledge">सामान्य ज्ञान</SelectItem>
                                 </SelectContent>
                             </Select>
                         <FormMessage /></FormItem>
@@ -305,9 +304,9 @@ export default function AiTestPage() {
 
                     <Alert>
                         <Timer className="h-4 w-4" />
-                        <AlertTitle>Timed Test</AlertTitle>
+                        <AlertTitle>समयबद्ध परीक्षा</AlertTitle>
                         <AlertDescription>
-                        You will have {TEST_DURATION_SECONDS / 60} minutes to complete {TOTAL_QUESTIONS} questions.
+                        आपको {TOTAL_QUESTIONS} प्रश्नों को पूरा करने के लिए {TEST_DURATION_SECONDS / 60} मिनट का समय मिलेगा।
                         </AlertDescription>
                     </Alert>
                     <Button type="submit" className="w-full" disabled={isLoading}>

@@ -31,9 +31,9 @@ export default function AiTutorPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">AI Tutor</h1>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">AI ट्यूटर</h1>
         <p className="text-muted-foreground">
-          Ask any academic question and get an instant answer in Hindi.
+          कोई भी शैक्षणिक प्रश्न पूछें और तुरंत हिंदी में उत्तर पाएं।
         </p>
       </div>
 
@@ -41,15 +41,15 @@ export default function AiTutorPage() {
         <form action={formAction}>
           <CardHeader>
             <CardTitle className="font-headline">अपना शैक्षणिक सवाल पूछें</CardTitle>
-            <CardDescription>Enter your question below to get a detailed answer.</CardDescription>
+            <CardDescription>विस्तृत उत्तर पाने के लिए अपना प्रश्न नीचे दर्ज करें।</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid w-full gap-2">
-              <Label htmlFor="question-input" className="sr-only">Question</Label>
+              <Label htmlFor="question-input" className="sr-only">प्रश्न</Label>
               <Textarea
                 id="question-input"
                 name="question"
-                placeholder="Type your question here..."
+                placeholder="अपना प्रश्न यहाँ लिखें..."
                 rows={4}
                 required
               />

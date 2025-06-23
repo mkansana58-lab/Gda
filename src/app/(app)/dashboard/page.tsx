@@ -18,56 +18,56 @@ import { Button } from '@/components/ui/button';
 
 const features = [
   {
-    title: 'Scholarship Form',
-    description: 'Apply for scholarships.',
+    title: 'छात्रवृत्ति फॉर्म',
+    description: 'छात्रवृत्ति के लिए आवेदन करें।',
     icon: FilePen,
     href: '/plan-form',
   },
   {
-    title: 'Learning Hub',
-    description: 'Access classes & materials.',
+    title: 'लर्निंग हब',
+    description: 'कक्षाएं और सामग्री प्राप्त करें।',
     icon: BookOpen,
     href: '/learning-hub',
   },
   {
-    title: 'AI Tutor',
-    description: 'Get answers to your questions.',
+    title: 'AI ट्यूटर',
+    description: 'अपने सवालों के जवाब पाएं।',
     icon: GraduationCap,
     href: '/ai-tutor',
   },
   {
-    title: 'AI Chat',
-    description: 'Check your scholarship results.',
+    title: 'AI चैट',
+    description: 'अपनी छात्रवृत्ति का परिणाम जांचें।',
     icon: Bot,
     href: '/ai-chat',
   },
   {
-    title: 'AI Test',
-    description: 'Take a practice test.',
+    title: 'AI टेस्ट',
+    description: 'एक अभ्यास परीक्षा दें।',
     icon: ClipboardCheck,
     href: '/ai-test',
   },
   {
-    title: 'Cut-Off Checker',
-    description: 'Check selection chances.',
+    title: 'कट-ऑफ चेकर',
+    description: 'चयन की संभावनाएं जांचें।',
     icon: Scaling,
     href: '/cutoff-checker',
   },
   {
-    title: "Toppers List",
-    description: "See our top performing students.",
+    title: "टॉपर्स की सूची",
+    description: "हमारे शीर्ष छात्रों को देखें।",
     icon: Trophy,
     href: "/toppers",
   },
   {
-    title: "Our Teachers",
-    description: "Meet our expert faculty.",
+    title: "हमारे शिक्षक",
+    description: "हमारे विशेषज्ञ शिक्षकों से मिलें।",
     icon: Users,
     href: "/teachers",
   },
   {
-    title: 'Contact Us',
-    description: 'Get in touch with us.',
+    title: 'हमसे संपर्क करें',
+    description: 'हमसे संपर्क में रहें।',
     icon: Phone,
     href: '/contact',
   },
@@ -80,7 +80,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">
-          Welcome back, {user?.name?.split(' ')[0]}!
+          वापसी पर स्वागत है, {user?.name?.split(' ')[0]}!
         </h1>
         <div className="w-full overflow-hidden whitespace-nowrap mt-2">
             <p className="marquee-text text-muted-foreground">
@@ -110,8 +110,8 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <MessageCircle className="w-12 h-12" />
             <div>
-              <h3 className="text-xl font-bold font-headline">Join our Community!</h3>
-              <p className="opacity-90">Get updates, notes, and interact with peers on WhatsApp.</p>
+              <h3 className="text-xl font-bold font-headline">हमारे समुदाय में शामिल हों!</h3>
+              <p className="opacity-90">व्हाट्सएप पर अपडेट, नोट्स प्राप्त करें और साथियों के साथ बातचीत करें।</p>
             </div>
           </div>
           <Button
@@ -119,7 +119,7 @@ export default function DashboardPage() {
             className="bg-white text-green-600 hover:bg-gray-100 font-bold sm:w-auto w-full"
           >
             <a href="https://chat.whatsapp.com/H36NUumZ77h9QfyOSncJAR" target="_blank" rel="noopener noreferrer">
-              Join WhatsApp Group
+              व्हाट्सएप ग्रुप में शामिल हों
             </a>
           </Button>
         </CardContent>

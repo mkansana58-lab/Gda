@@ -35,16 +35,16 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { BottomNav } from './bottom-nav';
 
 const navItems = [
-  { href: '/dashboard', icon: Home, label: 'Dashboard' },
-  { href: '/plan-form', icon: FilePen, label: 'Scholarship Form' },
-  { href: '/learning-hub', icon: BookOpen, label: 'Learning Hub' },
-  { href: '/ai-tutor', icon: GraduationCap, label: 'AI Tutor' },
-  { href: '/ai-chat', icon: Bot, label: 'AI Chat' },
-  { href: '/ai-test', icon: ClipboardCheck, label: 'AI Test' },
-  { href: '/cutoff-checker', icon: Scaling, label: 'Cut-Off Checker' },
-  { href: '/toppers', icon: Trophy, label: 'Toppers' },
-  { href: '/teachers', icon: Users, label: 'Teachers' },
-  { href: '/contact', icon: Phone, label: 'Contact' },
+  { href: '/dashboard', icon: Home, label: 'डैशबोर्ड' },
+  { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
+  { href: '/learning-hub', icon: BookOpen, label: 'लर्निंग हब' },
+  { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
+  { href: '/ai-chat', icon: Bot, label: 'AI चैट' },
+  { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
+  { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
+  { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
+  { href: '/teachers', icon: Users, label: 'शिक्षक' },
+  { href: '/contact', icon: Phone, label: 'संपर्क' },
 ];
 
 function AppShellContent({ children }: { children: React.ReactNode }) {
@@ -65,9 +65,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3 p-2">
             <ShieldCheck className="h-8 w-8 text-primary" />
             <div className="flex flex-col">
-              <h2 className="font-headline text-lg font-semibold">Go Swami</h2>
+              <h2 className="font-headline text-lg font-semibold">गो स्वामी</h2>
               <p className="text-xs text-muted-foreground -mt-1">
-                Defence Academy
+                डिफेंस एकेडमी
               </p>
             </div>
           </div>

@@ -13,7 +13,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AskAcademicQuestionInputSchema = z.object({
-  question: z.string().describe('The academic question to be answered.'),
+  question: z.string().describe('The academic question to be answered in Hindi.'),
 });
 export type AskAcademicQuestionInput = z.infer<typeof AskAcademicQuestionInputSchema>;
 
@@ -32,11 +32,11 @@ const prompt = ai.definePrompt({
   name: 'askAcademicQuestionPrompt',
   input: {schema: AskAcademicQuestionInputSchema},
   output: {schema: AskAcademicQuestionOutputSchema},
-  prompt: `You are a helpful AI assistant that answers questions in Hindi. For any given question, provide an answer in Hindi. If the question is academic, also determine its subject and difficulty level (e.g., Easy, Medium, Hard). If the question is not academic, set the subject to 'General' and the difficulty level to 'N/A'.
+  prompt: `आप एक सहायक AI सहायक हैं जो हिंदी में सवालों के जवाब देते हैं। किसी भी प्रश्न के लिए, हिंदी में उत्तर प्रदान करें। यदि प्रश्न अकादमिक है, तो उसका विषय और कठिनाई स्तर (जैसे, आसान, मध्यम, कठिन) भी निर्धारित करें। यदि प्रश्न अकादमिक नहीं है, तो विषय को 'सामान्य' और कठिनाई स्तर को 'लागू नहीं' पर सेट करें।
 
-Question: {{{question}}}
+प्रश्न: {{{question}}}
 
-Ensure your response is a JSON object with "answer", "subject", and "difficultyLevel" keys.`,
+सुनिश्चित करें कि आपका जवाब "answer", "subject", और "difficultyLevel" कीज़ के साथ एक JSON ऑब्जेक्ट है।`,
 });
 
 const askAcademicQuestionFlow = ai.defineFlow(

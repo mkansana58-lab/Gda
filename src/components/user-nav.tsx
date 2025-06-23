@@ -6,7 +6,6 @@ import {
   Sun,
   User as UserIcon,
   Bell,
-  Languages,
   Eye,
 } from 'lucide-react';
 import { useTheme as useNextTheme } from 'next-themes';
@@ -32,7 +31,7 @@ import { Label } from './ui/label';
 
 export function UserNav() {
   const { user, logout } = useUser();
-  const { setTheme, theme } = useNextTheme();
+  const { setTheme } = useNextTheme();
   const { isEyeComfortMode, toggleEyeComfortMode } = useTheme();
 
   return (
@@ -58,34 +57,34 @@ export function UserNav() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <UserIcon className="mr-2 h-4 w-4" />
-            <span>Profile Edit</span>
+            <span>प्रोफ़ाइल संपादित करें</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Bell className="mr-2 h-4 w-4" />
-            <span>Notifications</span>
+            <span>सूचनाएं</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
          <DropdownMenuGroup>
-          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+          <DropdownMenuLabel>उपस्थिति</DropdownMenuLabel>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="ml-2">Toggle theme</span>
+              <span className="ml-2">थीम बदलें</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('light')}>लाइट</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('dark')}>डार्क</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('system')}>सिस्टम</DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <div className="flex items-center justify-between w-full">
                 <Label htmlFor="eye-comfort-mode" className="flex items-center gap-2 font-normal">
-                    <Eye className="h-4 w-4"/> Eye Comfort
+                    <Eye className="h-4 w-4"/> आई कम्फर्ट
                 </Label>
                 <Switch
                     id="eye-comfort-mode"
@@ -94,23 +93,11 @@ export function UserNav() {
                 />
             </div>
           </DropdownMenuItem>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Languages className="mr-2 h-4 w-4" />
-              <span>Language</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem>English</DropdownMenuItem>
-                <DropdownMenuItem>हिन्दी</DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>लॉग आउट</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

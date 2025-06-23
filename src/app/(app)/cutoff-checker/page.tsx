@@ -94,8 +94,8 @@ export default function CutoffCheckerPage() {
       console.error(e);
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to get analysis. Please try again.',
+        title: 'त्रुटि',
+        description: 'विश्लेषण प्राप्त करने में विफल। कृपया पुनः प्रयास करें।',
       });
     } finally {
       setIsLoading(false);
@@ -106,7 +106,7 @@ export default function CutoffCheckerPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Cut-Off &amp; Selection Chance</h1>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">कट-ऑफ और चयन की संभावना</h1>
         <p className="text-muted-foreground">
           चयन संभावना की जांच करें और पिछले वर्ष की कट-ऑफ देखें।
         </p>
@@ -114,8 +114,8 @@ export default function CutoffCheckerPage() {
 
        <Card>
         <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2"><Sparkles className="text-primary"/> AI Selection Chance Checker</CardTitle>
-          <CardDescription>Enter your details to get an AI-powered analysis of your selection chances.</CardDescription>
+          <CardTitle className="font-headline flex items-center gap-2"><Sparkles className="text-primary"/> AI चयन संभावना परीक्षक</CardTitle>
+          <CardDescription>अपने चयन की संभावनाओं का AI-संचालित विश्लेषण प्राप्त करने के लिए अपना विवरण दर्ज करें।</CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onChanceCheckSubmit)}>
@@ -125,9 +125,9 @@ export default function CutoffCheckerPage() {
                 name="exam"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Exam</FormLabel>
+                    <FormLabel>परीक्षा</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select an exam" /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger><SelectValue placeholder="एक परीक्षा चुनें" /></SelectTrigger></FormControl>
                       <SelectContent>
                         {Object.keys(cutoffData).map(exam => (
                           <SelectItem key={exam} value={exam}>{exam}</SelectItem>
@@ -140,11 +140,11 @@ export default function CutoffCheckerPage() {
               />
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="marksObtained" render={({ field }) => (
-                    <FormItem><FormLabel>Marks Obtained</FormLabel><FormControl><Input type="number" placeholder="e.g., 110" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>प्राप्त अंक</FormLabel><FormControl><Input type="number" placeholder="जैसे, 110" {...field} /></FormControl><FormMessage /></FormItem>
                   )}
                 />
                 <FormField control={form.control} name="totalMarks" render={({ field }) => (
-                    <FormItem><FormLabel>Total Marks</FormLabel><FormControl><Input type="number" placeholder="e.g., 150" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>कुल अंक</FormLabel><FormControl><Input type="number" placeholder="जैसे, 150" {...field} /></FormControl><FormMessage /></FormItem>
                   )}
                 />
               </div>
@@ -152,7 +152,7 @@ export default function CutoffCheckerPage() {
             <CardFooter>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Check My Chances
+                मेरी संभावनाएं जांचें
               </Button>
             </CardFooter>
           </form>
@@ -162,19 +162,19 @@ export default function CutoffCheckerPage() {
       {aiResult && (
         <Card className="animate-in fade-in">
           <CardHeader>
-            <CardTitle className="font-headline">AI Analysis Result</CardTitle>
+            <CardTitle className="font-headline">AI विश्लेषण परिणाम</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-                <h3 className="font-semibold text-lg">Analysis</h3>
+                <h3 className="font-semibold text-lg">विश्लेषण</h3>
                 <p className="text-muted-foreground">{aiResult.analysis}</p>
             </div>
              <div>
-                <h3 className="font-semibold text-lg">Suggestion</h3>
+                <h3 className="font-semibold text-lg">सुझाव</h3>
                 <p className="text-muted-foreground">{aiResult.suggestion}</p>
             </div>
             <div>
-                <h3 className="font-semibold text-lg">Selection Probability</h3>
+                <h3 className="font-semibold text-lg">चयन की संभावना</h3>
                 <p className="text-xl font-bold text-primary">{aiResult.probability}%</p>
             </div>
           </CardContent>
@@ -183,13 +183,13 @@ export default function CutoffCheckerPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Past Year Cut-Offs</CardTitle>
-          <CardDescription>Choose an exam and year to see the historical cut-off data.</CardDescription>
+          <CardTitle className="font-headline">पिछले वर्ष की कट-ऑफ</CardTitle>
+          <CardDescription>ऐतिहासिक कट-ऑफ डेटा देखने के लिए एक परीक्षा और वर्ष चुनें।</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-4">
           <Select onValueChange={(value) => { setSelectedExam(value); setSelectedYear(''); }}>
             <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Select Exam" />
+              <SelectValue placeholder="परीक्षा चुनें" />
             </SelectTrigger>
             <SelectContent>
               {Object.keys(cutoffData).map(exam => (
@@ -200,7 +200,7 @@ export default function CutoffCheckerPage() {
 
           <Select onValueChange={setSelectedYear} value={selectedYear} disabled={!selectedExam}>
             <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Select Year" />
+              <SelectValue placeholder="वर्ष चुनें" />
             </SelectTrigger>
             <SelectContent>
               {availableYears.map(year => (
@@ -214,7 +214,7 @@ export default function CutoffCheckerPage() {
       {data && (
         <Card className="animate-in fade-in">
           <CardHeader>
-            <CardTitle className="font-headline">{selectedExam} - {selectedYear} Details</CardTitle>
+            <CardTitle className="font-headline">{selectedExam} - {selectedYear} विवरण</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
@@ -230,8 +230,8 @@ export default function CutoffCheckerPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right">Marks</TableHead>
+                    <TableHead>श्रेणी</TableHead>
+                    <TableHead className="text-right">अंक</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

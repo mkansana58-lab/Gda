@@ -55,8 +55,8 @@ export default function ScholarshipFormPage() {
       setSubmittedData(values);
       setIsLoading(false);
       toast({
-        title: 'Application Submitted!',
-        description: 'Your certificate has been generated below.',
+        title: 'आवेदन जमा हो गया!',
+        description: 'आपका प्रमाणपत्र नीचे उत्पन्न हो गया है।',
       });
     }, 1000);
   }
@@ -68,13 +68,13 @@ export default function ScholarshipFormPage() {
         link.download = 'scholarship-certificate.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
-        toast({ title: 'Certificate Downloaded' });
+        toast({ title: 'प्रमाणपत्र डाउनलोड किया गया' });
       });
     }
   };
 
   const emailBody = submittedData ? encodeURIComponent(
-    `New Scholarship Application:\n\nExam: ${submittedData.exam}\nName: ${submittedData.name}\nAge: ${submittedData.age}\nClass: ${submittedData.class}\nSchool: ${submittedData.school}\nMobile: ${submittedData.mobile}\nEmail: ${submittedData.email}\nAddress: ${submittedData.address}\n\n---\nPlease find the certificate attached.`
+    `नया छात्रवृत्ति आवेदन:\n\nपरीक्षा: ${submittedData.exam}\nनाम: ${submittedData.name}\nआयु: ${submittedData.age}\nकक्षा: ${submittedData.class}\nस्कूल: ${submittedData.school}\nमोबाइल: ${submittedData.mobile}\nईमेल: ${submittedData.email}\nपता: ${submittedData.address}\n\n---\nकृपया प्रमाणपत्र संलग्न पाएं।`
   ) : '';
 
   if (submittedData) {
@@ -85,16 +85,16 @@ export default function ScholarshipFormPage() {
         </div>
         <Card className="w-full max-w-2xl">
             <CardHeader>
-                <CardTitle>Next Steps</CardTitle>
+                <CardTitle>अगले चरण</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
                 <p className="text-muted-foreground">
-                    Please download your certificate, then click 'Submit' to open your email app. You will need to manually attach the downloaded file.
+                    कृपया अपना प्रमाणपत्र डाउनलोड करें, फिर अपना ईमेल ऐप खोलने के लिए 'सबमिट करें' पर क्लिक करें। आपको डाउनलोड की गई फ़ाइल को मैन्युअल रूप से संलग्न करना होगा।
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                     <Button onClick={handleDownload}>
                         <Download className="mr-2 h-4 w-4" />
-                        Download Certificate
+                        प्रमाणपत्र डाउनलोड करें
                     </Button>
                     <Button asChild>
                         <a href={`mailto:mohitkansana82@gmail.com?subject=New Scholarship Application for ${submittedData.name}&body=${emailBody}`}>
@@ -106,7 +106,7 @@ export default function ScholarshipFormPage() {
             </CardContent>
         </Card>
 
-         <Button variant="link" onClick={() => setSubmittedData(null)}>Submit Another Application</Button>
+         <Button variant="link" onClick={() => setSubmittedData(null)}>एक और आवेदन जमा करें</Button>
       </div>
     );
   }
@@ -114,8 +114,8 @@ export default function ScholarshipFormPage() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Scholarship Application Form</CardTitle>
-        <CardDescription>Fill out the form to apply for a scholarship plan.</CardDescription>
+        <CardTitle className="font-headline text-2xl">छात्रवृत्ति आवेदन पत्र</CardTitle>
+        <CardDescription>छात्रवृत्ति योजना के लिए आवेदन करने के लिए फॉर्म भरें।</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -125,21 +125,21 @@ export default function ScholarshipFormPage() {
               name="exam"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Exam Selection</FormLabel>
+                  <FormLabel>परीक्षा चुनें</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select an exam" />
+                        <SelectValue placeholder="एक परीक्षा चुनें" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Military School">Military School</SelectItem>
-                      <SelectItem value="RMS">RMS</SelectItem>
-                      <SelectItem value="RIMC">RIMC</SelectItem>
-                      <SelectItem value="JNV">JNV</SelectItem>
-                      <SelectItem value="RTSE">RTSE</SelectItem>
-                      <SelectItem value="Olympiad">Olympiad</SelectItem>
-                      <SelectItem value="Scholarship">Scholarship</SelectItem>
+                      <SelectItem value="Military School">मिलिट्री स्कूल</SelectItem>
+                      <SelectItem value="RMS">आरएमएस</SelectItem>
+                      <SelectItem value="RIMC">आरआईएमसी</SelectItem>
+                      <SelectItem value="JNV">जेएनवी</SelectItem>
+                      <SelectItem value="RTSE">आरटीएसई</SelectItem>
+                      <SelectItem value="Olympiad">ओलंपियाड</SelectItem>
+                      <SelectItem value="Scholarship">छात्रवृत्ति</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -150,48 +150,48 @@ export default function ScholarshipFormPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl><Input placeholder="Your full name" {...field} /></FormControl>
+                    <FormLabel>पूरा नाम</FormLabel>
+                    <FormControl><Input placeholder="आपका पूरा नाम" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField control={form.control} name="age" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Age</FormLabel>
-                    <FormControl><Input type="number" placeholder="Your age" {...field} /></FormControl>
+                    <FormLabel>आयु</FormLabel>
+                    <FormControl><Input type="number" placeholder="आपकी आयु" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField control={form.control} name="class" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Class</FormLabel>
-                    <FormControl><Input placeholder="e.g., 10th" {...field} /></FormControl>
+                    <FormLabel>कक्षा</FormLabel>
+                    <FormControl><Input placeholder="जैसे, 10वीं" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField control={form.control} name="school" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>School Name</FormLabel>
-                    <FormControl><Input placeholder="Your school name" {...field} /></FormControl>
+                    <FormLabel>स्कूल का नाम</FormLabel>
+                    <FormControl><Input placeholder="आपके स्कूल का नाम" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField control={form.control} name="mobile" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile Number</FormLabel>
-                    <FormControl><Input type="tel" placeholder="Your mobile number" {...field} /></FormControl>
+                    <FormLabel>मोबाइल नंबर</FormLabel>
+                    <FormControl><Input type="tel" placeholder="आपका मोबाइल नंबर" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Address</FormLabel>
-                    <FormControl><Input type="email" placeholder="Your email address" {...field} /></FormControl>
+                    <FormLabel>ईमेल पता</FormLabel>
+                    <FormControl><Input type="email" placeholder="आपका ईमेल पता" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -200,8 +200,8 @@ export default function ScholarshipFormPage() {
 
             <FormField control={form.control} name="address" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Address</FormLabel>
-                  <FormControl><Input placeholder="Your full address" {...field} /></FormControl>
+                  <FormLabel>पूरा पता</FormLabel>
+                  <FormControl><Input placeholder="आपका पूरा पता" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -209,7 +209,7 @@ export default function ScholarshipFormPage() {
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Generate Certificate
+              प्रमाणपत्र बनाएं
             </Button>
           </form>
         </Form>

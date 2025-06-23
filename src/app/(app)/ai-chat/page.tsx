@@ -27,35 +27,35 @@ export default function AiChatPage() {
   }, initialState);
 
 
-  const isPass = state.output?.result.toLowerCase().includes('pass');
+  const isPass = state.output?.result.toLowerCase().includes('pass') || state.output?.result.toLowerCase().includes('बधाई');
 
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">AI Scholarship Chat</h1>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">AI छात्रवृत्ति चैट</h1>
         <p className="text-muted-foreground">
-          Enter your roll number to check your scholarship result.
+          अपनी छात्रवृत्ति का परिणाम जांचने के लिए अपना रोल नंबर दर्ज करें।
         </p>
       </div>
 
       <Card>
         <form action={formAction}>
           <CardHeader>
-            <CardTitle className="font-headline">Check Your Result</CardTitle>
+            <CardTitle className="font-headline">अपना परिणाम जांचें</CardTitle>
             <CardDescription>
               मेरा रोल नंबर <code className="bg-muted px-1 rounded-sm">123456</code> है, कृपया बताएं कि मेरा स्कॉलरशिप रिज़ल्ट पास है या फेल
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="rollNumber">Roll Number</Label>
-              <Input id="rollNumber" name="rollNumber" type="text" placeholder="e.g., 123456" required />
+              <Label htmlFor="rollNumber">रोल नंबर</Label>
+              <Input id="rollNumber" name="rollNumber" type="text" placeholder="जैसे, 123456" required />
             </div>
           </CardContent>
           <CardFooter>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Get Result
+              परिणाम प्राप्त करें
             </Button>
           </CardFooter>
         </form>
@@ -69,7 +69,7 @@ export default function AiChatPage() {
                 <UserCheck className="w-8 h-8 text-green-500" /> : 
                 <UserX className="w-8 h-8 text-red-500" />
               }
-              Scholarship Result
+              छात्रवृत्ति परिणाम
             </CardTitle>
           </CardHeader>
           <CardContent>

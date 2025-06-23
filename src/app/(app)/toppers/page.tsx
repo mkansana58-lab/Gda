@@ -28,15 +28,15 @@ export default function ToppersPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Hall of Fame / टॉपर्स</h1>
-        <p className="text-muted-foreground">Celebrating our top achievers from AI Tests and Exams.</p>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">हॉल ऑफ फेम / टॉपर्स</h1>
+        <p className="text-muted-foreground">AI टेस्ट और परीक्षाओं से हमारे शीर्ष उपलब्धि हासिल करने वालों का जश्न।</p>
       </div>
 
        <Alert>
         <Crown className="h-4 w-4" />
-        <AlertTitle>AI Test Toppers!</AlertTitle>
+        <AlertTitle>AI टेस्ट टॉपर्स!</AlertTitle>
         <AlertDescription>
-          This list shows the top 5 performers from our AI-powered practice tests. Take a test to get on the leaderboard!
+          यह सूची हमारे AI-संचालित अभ्यास परीक्षणों के शीर्ष 5 प्रदर्शन करने वालों को दिखाती है। लीडरबोर्ड पर आने के लिए एक परीक्षा दें!
         </AlertDescription>
       </Alert>
 
@@ -62,7 +62,7 @@ export default function ToppersPage() {
                 </Avatar>
                 <h3 className="text-xl font-bold font-headline">{topper.name}</h3>
                 <p className="text-muted-foreground">{topper.subject}</p>
-                <p className="text-2xl font-bold text-primary mt-2">Score: {topper.score}/25</p>
+                <p className="text-2xl font-bold text-primary mt-2">स्कोर: {topper.score}/25</p>
                 <p className="text-xs text-muted-foreground mt-1">
                     {new Date(topper.date).toLocaleDateString()}
                 </p>

@@ -12,10 +12,10 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  mobile: z.string().regex(/^\d{10}$/, { message: 'Please enter a valid 10-digit mobile number.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  address: z.string().min(5, { message: 'Address must be at least 5 characters.' }),
+  name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
+  mobile: z.string().regex(/^\d{10}$/, { message: 'कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।' }),
+  email: z.string().email({ message: 'कृपया एक वैध ईमेल पता दर्ज करें।' }),
+  address: z.string().min(5, { message: 'पता कम से कम 5 अक्षरों का होना चाहिए।' }),
   profilePhoto: z.any().optional(),
 });
 
@@ -44,15 +44,15 @@ export function LoginForm() {
         const user = { ...userData, profilePhotoUrl };
         localStorage.setItem('user', JSON.stringify(user));
         toast({
-          title: 'Login Successful',
-          description: `Welcome, ${values.name}!`,
+          title: 'लॉगिन सफल',
+          description: `स्वागत है, ${values.name}!`,
         });
         router.push('/dashboard');
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: 'Login Failed',
-          description: 'An error occurred. Please try again.',
+          title: 'लॉगिन विफल',
+          description: 'एक त्रुटि हुई। कृपया पुनः प्रयास करें।',
         });
       } finally {
         setIsLoading(false);
@@ -69,8 +69,8 @@ export function LoginForm() {
       reader.onerror = () => {
         toast({
           variant: 'destructive',
-          title: 'Photo Upload Failed',
-          description: 'Could not read the selected photo. Please try again or continue without one.',
+          title: 'फोटो अपलोड विफल',
+          description: 'चयनित फोटो को पढ़ा नहीं जा सका। कृपया पुनः प्रयास करें या बिना फोटो के जारी रखें।',
         });
         handleLogin('https://placehold.co/100x100.png');
       };
@@ -94,9 +94,9 @@ export function LoginForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>नाम</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your name" {...field} />
+                <Input placeholder="अपना नाम दर्ज करें" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,9 +107,9 @@ export function LoginForm() {
           name="mobile"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mobile Number</FormLabel>
+              <FormLabel>मोबाइल नंबर</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="Enter your mobile number" {...field} />
+                <Input type="tel" placeholder="अपना मोबाइल नंबर दर्ज करें" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,9 +120,9 @@ export function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>ईमेल</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Enter your email" {...field} />
+                <Input type="email" placeholder="अपना ईमेल दर्ज करें" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -133,9 +133,9 @@ export function LoginForm() {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>पता</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your address" {...field} />
+                <Input placeholder="अपना पता दर्ज करें" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -146,7 +146,7 @@ export function LoginForm() {
           name="profilePhoto"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Profile Photo</FormLabel>
+              <FormLabel>प्रोफ़ाइल फ़ोटो</FormLabel>
               <FormControl>
                 <Input type="file" accept="image/*" {...profilePhotoRef} />
               </FormControl>
@@ -156,7 +156,7 @@ export function LoginForm() {
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Login
+          लॉगिन करें
         </Button>
       </form>
     </Form>

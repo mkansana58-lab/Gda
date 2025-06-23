@@ -5,24 +5,24 @@ import Link from 'next/link';
 
 const learningSections = [
     {
-        title: "Live Classes",
-        description: "Join our interactive live sessions with expert instructors.",
+        title: "लाइव कक्षाएं",
+        description: "विशेषज्ञ प्रशिक्षकों के साथ हमारे इंटरैक्टिव लाइव सत्रों में शामिल हों।",
         icon: Video,
-        actionText: "Join Now",
+        actionText: "अभी शामिल हों",
         href: "#"
     },
     {
-        title: "Recorded Videos",
-        description: "Catch up on missed classes or revise topics at your own pace.",
+        title: "रिकॉर्डेड वीडियो",
+        description: "छूटी हुई कक्षाओं को पकड़ें या अपनी गति से विषयों को संशोधित करें।",
         icon: Youtube,
-        actionText: "Watch Videos",
+        actionText: "वीडियो देखें",
         href: "#"
     },
     {
-        title: "Downloads",
-        description: "Get access to study materials, notes, and practice papers.",
+        title: "डाउनलोड",
+        description: "अध्ययन सामग्री, नोट्स और अभ्यास पत्रों तक पहुँच प्राप्त करें।",
         icon: Download,
-        actionText: "Access Files",
+        actionText: "फ़ाइलें एक्सेस करें",
         href: "#"
     },
 ]
@@ -31,8 +31,8 @@ export default function LearningHubPage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <h1 className="font-headline text-3xl font-bold tracking-tight">Learning Hub</h1>
-                <p className="text-muted-foreground">Your one-stop destination for all learning resources.</p>
+                <h1 className="font-headline text-3xl font-bold tracking-tight">लर्निंग हब</h1>
+                <p className="text-muted-foreground">सभी शिक्षण संसाधनों के लिए आपका वन-स्टॉप डेस्टिनेशन।</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -62,13 +62,13 @@ export default function LearningHubPage() {
             <Card className="mt-4">
                 <CardHeader className="flex-row items-center justify-between">
                     <div>
-                        <CardTitle className="font-headline">Explore More on YouTube</CardTitle>
-                        <CardDescription>Check out our full library of video content on our official channel.</CardDescription>
+                        <CardTitle className="font-headline">यूट्यूब पर और अन्वेषण करें</CardTitle>
+                        <CardDescription>हमारे आधिकारिक चैनल पर हमारी वीडियो सामग्री की पूरी लाइब्रेरी देखें।</CardDescription>
                     </div>
                     <Button asChild>
                         <a href="https://youtube.com/@mohitkansana-s1h?si=vXGmKt03HwtcG55s" target="_blank" rel="noopener noreferrer">
                             <Youtube className="mr-2 h-4 w-4" />
-                            View All Classes
+                            सभी कक्षाएं देखें
                         </a>
                     </Button>
                 </CardHeader>

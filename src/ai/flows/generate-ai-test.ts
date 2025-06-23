@@ -17,13 +17,13 @@ const GenerateAiTestInputSchema = z.object({
 export type GenerateAiTestInput = z.infer<typeof GenerateAiTestInputSchema>;
 
 const QuestionSchema = z.object({
-    question: z.string().describe('The question text.'),
-    options: z.array(z.string()).describe('An array of 4 possible answers.'),
-    correctAnswer: z.string().describe('The correct answer from the options.'),
+    question: z.string().describe('The question text in Hindi.'),
+    options: z.array(z.string()).describe('An array of 4 possible answers in Hindi.'),
+    correctAnswer: z.string().describe('The correct answer from the options in Hindi.'),
 });
 
 const GenerateAiTestOutputSchema = z.object({
-    questions: z.array(QuestionSchema).describe('An array of 25 questions for the test.'),
+    questions: z.array(QuestionSchema).describe('An array of 25 questions for the test in Hindi.'),
 });
 export type GenerateAiTestOutput = z.infer<typeof GenerateAiTestOutputSchema>;
 export type AiQuestion = z.infer<typeof QuestionSchema>;
@@ -37,10 +37,10 @@ const prompt = ai.definePrompt({
   name: 'generateAiTestPrompt',
   input: {schema: GenerateAiTestInputSchema},
   output: {schema: GenerateAiTestOutputSchema},
-  prompt: `You are an expert test creator for students. Generate a 25-question multiple-choice test for the following subject: {{{subject}}}.
-  Each question must have 4 options, and you must specify the correct answer.
-  The questions should be suitable for students in grades 6-9 preparing for competitive exams like RMS, RIMC, and JNV. The questions should be challenging and cover a range of topics within the subject.
-  Ensure the response is a valid JSON object matching the output schema.
+  prompt: `आप छात्रों के लिए एक विशेषज्ञ परीक्षा निर्माता हैं। निम्नलिखित विषय के लिए हिंदी में 25-प्रश्नों का बहुविकल्पीय परीक्षण उत्पन्न करें: {{{subject}}}।
+  प्रत्येक प्रश्न के 4 विकल्प होने चाहिए, और आपको सही उत्तर निर्दिष्ट करना होगा।
+  प्रश्न कक्षा 6-9 के छात्रों के लिए उपयुक्त होने चाहिए जो RMS, RIMC, और JNV जैसी प्रतियोगी परीक्षाओं की तैयारी कर रहे हैं। प्रश्न चुनौतीपूर्ण होने चाहिए और विषय के भीतर कई विषयों को कवर करना चाहिए।
+  सुनिश्चित करें कि प्रतिक्रिया आउटपुट स्कीमा से मेल खाने वाला एक मान्य JSON ऑब्जेक्ट है। सभी प्रश्न और उत्तर हिंदी में होने चाहिए।
   `,
 });
 

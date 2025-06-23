@@ -6,10 +6,10 @@ import { Home, BookOpen, GraduationCap, FilePen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/dashboard', icon: Home, label: 'Home' },
-  { href: '/learning-hub', icon: BookOpen, label: 'Learn' },
-  { href: '/ai-tutor', icon: GraduationCap, label: 'Tutor' },
-  { href: '/plan-form', icon: FilePen, label: 'Scholarship' },
+  { href: '/dashboard', icon: Home, label: 'होम' },
+  { href: '/learning-hub', icon: BookOpen, label: 'सीखें' },
+  { href: '/ai-tutor', icon: GraduationCap, label: 'ट्यूटर' },
+  { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति' },
 ];
 
 export function BottomNav() {

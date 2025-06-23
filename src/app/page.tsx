@@ -23,7 +23,7 @@ export default function LoginPage() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="text-xl font-semibold">Loading...</div>
+        <div className="text-xl font-semibold">लोड हो रहा है...</div>
       </div>
     );
   }
@@ -37,7 +37,7 @@ export default function LoginPage() {
               <Logo />
             </div>
             <CardTitle className="font-headline text-3xl font-bold tracking-tight text-primary">
-              Go Swami Defence Academy
+              गो स्वामी डिफेंस एकेडमी
             </CardTitle>
             <CardDescription className="text-muted-foreground pt-2 font-semibold">
               "राष्ट्र प्रथम, शिक्षा सर्वोपरि"

@@ -1,4 +1,4 @@
-// 'use server';
+'use server';
 /**
  * @fileOverview This file defines a Genkit flow for checking scholarship results based on roll number.
  *
@@ -7,7 +7,6 @@
  * - CheckScholarshipResultOutput - The return type for the checkScholarshipResult function.
  */
 
-'use server';
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
@@ -21,7 +20,7 @@ export type CheckScholarshipResultInput = z.infer<typeof CheckScholarshipResultI
 const CheckScholarshipResultOutputSchema = z.object({
   result: z
     .string()
-    .describe('The scholarship result (e.g., \"Pass\", \"Fail\", or a detailed message).'),
+    .describe('The scholarship result in Hindi (e.g., "Pass", "Fail", or a detailed message).'),
 });
 export type CheckScholarshipResultOutput = z.infer<typeof CheckScholarshipResultOutputSchema>;
 
@@ -33,14 +32,14 @@ const prompt = ai.definePrompt({
   name: 'checkScholarshipResultPrompt',
   input: {schema: CheckScholarshipResultInputSchema},
   output: {schema: CheckScholarshipResultOutputSchema},
-  prompt: `You are an AI assistant designed to provide scholarship results to students based on their roll number.
+  prompt: `आप एक AI सहायक हैं जिसे छात्रों को उनके रोल नंबर के आधार पर छात्रवृत्ति परिणाम प्रदान करने के लिए डिज़ाइन किया गया है।
 
-  Given the roll number: {{{rollNumber}}}, provide the scholarship result. The result should indicate whether the student passed or failed, and any other relevant information.
-  Be encouraging and supportive in your response.
-  If a student has passed, congratulate them and mention they have been selected for the scholarship. If they failed, encourage them to try again next year.
-  Do not include any personally identifying information about any student. Only return whether they passed or failed.
-  Example response if the student passed: \"Congratulations! Your result is pass. You have been selected for the scholarship.\"
-  Example response if the student failed: \"We regret to inform you that your result is fail. Please try again next year.\"`,
+  दिए गए रोल नंबर: {{{rollNumber}}} के लिए, छात्रवृत्ति परिणाम प्रदान करें। परिणाम हिंदी में होना चाहिए और यह बताना चाहिए कि छात्र पास हुआ या फेल, और कोई अन्य प्रासंगिक जानकारी।
+  अपनी प्रतिक्रिया में उत्साहजनक और सहायक बनें।
+  यदि कोई छात्र पास हो गया है, तो उन्हें बधाई दें और उल्लेख करें कि उन्हें छात्रवृत्ति के लिए चुना गया है। यदि वे असफल रहे, तो उन्हें अगले साल फिर से प्रयास करने के लिए प्रोत्साहित करें।
+  किसी भी छात्र के बारे में कोई भी व्यक्तिगत पहचान योग्य जानकारी शामिल न करें। केवल यह बताएं कि वे पास हुए या फेल।
+  उदाहरण प्रतिक्रिया यदि छात्र पास हो गया: "बधाई हो! आपका परिणाम पास है। आपको छात्रवृत्ति के लिए चुना गया है।"
+  उदाहरण प्रतिक्रिया यदि छात्र असफल रहा: "हमें आपको यह बताते हुए खेद है कि आपका परिणाम फेल है। कृपया अगले साल फिर से प्रयास करें।"`,
 });
 
 const checkScholarshipResultFlow = ai.defineFlow(
