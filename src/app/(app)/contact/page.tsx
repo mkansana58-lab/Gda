@@ -97,7 +97,7 @@ export default function ContactPage() {
                             <FormItem><FormLabel>नाम</FormLabel><FormControl><Input placeholder="आपका नाम" {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={smsForm.control} name="mobile" render={({ field }) => (
-                            <FormItem><FormLabel>मोबाइल</FormLabel><FormControl><Input type="tel" placeholder="आपका 10 अंकों का मोबाइल नंबर" {...field} /></FormControl><FormMessage /></FormMessage>
+                            <FormItem><FormLabel>मोबाइल</FormLabel><FormControl><Input type="tel" placeholder="आपका 10 अंकों का मोबाइल नंबर" {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={smsForm.control} name="address" render={({ field }) => (
                             <FormItem><FormLabel>पता</FormLabel><FormControl><Input placeholder="आपका पता" {...field} /></FormControl><FormMessage /></FormItem>
