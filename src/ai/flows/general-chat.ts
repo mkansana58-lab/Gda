@@ -51,10 +51,8 @@ const generalChatFlow = ai.defineFlow({
     }));
     
     const response = await ai.generate({
-        prompt: {
-            system: systemPrompt,
-            messages: history,
-        },
+        system: systemPrompt,
+        messages: history,
         config: {
           temperature: 0.5,
         },
