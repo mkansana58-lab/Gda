@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { generateAiTest, AiQuestion } from '@/ai/flows/generate-ai-test';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Timer, CheckCircle, XCircle, Crown } from 'lucide-react';
+import { Loader2, Timer, CheckCircle, XCircle, Download, FileText } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
+import { TestResultCertificate } from '@/components/test-result-certificate';
+import html2canvas from 'html2canvas';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type TestStatus = 'not-started' | 'in-progress' | 'finished';
 const TEST_DURATION_SECONDS = 1800; // 30 minutes
@@ -39,17 +43,28 @@ const testSetupSchema = z.object({
 });
 type TestSetupFormValues = z.infer<typeof testSetupSchema>;
 
+type TestResult = {
+    score: number;
+    percentage: number;
+    status: 'पास' | 'औसत' | 'फेल';
+    studentName: string;
+};
+
+
 export default function AiTestPage() {
   const [questions, setQuestions] = useState<AiQuestion[]>([]);
   const [status, setStatus] = useState<TestStatus>('not-started');
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
-  const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TEST_DURATION_SECONDS);
   const { toast } = useToast();
   const { user } = useUser();
   const [testSubject, setTestSubject] = useState('');
+  const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<TestSetupFormValues>({
       resolver: zodResolver(testSetupSchema),
@@ -80,12 +95,30 @@ export default function AiTestPage() {
         finalScore++;
       }
     });
-    setScore(finalScore);
+    
+    const percentage = (finalScore / questions.length) * 100;
+    let performanceStatus: 'पास' | 'औसत' | 'फेल';
+
+    if (finalScore > 20) {
+        performanceStatus = 'पास';
+    } else if (finalScore >= 16) {
+        performanceStatus = 'औसत';
+    } else {
+        performanceStatus = 'फेल';
+    }
+
+    setTestResult({
+        score: finalScore,
+        percentage,
+        status: performanceStatus,
+        studentName: form.getValues('name'),
+    });
+
     setStatus('finished');
 
     if (user) {
         const newTopper: Topper = {
-            name: user.name,
+            name: form.getValues('name'),
             score: finalScore,
             subject: testSubject,
             date: new Date().toISOString(),
@@ -103,7 +136,7 @@ export default function AiTestPage() {
         localStorage.setItem('ai-test-toppers', JSON.stringify(top5));
     }
 
-  }, [questions, userAnswers, user, testSubject]);
+  }, [questions, userAnswers, user, testSubject, form]);
 
 
   useEffect(() => {
@@ -136,7 +169,7 @@ export default function AiTestPage() {
         setCurrentQuestionIndex(0);
         setUserAnswers(new Array(result.questions.length).fill(''));
         setTimeLeft(TEST_DURATION_SECONDS);
-        setScore(0);
+        setTestResult(null);
       } else {
          toast({ variant: 'destructive', title: 'परीक्षा उत्पन्न करने में विफल।', description: 'कोई प्रश्न वापस नहीं किया गया। कृपया पुनः प्रयास करें।'});
       }
@@ -166,13 +199,35 @@ export default function AiTestPage() {
     setTestSubject('');
     setQuestions([]);
     setIsLoading(false);
-    form.reset();
+    form.reset({
+        name: user?.name || '',
+        mobile: user?.mobile || '',
+        class: '',
+        subject: '',
+    });
   }
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
+  const handleEarlySubmit = () => {
+    setIsConfirmingSubmit(true);
+  }
+
+  const handleDownload = () => {
+    if (certificateRef.current) {
+        toast({ title: 'प्रमाणपत्र तैयार हो रहा है...', description: 'कृपया प्रतीक्षा करें।' });
+        html2canvas(certificateRef.current, { backgroundColor: null, scale: 2.5 }).then((canvas) => {
+            const link = document.createElement('a');
+            link.download = `test-result-certificate-${form.getValues('name')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            toast({ title: 'प्रमाणपत्र डाउनलोड किया गया', description: 'अपना डाउनलोड फ़ोल्डर देखें।' });
+        });
+    }
   };
 
   if (isLoading) {
@@ -184,45 +239,84 @@ export default function AiTestPage() {
     );
   }
 
-  if (status === 'finished') {
+  if (status === 'finished' && testResult) {
     return (
-        <Card className="w-full max-w-2xl mx-auto animate-in fade-in">
-            <CardHeader>
-                <CardTitle className="font-headline text-2xl">परीक्षा परिणाम</CardTitle>
-                <CardDescription>{testSubject} में {TOTAL_QUESTIONS} में से {score} अंक प्राप्त हुए।</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {score > (TOTAL_QUESTIONS * 0.8) && (
-                    <Alert variant="default" className="bg-green-100 dark:bg-green-900/30 border-green-500">
-                        <Crown className="h-4 w-4 text-green-600" />
-                        <AlertTitle>बहुत बढ़िया!</AlertTitle>
-                        <AlertDescription>
-                        आप टॉपर्स सूची में जगह बना सकते हैं! हॉल ऑफ फेम देखें।
-                        </AlertDescription>
-                    </Alert>
-                )}
-                {questions.map((q, index) => (
-                    <div key={index} className={`p-3 rounded-md flex items-start gap-3 ${userAnswers[index] === q.correctAnswer ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
-                        {userAnswers[index] === q.correctAnswer ? <CheckCircle className="w-5 h-5 text-green-600 mt-1"/> : <XCircle className="w-5 h-5 text-red-600 mt-1"/>}
-                        <div>
-                            <p className="font-semibold">{index + 1}. {q.question}</p>
-                            <p className="text-sm text-muted-foreground">आपका उत्तर: <span className="font-medium">{userAnswers[index] || 'उत्तर नहीं दिया'}</span></p>
-                            <p className="text-sm font-bold text-primary">सही उत्तर: <span className="font-medium">{q.correctAnswer}</span></p>
+        <div className="flex flex-col items-center gap-6">
+            <div ref={certificateRef} className="p-4 bg-background w-full max-w-3xl">
+                <TestResultCertificate 
+                    studentName={testResult.studentName}
+                    subject={testSubject}
+                    score={testResult.score}
+                    totalQuestions={questions.length}
+                    percentage={testResult.percentage}
+                    performanceStatus={testResult.status}
+                />
+            </div>
+            <Card className="w-full max-w-2xl">
+                <CardHeader>
+                    <CardTitle className="font-headline text-center">अगले चरण</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-wrap justify-center gap-4">
+                    <Button onClick={handleDownload}>
+                        <Download className="mr-2 h-4 w-4" />
+                        सर्टिफिकेट डाउनलोड करें
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowSolution(true)}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        हल देखें
+                    </Button>
+                </CardContent>
+            </Card>
+
+            <Button variant="link" onClick={resetTest}>दूसरा टेस्ट दें</Button>
+
+            <Sheet open={showSolution} onOpenChange={setShowSolution}>
+                <SheetContent className="w-full max-w-2xl sm:max-w-2xl">
+                    <SheetHeader>
+                        <SheetTitle>परीक्षा का हल: {testSubject}</SheetTitle>
+                        <SheetDescription>
+                            आपके द्वारा दिए गए उत्तरों और सही उत्तरों की समीक्षा करें।
+                        </SheetDescription>
+                    </SheetHeader>
+                    <ScrollArea className="h-[calc(100vh-8rem)] pr-4 mt-4">
+                        <div className="space-y-4">
+                             {questions.map((q, index) => (
+                                <div key={index} className={`p-3 rounded-md flex items-start gap-3 ${userAnswers[index] === q.correctAnswer ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                                    {userAnswers[index] === q.correctAnswer ? <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0"/> : <XCircle className="w-5 h-5 text-red-600 mt-1 flex-shrink-0"/>}
+                                    <div>
+                                        <p className="font-semibold">{index + 1}. {q.question}</p>
+                                        <p className="text-sm text-muted-foreground">आपका उत्तर: <span className="font-medium">{userAnswers[index] || 'उत्तर नहीं दिया'}</span></p>
+                                        <p className="text-sm font-bold text-primary">सही उत्तर: <span className="font-medium">{q.correctAnswer}</span></p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                ))}
-            </CardContent>
-            <CardFooter>
-                <Button onClick={resetTest}>दूसरा टेस्ट दें</Button>
-            </CardFooter>
-        </Card>
-    )
+                    </ScrollArea>
+                </SheetContent>
+            </Sheet>
+        </div>
+    );
   }
 
   if (status === 'in-progress') {
     const currentQuestion = questions[currentQuestionIndex];
     return (
       <div className="w-full max-w-2xl mx-auto space-y-4 animate-in fade-in">
+        <AlertDialog open={isConfirmingSubmit} onOpenChange={setIsConfirmingSubmit}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>क्या आप निश्चित हैं?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        आप टेस्ट जल्दी सबमिट करने वाले हैं। क्या आप वाकई आगे बढ़ना चाहते हैं?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>रद्द करें</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => { setIsConfirmingSubmit(false); handleTestFinish(); }}>सबमिट करें</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
@@ -250,8 +344,8 @@ export default function AiTestPage() {
                     ))}
                 </div>
             </CardContent>
-            <CardFooter className="justify-end">
-                 <Button onClick={handleTestFinish} variant="secondary" className="mr-auto">जल्दी सबमिट करें</Button>
+            <CardFooter className="justify-between">
+                 <Button onClick={handleEarlySubmit} variant="destructive">जल्दी सबमिट करें</Button>
                 <Button onClick={goToNextQuestion} disabled={!userAnswers[currentQuestionIndex]}>
                     {currentQuestionIndex < questions.length - 1 ? 'अगला प्रश्न' : 'टेस्ट खत्म करें'}
                 </Button>
