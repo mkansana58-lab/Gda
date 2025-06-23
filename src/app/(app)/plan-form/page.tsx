@@ -8,11 +8,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useState } from 'react';
-import { Loader2, Mail } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Loader2, Mail, Download } from 'lucide-react';
 import { Certificate } from '@/components/certificate';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
+import html2canvas from 'html2canvas';
 
 const formSchema = z.object({
   exam: z.string().min(1, { message: 'Please select an exam.' }),
@@ -32,6 +33,7 @@ export default function PlanFormPage() {
   const [submittedData, setSubmittedData] = useState<FormValues | null>(null);
   const { toast } = useToast();
   const { user } = useUser();
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -59,6 +61,17 @@ export default function PlanFormPage() {
     }, 1000);
   }
 
+  const handleDownload = () => {
+    if (certificateRef.current) {
+      html2canvas(certificateRef.current, { backgroundColor: null }).then((canvas) => {
+        const link = document.createElement('a');
+        link.download = 'certificate.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  };
+
   const emailBody = submittedData ? encodeURIComponent(
     `New Plan Application:\n\nExam: ${submittedData.exam}\nName: ${submittedData.name}\nAge: ${submittedData.age}\nClass: ${submittedData.class}\nSchool: ${submittedData.school}\nMobile: ${submittedData.mobile}\nEmail: ${submittedData.email}\nAddress: ${submittedData.address}`
   ) : '';
@@ -66,9 +79,14 @@ export default function PlanFormPage() {
   if (submittedData) {
     return (
       <div className="flex flex-col items-center gap-6">
-        <Certificate data={submittedData} />
-        <div className="flex gap-4">
-          <Button onClick={() => setSubmittedData(null)}>Submit Another Application</Button>
+        <div ref={certificateRef}>
+          <Certificate data={submittedData} />
+        </div>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button onClick={handleDownload}>
+            <Download className="mr-2 h-4 w-4" />
+            Download Certificate
+          </Button>
           <Button asChild variant="outline">
             <a href={`mailto:mohitKansana82@gemali.com?subject=New Plan Application&body=${emailBody}`}>
               <Mail className="mr-2 h-4 w-4" />
@@ -76,6 +94,7 @@ export default function PlanFormPage() {
             </a>
           </Button>
         </div>
+         <Button variant="link" onClick={() => setSubmittedData(null)}>Submit Another Application</Button>
       </div>
     );
   }

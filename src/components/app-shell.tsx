@@ -11,6 +11,7 @@ import {
   Phone,
   Scaling,
   ShieldCheck,
+  ClipboardCheck
 } from 'lucide-react';
 
 import {
@@ -24,6 +25,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarInset,
+  useSidebar
 } from '@/components/ui/sidebar';
 import { UserNav } from './user-nav';
 import { Button } from './ui/button';
@@ -36,6 +38,7 @@ const navItems = [
   { href: '/learning-hub', icon: BookOpen, label: 'Learning Hub' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI Tutor' },
   { href: '/ai-chat', icon: Bot, label: 'AI Chat' },
+  { href: '/ai-test', icon: ClipboardCheck, label: 'AI Test'},
   { href: '/cutoff-checker', icon: Scaling, label: 'Cut-Off Checker' },
   { href: '/contact', icon: Phone, label: 'Contact' },
 ];
@@ -43,6 +46,13 @@ const navItems = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useUser();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -60,16 +70,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === item.href}
-                  tooltip={item.label}
-                >
-                  <Link href={item.href}>
+                <Link href={item.href} legacyBehavior passHref>
+                  <SidebarMenuButton
+                    onClick={handleLinkClick}
+                    isActive={pathname === item.href}
+                    tooltip={item.label}
+                  >
                     <item.icon />
                     <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
