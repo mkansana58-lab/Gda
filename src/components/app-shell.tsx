@@ -28,7 +28,6 @@ import {
   useSidebar
 } from '@/components/ui/sidebar';
 import { UserNav } from './user-nav';
-import { Button } from './ui/button';
 import { useUser } from '@/context/user-context';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
@@ -43,7 +42,7 @@ const navItems = [
   { href: '/contact', icon: Phone, label: 'Contact' },
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+function AppShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useUser();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -55,7 +54,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SidebarProvider>
+    <>
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-3 p-2">
@@ -70,16 +69,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton
-                    onClick={handleLinkClick}
-                    isActive={pathname === item.href}
-                    tooltip={item.label}
-                  >
+                <SidebarMenuButton
+                  asChild
+                  onClick={handleLinkClick}
+                  isActive={pathname === item.href}
+                  tooltip={item.label}
+                >
+                  <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
@@ -87,7 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarFooter>
           <div className="flex items-center gap-3 p-2 border-t">
               <Avatar>
-                <AvatarImage src={user?.profilePhotoUrl} alt={user?.name} />
+                <AvatarImage src={user?.profilePhotoUrl} alt={user?.name ?? ''} />
                 <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
@@ -105,6 +105,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="flex-1 p-4 sm:p-6">{children}</main>
       </SidebarInset>
+    </>
+  );
+}
+
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AppShellContent>{children}</AppShellContent>
     </SidebarProvider>
   );
 }
