@@ -70,8 +70,7 @@ export default function LearningHubPage() {
                             <Youtube className="mr-2 h-4 w-4" />
                             View All Classes
                         </a>
-                    </a >
-                </Button>
+                    </Button>
                 </CardHeader>
             </Card>
         </div>
