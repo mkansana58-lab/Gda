@@ -48,6 +48,7 @@ type TestResult = {
     percentage: number;
     status: 'पास' | 'औसत' | 'फेल';
     studentName: string;
+    studentClass: string;
 };
 
 
@@ -112,6 +113,7 @@ export default function AiTestPage() {
         percentage,
         status: performanceStatus,
         studentName: form.getValues('name'),
+        studentClass: form.getValues('class'),
     });
 
     setStatus('finished');
@@ -245,10 +247,10 @@ export default function AiTestPage() {
             <div ref={certificateRef} className="p-4 bg-background w-full max-w-3xl">
                 <TestResultCertificate 
                     studentName={testResult.studentName}
+                    studentClass={testResult.studentClass}
                     subject={testSubject}
                     score={testResult.score}
                     totalQuestions={questions.length}
-                    percentage={testResult.percentage}
                     performanceStatus={testResult.status}
                 />
             </div>
