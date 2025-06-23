@@ -49,7 +49,7 @@ const generalChatFlow = ai.defineFlow({
     const llmResponse = await ai.generate({
         prompt: {
             system: systemPrompt,
-            messages: validMessages.map(msg => ({ role: msg.role, content: [{ text: msg.content }] })),
+            messages: validMessages,
         },
         config: {
             temperature: 0.5,
