@@ -36,27 +36,6 @@ const systemPrompt = `आप 'गो स्वामी डिफेंस ए�
 
 संक्षेप में और सीधे जवाब दें।`;
 
-const chatPrompt = ai.definePrompt(
-  {
-    name: 'generalChatPrompt',
-    system: systemPrompt,
-    input: { schema: GeneralChatInputSchema },
-    output: { format: 'text' },
-    config: {
-      temperature: 0.5,
-    },
-  },
-  async (input) => {
-    // Transform the simple string content into the Part format the LLM expects.
-    return {
-      messages: input.messages.map((msg) => ({
-        role: msg.role,
-        content: [{ text: msg.content }],
-      })),
-    };
-  }
-);
-
 
 const generalChatFlow = ai.defineFlow({
     name: 'generalChatFlow',
@@ -64,9 +43,23 @@ const generalChatFlow = ai.defineFlow({
     outputSchema: GeneralChatOutputSchema,
 }, async (input) => {
     const validMessages = input.messages.filter(m => m.content.trim() !== '');
-    
-    // Call the defined prompt with the valid messages
-    const llmResponse = await chatPrompt({ messages: validMessages });
 
-    return { answer: llmResponse.output || 'माफ़ कीजिए, मुझे कुछ समझ नहीं आया। कृपया दोबारा प्रयास करें।' };
+    // The history is an array of messages, we need to map content to the Part format.
+    const history = validMessages.map(msg => ({
+        role: msg.role,
+        content: [{ text: msg.content }]
+    }));
+    
+    const response = await ai.generate({
+        prompt: {
+            system: systemPrompt,
+            messages: history,
+        },
+        config: {
+          temperature: 0.5,
+        },
+    });
+
+    const answer = response.text;
+    return { answer: answer || 'माफ़ कीजिए, मुझे कुछ समझ नहीं आया। कृपया दोबारा प्रयास करें।' };
 });
