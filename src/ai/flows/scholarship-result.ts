@@ -51,11 +51,10 @@ const generalChatFlow = ai.defineFlow({
             system: systemPrompt,
             messages: validMessages.map(msg => ({ role: msg.role, content: [{ text: msg.content }] })),
         },
-        model: 'googleai/gemini-2.0-flash',
         config: {
             temperature: 0.5,
         },
     });
 
-    return { answer: llmResponse.text() };
+    return { answer: llmResponse.text };
 });

@@ -56,6 +56,35 @@ const cutoffData: Record<string, Record<string, any>> = {
       ],
     },
   },
+  'Sainik School': {
+    '2023': {
+      eligibility: "कक्षा 6 के लिए 10-12 वर्ष, कक्षा 9 के लिए 13-15 वर्ष।",
+      merit: "AISSEE परीक्षा में प्रदर्शन पर आधारित।",
+      cutoff: [
+        { category: 'सामान्य', marks: '220/300' },
+        { category: 'ओबीसी', marks: '210/300' },
+        { category: 'एससी/एसटी', marks: '195/300' },
+      ],
+    },
+  },
+  'RTSE': {
+    '2023': {
+      eligibility: "विभिन्न कक्षाओं के लिए खुला है।",
+      merit: "RTSE परीक्षा में प्रदर्शन पर आधारित।",
+      cutoff: [
+        { category: 'मेरिट आधारित', marks: 'राज्य-स्तर पर भिन्न होता है' },
+      ],
+    },
+  },
+  'Olympiad': {
+    '2023': {
+      eligibility: "विभिन्न कक्षाओं और विषयों के लिए खुला है।",
+      merit: "परीक्षा के विभिन्न स्तरों में प्रदर्शन पर आधारित।",
+      cutoff: [
+        { category: 'योग्यता', marks: 'विषय और स्तर के अनुसार भिन्न होता है' },
+      ],
+    },
+  },
 };
 
 const chanceFormSchema = z.object({

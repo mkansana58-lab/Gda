@@ -391,6 +391,7 @@ export default function AiTestPage() {
                                     <SelectItem value="History">इतिहास</SelectItem>
                                     <SelectItem value="Geography">भूगोल</SelectItem>
                                     <SelectItem value="General Knowledge">सामान्य ज्ञान</SelectItem>
+                                    <SelectItem value="English">अंग्रेजी</SelectItem>
                                 </SelectContent>
                             </Select>
                         <FormMessage /></FormItem>

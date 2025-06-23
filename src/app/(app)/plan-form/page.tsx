@@ -133,6 +133,7 @@ export default function ScholarshipFormPage() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="Sainik School">सैनिक स्कूल</SelectItem>
                       <SelectItem value="Military School">मिलिट्री स्कूल</SelectItem>
                       <SelectItem value="RMS">आरएमएस</SelectItem>
                       <SelectItem value="RIMC">आरआईएमसी</SelectItem>
