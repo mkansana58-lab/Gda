@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useFormState } from 'react-dom';
+import { useState, useActionState } from 'react';
 import { checkScholarshipResult, CheckScholarshipResultOutput } from '@/ai/flows/scholarship-result';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +13,7 @@ const initialState: { output: CheckScholarshipResultOutput | null; error?: strin
 };
 
 export default function AiChatPage() {
-  const [state, formAction] = useFormState(async (_prevState: any, formData: FormData) => {
+  const [state, formAction] = useActionState(async (_prevState: any, formData: FormData) => {
     const rollNumber = formData.get('rollNumber') as string;
     if (!rollNumber) {
       return { output: null, error: 'Please enter a roll number.' };

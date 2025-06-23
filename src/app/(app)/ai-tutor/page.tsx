@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useFormState } from 'react-dom';
+import { useState, useActionState } from 'react';
 import { askAcademicQuestion, AskAcademicQuestionOutput } from '@/ai/flows/academic-question-tutor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +14,7 @@ const initialState: { output: AskAcademicQuestionOutput | null; error?: string }
 };
 
 export default function AiTutorPage() {
-  const [state, formAction] = useFormState(async (_prevState: any, formData: FormData) => {
+  const [state, formAction] = useActionState(async (_prevState: any, formData: FormData) => {
     const question = formData.get('question') as string;
     if (!question) {
       return { output: null, error: 'Please enter a question.' };
