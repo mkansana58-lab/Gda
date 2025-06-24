@@ -103,7 +103,7 @@ export default function ToppersPage() {
   );
 
   return (
-    <div className="flex flex-col gap-8 pb-16">
+    <div className="flex flex-col gap-8 pb-24">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">हॉल ऑफ फेम / टॉपर्स</h1>
         <p className="text-muted-foreground">हमारे मॉक टेस्ट और प्रैक्टिस टेस्ट के शीर्ष प्रदर्शन करने वालों का जश्न।</p>

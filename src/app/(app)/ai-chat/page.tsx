@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { generalChat } from '@/ai/flows/general-chat';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, User, Sparkles, Paperclip, X } from 'lucide-react';
+import { Loader2, Send, User, Bot, Paperclip, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -87,10 +87,8 @@ export default function AiChatPage() {
 
     const historyForApi = messages.map(m => ({ role: m.role, content: m.content }));
     
-    // Create a new array for the API call to ensure it's not referencing the state array
     const messagesForApi = [...historyForApi];
 
-    // Add the new user message to the API array
     const userMessageForApi = { role: 'user' as const, content: input };
     messagesForApi.push(userMessageForApi);
     
@@ -121,7 +119,7 @@ export default function AiChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100vh-10rem)]">
       <div className="mb-4">
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI सहायक</h1>
         <p className="text-muted-foreground">
@@ -142,7 +140,7 @@ export default function AiChatPage() {
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={message.role === 'user' ? user?.profilePhotoUrl : undefined} />
                   <AvatarFallback>
-                    {message.role === 'user' ? <User /> : <Sparkles />}
+                    {message.role === 'user' ? <User /> : <Bot />}
                   </AvatarFallback>
                 </Avatar>
                 <div
@@ -166,7 +164,7 @@ export default function AiChatPage() {
             {isLoading && (
               <div className="flex items-start gap-3">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback><Sparkles /></AvatarFallback>
+                  <AvatarFallback><Bot /></AvatarFallback>
                 </Avatar>
                 <div className="bg-muted rounded-lg p-3">
                     <Loader2 className="w-5 h-5 animate-spin"/>

@@ -55,7 +55,7 @@ export default function ContactPage() {
     }
 
   return (
-    <div className="flex flex-col gap-8 pb-16">
+    <div className="flex flex-col gap-8 pb-24">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">हमसे संपर्क करें</h1>
         <p className="text-muted-foreground">

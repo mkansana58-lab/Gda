@@ -34,7 +34,7 @@ const learningSections = [
 
 export default function LearningHubPage() {
     return (
-        <div className="flex flex-col gap-8 pb-16">
+        <div className="flex flex-col gap-8 pb-24">
             <div>
                 <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">लर्निंग हब</h1>
                 <p className="text-muted-foreground">सभी शिक्षण संसाधनों के लिए आपका वन-स्टॉप डेस्टिनेशन।</p>
@@ -53,7 +53,6 @@ export default function LearningHubPage() {
                            </div>
                         </CardHeader>
                         <CardContent className="flex-grow">
-                            {/* Placeholder content can go here */}
                         </CardContent>
                         <CardFooter>
                            <Button className="w-full" asChild disabled={section.disabled}>
