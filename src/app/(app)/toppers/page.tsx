@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Crown, User, BookCopy, Shield } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from '@/components/ui/separator';
 
 interface OverallTopper {
   name: string;
@@ -30,8 +31,7 @@ interface SubjectTopper {
 export default function ToppersPage() {
   const [overallToppers, setOverallToppers] = useState<OverallTopper[]>([]);
   const [subjectToppers, setSubjectToppers] = useState<SubjectTopper[]>([]);
-  const [activeSubjectTab, setActiveSubjectTab] = useState<'class6' | 'class9'>('class6');
-
+  
   useEffect(() => {
     const storedOverallToppers = localStorage.getItem('sainik-school-overall-toppers');
     if (storedOverallToppers) {
@@ -127,8 +127,8 @@ export default function ToppersPage() {
       
       <Tabs defaultValue="overall" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="overall">समग्र टॉपर्स (Overall)</TabsTrigger>
-          <TabsTrigger value="subject">विषय-वार टॉपर्स (Subject-wise)</TabsTrigger>
+          <TabsTrigger value="overall">समग्र टॉपर्स</TabsTrigger>
+          <TabsTrigger value="subject">विषय-वार टॉपर्स</TabsTrigger>
         </TabsList>
         <TabsContent value="overall" className="mt-6">
             <div className="grid md:grid-cols-2 gap-8">
@@ -153,19 +153,17 @@ export default function ToppersPage() {
             </div>
         </TabsContent>
         <TabsContent value="subject" className="mt-6">
-            <Tabs value={activeSubjectTab} onValueChange={(value) => setActiveSubjectTab(value as any)} className="w-full flex justify-center mb-4">
-                <TabsList>
-                    <TabsTrigger value="class6">कक्षा 6</TabsTrigger>
-                    <TabsTrigger value="class9">कक्षा 9</TabsTrigger>
-                </TabsList>
-            </Tabs>
-            
-            <TabsContent value="class6" className={activeSubjectTab === 'class6' ? 'block' : 'hidden'}>
-                {renderSubjectToppers(getSubjectTopPerformers('6'))}
-            </TabsContent>
-            <TabsContent value="class9" className={activeSubjectTab === 'class9' ? 'block' : 'hidden'}>
-                {renderSubjectToppers(getSubjectTopPerformers('9'))}
-            </TabsContent>
+             <div className="space-y-8">
+                <div>
+                    <h3 className="text-2xl font-bold font-headline mb-4 text-center">कक्षा 6 विषय टॉपर्स</h3>
+                    {renderSubjectToppers(getSubjectTopPerformers('6'))}
+                </div>
+                <Separator />
+                <div>
+                    <h3 className="text-2xl font-bold font-headline mb-4 text-center">कक्षा 9 विषय टॉपर्स</h3>
+                    {renderSubjectToppers(getSubjectTopPerformers('9'))}
+                </div>
+            </div>
         </TabsContent>
       </Tabs>
     </div>
