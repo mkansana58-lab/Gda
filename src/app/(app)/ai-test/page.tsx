@@ -75,10 +75,15 @@ export default function AiTestPage() {
 
     // Load Sainik School progress from localStorage
     useEffect(() => {
-        if (pageState.startsWith('test-') && selectedClass) {
-            const savedProgressRaw = localStorage.getItem(`sainik-school-progress-${selectedClass}-${user?.email}`);
+        if (pageState.startsWith('test-') && selectedClass && user?.email) {
+            const savedProgressRaw = localStorage.getItem(`sainik-school-progress-${selectedClass}-${user.email}`);
             if (savedProgressRaw) {
-                setProgress(JSON.parse(savedProgressRaw));
+                try {
+                    setProgress(JSON.parse(savedProgressRaw));
+                } catch (e) {
+                    console.error("Failed to parse progress from localStorage", e);
+                    setProgress(getInitialProgress(selectedClass));
+                }
             } else {
                 setProgress(getInitialProgress(selectedClass));
             }
@@ -123,18 +128,31 @@ export default function AiTestPage() {
     };
     
     const handleFinishSainikTest = useCallback(() => {
-        if (!currentTest || !progress || !selectedClass || !user) return;
+        if (!currentTest || !selectedClass || !user) return;
         
         let finalScore = 0;
         currentTest.questions.forEach((q, index) => { if (q.correctAnswer === userAnswers[index]) { finalScore++; } });
         
         const timeTaken = currentTest.time - timeLeft;
 
-        setProgress(prev => ({ ...prev!, [currentTest.id]: { completed: true, score: finalScore, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken } }));
+        setProgress(prev => {
+            if (!prev) return getInitialProgress(selectedClass); // Fallback
+            return {
+                ...prev,
+                [currentTest.id]: {
+                    completed: true,
+                    score: finalScore,
+                    answers: userAnswers,
+                    questions: currentTest.questions,
+                    timeTaken: timeTaken
+                }
+            };
+        });
+
         setPageState('test-dashboard');
         setCurrentTest(null);
         toast({ title: 'टेस्ट पूरा हुआ!', description: `${currentTest.subject} का आपका परिणाम सेव कर लिया गया है।` });
-    }, [currentTest, userAnswers, progress, timeLeft, selectedClass, user, toast]);
+    }, [currentTest, userAnswers, timeLeft, selectedClass, user, toast]);
 
     useEffect(() => {
         if (pageState !== 'test-in-progress') return;
@@ -153,8 +171,8 @@ export default function AiTestPage() {
         setConfirmAction({
             title: 'क्या आप निश्चित हैं?', description: `यह कक्षा ${selectedClass} के लिए आपकी सभी परीक्षा प्रगति को रीसेट कर देगा। यह क्रिया पूर्ववत नहीं की जा सकती।`,
             onConfirm: () => {
-                if(selectedClass){
-                    localStorage.removeItem(`sainik-school-progress-${selectedClass}-${user?.email}`);
+                if(selectedClass && user?.email){
+                    localStorage.removeItem(`sainik-school-progress-${selectedClass}-${user.email}`);
                     setProgress(getInitialProgress(selectedClass));
                     toast({ title: 'प्रगति रीसेट', description: `कक्षा ${selectedClass} के लिए आपकी प्रगति रीसेट कर दी गई है।` });
                 }

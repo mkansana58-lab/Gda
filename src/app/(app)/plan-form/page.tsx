@@ -58,6 +58,25 @@ export default function ScholarshipFormPage() {
         title: 'आवेदन जमा हो गया!',
         description: 'आपका प्रमाणपत्र नीचे उत्पन्न हो गया है।',
       });
+      
+      // Add notification to localStorage
+      const newNotification = {
+        id: `scholarship-${Date.now()}`,
+        icon: 'FilePen',
+        title: 'छात्रवृत्ति आवेदन प्राप्त हुआ',
+        description: `आपका ${values.exam} के लिए आवेदन सफलतापूर्वक जमा हो गया है।`,
+        read: false,
+        timestamp: new Date().toISOString(),
+      };
+      
+      try {
+        const storageKey = `user-notifications-${user?.email || 'guest'}`;
+        const existingNotifications = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const updatedNotifications = [newNotification, ...existingNotifications].slice(0, 20); // Keep last 20
+        localStorage.setItem(storageKey, JSON.stringify(updatedNotifications));
+      } catch (error) {
+        console.error("Could not save notification to localStorage", error);
+      }
     }, 1000);
   }
 

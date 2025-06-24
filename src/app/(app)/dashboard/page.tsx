@@ -9,6 +9,7 @@ import {
   Trophy,
   Users,
   MessageSquare,
+  Sparkles,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -81,12 +82,22 @@ export default function DashboardPage() {
         <h1 className="font-headline text-3xl font-bold tracking-tight">
           वापसी पर स्वागत है, {user?.name?.split(' ')[0]}!
         </h1>
-        <div className="w-full overflow-hidden whitespace-nowrap mt-2">
-            <p className="marquee-text text-muted-foreground">
-                सपनों को हकीकत बनाना है, तो आज से मेहनत शुरू करो।
-            </p>
-        </div>
+        <p className="text-muted-foreground mt-1">आपकी तैयारी कैसी चल रही है?</p>
       </div>
+
+      <Card className="bg-primary/5 border-primary/20">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4">
+            <Sparkles className="w-8 h-8 text-primary" />
+            <div>
+              <h3 className="text-lg font-semibold font-headline">आज का विचार</h3>
+              <p className="text-muted-foreground">
+                सफलता का कोई रहस्य नहीं है, यह तैयारी, कड़ी मेहनत और असफलता से सीखने का परिणाम है।
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
         {features.map((feature) => (
