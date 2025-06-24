@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -14,6 +15,7 @@ import {
   Trophy,
   Users,
   MessageSquare,
+  ListChecks,
 } from 'lucide-react';
 
 import {
@@ -45,6 +47,7 @@ const navItems = [
   { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
+  { href: '/school-priority-list', icon: ListChecks, label: 'स्कूल सूची' },
   { href: '/contact', icon: Phone, label: 'संपर्क' },
 ];
 

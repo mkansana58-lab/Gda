@@ -10,6 +10,7 @@ import {
   Star,
   Users,
   Settings,
+  ListChecks,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -25,7 +26,7 @@ const features = [
   { title: 'कट-ऑफ', icon: TrendingUp, href: '/cutoff-checker' },
   { title: 'टॉपर्स', icon: Star, href: '/toppers' },
   { title: 'शिक्षक', icon: Users, href: '/teachers' },
-  { title: 'सेटिंग्स', icon: Settings, href: '#' },
+  { title: 'स्कूल सूची', icon: ListChecks, href: '/school-priority-list' },
 ];
 
 export default function DashboardPage() {
@@ -53,22 +54,12 @@ export default function DashboardPage() {
         {/* Features */}
         <div className="grid grid-cols-3 gap-4">
           {features.map((feature, index) => {
-            const isSettings = feature.title === 'सेटिंग्स';
-            
             const content = (
               <Card className="bg-card text-primary aspect-square flex flex-col items-center justify-center text-center p-1 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer shadow-md">
                 <feature.icon className="w-7 h-7 mb-2" />
                 <h3 className="text-xs font-semibold leading-tight text-center">{feature.title}</h3>
               </Card>
             );
-
-            if (isSettings) {
-              return (
-                <div key={index} onClick={() => setProfileDialogOpen(true)}>
-                  {content}
-                </div>
-              );
-            }
 
             return (
               <Link href={feature.href} key={index}>
@@ -81,5 +72,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
