@@ -116,12 +116,13 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           <UserNav />
         </header>
         <main className={cn(
-            "flex-1 pb-24", 
-            !isDashboard && "p-4 sm:p-6"
+            "flex-1 pb-24",
+            !isDashboard && "pt-14"
           )}>
           <div className={cn(
-              "w-full max-w-7xl mx-auto",
-              isDashboard && "max-w-none mx-0"
+              "w-full max-w-7xl mx-auto h-full",
+              isDashboard ? "max-w-none mx-0" : "px-4 sm:px-6",
+              isDashboard && "h-screen" 
             )}>
               {children}
           </div>

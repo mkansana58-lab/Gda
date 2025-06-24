@@ -86,7 +86,14 @@ export default function AiChatPage() {
     };
 
     const historyForApi = messages.map(m => ({ role: m.role, content: m.content }));
-    const allMessagesForApi = [...historyForApi, { role: 'user' as const, content: input }];
+    
+    // Create a new array for the API call to ensure it's not referencing the state array
+    const messagesForApi = [...historyForApi];
+
+    // Add the new user message to the API array
+    const userMessageForApi = { role: 'user' as const, content: input };
+    messagesForApi.push(userMessageForApi);
+    
     const dataUriToSend = imageDataUri;
     
     setMessages(prev => [...prev, userMessageForUi]);
@@ -96,7 +103,7 @@ export default function AiChatPage() {
 
     try {
       const response = await generalChat({ 
-          messages: allMessagesForApi,
+          messages: messagesForApi,
           photoDataUri: dataUriToSend || undefined
       });
       const modelMessage: Message = { role: 'model', content: response.answer };
@@ -114,9 +121,9 @@ export default function AiChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full pb-16">
+    <div className="flex flex-col h-full">
       <div className="mb-4">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">AI सहायक</h1>
+        <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI सहायक</h1>
         <p className="text-muted-foreground">
           अपने सवाल पूछें, छवियां अपलोड करें और तुरंत जवाब पाएं।
         </p>

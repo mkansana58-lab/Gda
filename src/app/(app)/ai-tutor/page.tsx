@@ -30,7 +30,7 @@ export default function AiTutorPage() {
   return (
     <div className="flex flex-col gap-8 pb-16">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">AI ट्यूटर</h1>
+        <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI ट्यूटर</h1>
         <p className="text-muted-foreground">
           कोई भी शैक्षणिक प्रश्न पूछें और तुरंत हिंदी में उत्तर पाएं।
         </p>

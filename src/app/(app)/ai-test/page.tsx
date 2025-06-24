@@ -321,7 +321,7 @@ export default function AiTestPage() {
     const renderModeSelection = () => (
         <div className="flex flex-col gap-8">
             <div>
-                <h1 className="font-headline text-3xl font-bold tracking-tight">AI टेस्ट सेंटर</h1>
+                <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI टेस्ट सेंटर</h1>
                 <p className="text-muted-foreground">अपनी तैयारी का आकलन करने के लिए एक मोड चुनें।</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto w-full">
@@ -363,7 +363,7 @@ export default function AiTestPage() {
         <div className="flex flex-col gap-8">
             <div className="relative">
                 <Button variant="ghost" size="icon" className="absolute -left-4 sm:-left-12 -top-2" onClick={() => setPageState('mode-selection')}><ArrowLeft className="w-5 h-5"/></Button>
-                <h1 className="font-headline text-3xl font-bold tracking-tight text-center sm:text-left">{testMode === 'sainik' ? 'सैनिक स्कूल' : 'RMS'} मॉक टेस्ट</h1>
+                <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-center sm:text-left">{testMode === 'sainik' ? 'सैनिक स्कूल' : 'RMS'} मॉक टेस्ट</h1>
                 <p className="text-muted-foreground text-center sm:text-left">अपनी तैयारी का आकलन करने के लिए एक कक्षा चुनें।</p>
             </div>
             <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto w-full">
@@ -386,7 +386,7 @@ export default function AiTestPage() {
             <div className="flex flex-col gap-6">
                 <div className="relative">
                     <Button variant="ghost" size="icon" className="absolute -left-4 sm:-left-12 -top-2" onClick={() => setPageState('class-selection')}><ArrowLeft className="w-5 h-5"/></Button>
-                    <div className="text-center sm:text-left"><h1 className="font-headline text-3xl font-bold tracking-tight">मॉक टेस्ट डैशबोर्ड - {testMode === 'sainik' ? 'सैनिक स्कूल' : 'RMS'} कक्षा {selectedClass}</h1><p className="text-muted-foreground">अपनी प्रगति को ट्रैक करें और टेस्ट शुरू करें। कुल समय: {config.totalTimeMinutes} मिनट।</p></div>
+                    <div className="text-center sm:text-left"><h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">मॉक टेस्ट डैशबोर्ड - {testMode === 'sainik' ? 'सैनिक स्कूल' : 'RMS'} कक्षा {selectedClass}</h1><p className="text-muted-foreground">अपनी प्रगति को ट्रैक करें और टेस्ट शुरू करें। कुल समय: {config.totalTimeMinutes} मिनट।</p></div>
                 </div>
                 <Card><CardHeader><CardTitle>आपकी प्रगति</CardTitle><CardDescription>{completedCount} / {config.tests.length} टेस्ट पूरे हुए।</CardDescription></CardHeader><CardContent><Progress value={(completedCount / config.tests.length) * 100} /></CardContent></Card>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -524,7 +524,7 @@ export default function AiTestPage() {
             <div className="flex flex-col gap-8">
                  <div className="relative">
                     <Button variant="ghost" size="icon" className="absolute -left-4 sm:-left-12 -top-2" onClick={() => setPageState('mode-selection')}><ArrowLeft className="w-5 h-5"/></Button>
-                    <h1 className="font-headline text-3xl font-bold tracking-tight text-center sm:text-left">विषय-वार प्रैक्टिस टेस्ट</h1>
+                    <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-center sm:text-left">विषय-वार प्रैक्टिस टेस्ट</h1>
                     <p className="text-muted-foreground text-center sm:text-left">अपनी कक्षा के लिए एक विषय चुनें और अभ्यास शुरू करें।</p>
                 </div>
                  <Card className="w-full max-w-md mx-auto">
@@ -632,7 +632,7 @@ export default function AiTestPage() {
     if (isLoading) return <div className="flex flex-col items-center justify-center gap-4 h-full"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="text-muted-foreground">आपकी परीक्षा तैयार हो रही है, कृपया प्रतीक्षा करें...</p></div>;
     
     return (
-        <div className="container mx-auto py-4">
+        <div className="container mx-auto pb-20">
             {pageState === 'mode-selection' && renderModeSelection()}
             {pageState === 'class-selection' && renderClassSelection()}
             {pageState === 'test-dashboard' && renderTestDashboard()}

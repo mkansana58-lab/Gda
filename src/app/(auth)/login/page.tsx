@@ -13,7 +13,7 @@ export default function LoginPage() {
             <div className="mx-auto mb-4">
               <Logo />
             </div>
-            <CardTitle className="font-headline text-3xl font-bold tracking-tight text-primary">
+            <CardTitle className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-primary">
               गो स्वामी डिफेंस एकेडमी
             </CardTitle>
             <CardDescription className="text-muted-foreground pt-2 font-semibold">
@@ -27,5 +27,3 @@ export default function LoginPage() {
       </div>
   );
 }
-
-    

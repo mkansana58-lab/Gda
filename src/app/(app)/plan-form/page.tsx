@@ -118,7 +118,7 @@ export default function ScholarshipFormPage() {
 
   if (submittedData) {
     return (
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 pb-16">
         <div ref={certificateRef} className="p-4 bg-background">
           <Certificate data={submittedData} />
         </div>
@@ -232,5 +232,3 @@ export default function ScholarshipFormPage() {
     </Card>
   );
 }
-
-    

@@ -95,7 +95,7 @@ export default function SchoolPriorityListPage() {
   return (
     <div className="flex flex-col gap-8 pb-16">
       <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">स्कूल प्राथमिकता सूची</h1>
+        <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">स्कूल प्राथमिकता सूची</h1>
         <p className="text-muted-foreground">सैनिक स्कूल काउंसलिंग के लिए अपनी प्राथमिकता सूची बनाएं।</p>
       </div>
       <Card className="w-full max-w-2xl mx-auto">
