@@ -18,7 +18,7 @@ export function BottomNav() {
   const { setProfileDialogOpen } = useUser();
 
   return (
-    <div className="fixed bottom-0 left-0 w-full p-2 md:hidden">
+    <div className="fixed bottom-0 left-0 w-full p-2 md:hidden z-30">
       <div className="w-full mx-auto bg-card/90 backdrop-blur-sm border rounded-full shadow-lg">
         <div className="flex items-center justify-around">
           {navItems.map((item) => (

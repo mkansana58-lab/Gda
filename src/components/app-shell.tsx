@@ -115,18 +115,17 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           <SidebarTrigger className="md:hidden" />
           <UserNav />
         </header>
-        <main className={cn(
+        <div className={cn(
             "flex-1 pb-24",
             !isDashboard && "pt-14"
           )}>
           <div className={cn(
               "w-full max-w-7xl mx-auto h-full",
-              isDashboard ? "max-w-none mx-0" : "px-4 sm:px-6",
-              isDashboard && "h-screen" 
+              isDashboard ? "max-w-none mx-0" : "px-4 sm:px-6"
             )}>
               {children}
           </div>
-        </main>
+        </div>
         <BottomNav />
       </SidebarInset>
     </>
