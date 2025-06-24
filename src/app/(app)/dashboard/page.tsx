@@ -16,15 +16,15 @@ import { useUser } from '@/context/user-context';
 import { Logo } from '@/components/logo';
 
 const features = [
-  { title: 'Scholarship', icon: Bookmark, href: '/plan-form' },
-  { title: 'Learning Hub', icon: BookOpen, href: '/learning-hub' },
-  { title: 'AI Tutor', icon: MessageSquare, href: '/ai-tutor' },
-  { title: 'AI Chat', icon: Bot, href: '/ai-chat' },
-  { title: 'AI Test', icon: FlaskConical, href: '/ai-test' },
-  { title: 'Cut-off', icon: TrendingUp, href: '/cutoff-checker' },
-  { title: 'Toppers', icon: Star, href: '/toppers' },
-  { title: 'Teachers', icon: Users, href: '/teachers' },
-  { title: 'Settings', icon: Settings, href: '#' },
+  { title: 'छात्रवृत्ति', icon: Bookmark, href: '/plan-form' },
+  { title: 'लर्निंग हब', icon: BookOpen, href: '/learning-hub' },
+  { title: 'AI ट्यूटर', icon: MessageSquare, href: '/ai-tutor' },
+  { title: 'AI चैट', icon: Bot, href: '/ai-chat' },
+  { title: 'AI टेस्ट', icon: FlaskConical, href: '/ai-test' },
+  { title: 'कट-ऑफ', icon: TrendingUp, href: '/cutoff-checker' },
+  { title: 'टॉपर्स', icon: Star, href: '/toppers' },
+  { title: 'शिक्षक', icon: Users, href: '/teachers' },
+  { title: 'सेटिंग्स', icon: Settings, href: '#' },
 ];
 
 export default function DashboardPage() {
@@ -37,22 +37,22 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3">
           <Logo />
           <div>
-            <h1 className="text-2xl font-bold font-headline">Goswami</h1>
-            <h2 className="text-2xl font-light font-headline -mt-2">Defence Academy</h2>
+            <h1 className="text-2xl font-bold font-headline">गोस्वामी</h1>
+            <h2 className="text-2xl font-light font-headline -mt-2">डिफेंस एकेडमी</h2>
           </div>
         </div>
 
         {/* Quote */}
         <Card className="bg-card text-card-foreground p-6 rounded-2xl shadow-lg">
           <p className="text-center text-lg font-medium">
-            “The strength of your struggle determines the success of your achievement.”
+            “संघर्ष की ताकत ही आपकी सफलता का निर्धारण करती है।”
           </p>
         </Card>
 
         {/* Features */}
         <div className="grid grid-cols-3 gap-4">
           {features.map((feature, index) => {
-            const isSettings = feature.title === 'Settings';
+            const isSettings = feature.title === 'सेटिंग्स';
             
             const content = (
               <div className="bg-card text-primary aspect-square flex flex-col items-center justify-center text-center p-1 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer shadow-md">
