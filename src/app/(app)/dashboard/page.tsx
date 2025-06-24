@@ -8,7 +8,6 @@ import {
   TrendingUp,
   Star,
   Users,
-  Mail,
   Settings,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -17,15 +16,14 @@ import { useUser } from '@/context/user-context';
 import { Logo } from '@/components/logo';
 
 const features = [
-  { title: 'Scholarship Form', icon: Bookmark, href: '/plan-form' },
+  { title: 'Scholarship', icon: Bookmark, href: '/plan-form' },
   { title: 'Learning Hub', icon: BookOpen, href: '/learning-hub' },
   { title: 'AI Tutor', icon: MessageSquare, href: '/ai-tutor' },
   { title: 'AI Chat', icon: Bot, href: '/ai-chat' },
   { title: 'AI Test', icon: FlaskConical, href: '/ai-test' },
-  { title: 'Cut-off Checker', icon: TrendingUp, href: '/cutoff-checker' },
-  { title: 'Topper List', icon: Star, href: '/toppers' },
-  { title: 'Our Teachers', icon: Users, href: '/teachers' },
-  { title: 'Contact Us', icon: Mail, href: '/contact' },
+  { title: 'Cut-off', icon: TrendingUp, href: '/cutoff-checker' },
+  { title: 'Toppers', icon: Star, href: '/toppers' },
+  { title: 'Teachers', icon: Users, href: '/teachers' },
   { title: 'Settings', icon: Settings, href: '#' },
 ];
 
@@ -33,7 +31,7 @@ export default function DashboardPage() {
   const { setProfileDialogOpen } = useUser();
 
   return (
-    <div className="bg-primary text-primary-foreground -m-4 sm:-m-6 min-h-screen">
+    <div className="bg-primary text-primary-foreground min-h-screen">
       <div className="w-full max-w-md mx-auto flex flex-col gap-6 px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -52,7 +50,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Features */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {features.map((feature, index) => {
             const isSettings = feature.title === 'Settings';
             
