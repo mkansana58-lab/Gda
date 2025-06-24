@@ -331,7 +331,7 @@ export default function AiTestPage() {
         return (
             <div className="w-full max-w-2xl mx-auto space-y-4 animate-in fade-in">
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between"><diV><CardTitle className="font-headline">{currentTest.subject}</CardTitle><CardDescription>प्रश्न {currentQuestionIndex + 1} / {currentTest.questions.length}</CardDescription></diV><Badge variant="outline" className="flex items-center gap-2 text-lg py-2 px-4"><Timer className="w-5 h-5"/>{formatTime(timeLeft)}</Badge></CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="font-headline">{currentTest.subject}</CardTitle><CardDescription>प्रश्न {currentQuestionIndex + 1} / {currentTest.questions.length}</CardDescription></div><Badge variant="outline" className="flex items-center gap-2 text-lg py-2 px-4"><Timer className="w-5 h-5"/>{formatTime(timeLeft)}</Badge></CardHeader>
                     <CardContent><Progress value={((currentQuestionIndex + 1) / currentTest.questions.length) * 100} className="mb-6"/><p className="text-xl font-semibold mb-4">{currentQ.question}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {currentQ.options.map(option => <Button key={option} variant={userAnswers[currentQuestionIndex] === option ? 'default' : 'outline'} onClick={() => handleAnswer(option)} className="justify-start h-auto py-3 text-left">{option}</Button>)}
