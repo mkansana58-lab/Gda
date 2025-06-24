@@ -69,7 +69,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-3 p-4">
-            <Logo className="h-12 w-12 p-2" />
+            <Logo className="h-12 w-12" />
             <div className="flex flex-col">
               <h2 className="font-headline text-xl font-semibold">गो स्वामी</h2>
               <p className="text-sm text-muted-foreground -mt-1">
