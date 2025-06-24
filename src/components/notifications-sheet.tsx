@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Bell, FilePen, Sparkles, CheckCircle } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useUser } from '@/context/user-context';
+import { Notification, getNotifications, markAllAsRead } from '@/lib/notifications';
 
 const iconMap = {
   Bell: Bell,
@@ -13,27 +14,18 @@ const iconMap = {
   CheckCircle: CheckCircle,
 };
 
-type NotificationIcon = keyof typeof iconMap;
-
-interface Notification {
-  id: string;
-  icon: NotificationIcon;
-  title: string;
-  description: string;
-  read: boolean;
-  timestamp: string;
-}
+const motivationalQuotes = [
+  "सपनों को हकीकत बनाना है, तो आज से मेहनत शुरू करो।",
+  "सफलता का कोई रहस्य नहीं है, यह तैयारी, कड़ी मेहनत और असफलता से सीखने का परिणाम है।",
+  "कल के लिए सबसे अच्छी तैयारी यही है कि आज अपना सर्वश्रेष्ठ करो।",
+  "जो छात्र प्रश्न पूछता है, वह पाँच मिनट के लिए मूर्ख रहता है, लेकिन जो नहीं पूछता, वह हमेशा के लिए मूर्ख रहता है।",
+  "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।"
+];
 
 interface NotificationsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const motivationalQuotes = [
-  "सपनों को हकीकत बनाना है, तो आज से मेहनत शुरू करो।",
-  "सफलता का कोई रहस्य नहीं है, यह तैयारी, कड़ी मेहनत और असफलता से सीखने का परिणाम है।",
-  "कल के लिए सबसे अच्छी तैयारी यही है कि आज अपना सर्वश्रेष्ठ करो।"
-];
 
 export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -43,14 +35,13 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
   const dateStorageKey = `last-motivational-date-${user?.email || 'guest'}`;
 
   useEffect(() => {
-    if (open) {
-      // 1. Get existing notifications
-      const storedNotifications: Notification[] = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    if (open && user) {
+      const storedNotifications = getNotifications(user.email);
       let currentNotifications = [...storedNotifications];
       
-      // 2. Add daily motivational quote if it's a new day
       const today = new Date().toDateString();
       const lastMotivationalDate = localStorage.getItem(dateStorageKey);
+
       if (lastMotivationalDate !== today) {
          const quote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
          const motivationalNotif: Notification = {
@@ -63,20 +54,19 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
          };
          currentNotifications.unshift(motivationalNotif);
          localStorage.setItem(dateStorageKey, today);
+         // Also save this new notification
+         localStorage.setItem(storageKey, JSON.stringify(currentNotifications.slice(0, 20)));
       }
       
-      // 3. Update state and mark all as read
-      const unreadNotifications = currentNotifications.filter(n => !n.read).length > 0;
-      setNotifications(currentNotifications.slice(0, 20));
+      setNotifications(currentNotifications.slice(0, 20).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
       
-      if (unreadNotifications) {
-        setTimeout(() => {
-          const readNotifications = currentNotifications.map(n => ({ ...n, read: true }));
-          localStorage.setItem(storageKey, JSON.stringify(readNotifications.slice(0, 20)));
-        }, 2000);
-      }
+      // Mark all as read after a short delay
+      setTimeout(() => {
+        markAllAsRead(user.email);
+        setNotifications(prev => prev.map(n => ({...n, read: true})));
+      }, 2000);
     }
-  }, [open, storageKey, dateStorageKey]);
+  }, [open, storageKey, dateStorageKey, user]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -85,13 +75,13 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
           <SheetTitle>सूचनाएं</SheetTitle>
           <SheetDescription>आपकी हाल की गतिविधियाँ और अपडेट।</SheetDescription>
         </SheetHeader>
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-1">
             {notifications.length > 0 ? (
                 notifications.map((notification, index) => {
                     const IconComponent = iconMap[notification.icon] || Bell;
                     return (
                         <React.Fragment key={notification.id}>
-                            <div className="flex items-start gap-4 p-2 relative">
+                            <div className="flex items-start gap-4 p-3 relative rounded-lg hover:bg-secondary">
                                <IconComponent className={`mt-1 h-5 w-5 flex-shrink-0 ${!notification.read ? 'text-primary' : 'text-muted-foreground'}`} />
                                <div className="flex-grow">
                                    <p className={`font-semibold ${!notification.read ? '' : 'text-muted-foreground'}`}>{notification.title}</p>

@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
 import html2canvas from 'html2canvas';
 import { Progress } from '@/components/ui/progress';
+import { addNotification } from '@/lib/notifications';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
@@ -96,6 +97,16 @@ export default function ScholarshipFormPage() {
         title: 'आवेदन जमा हो गया!',
         description: 'आपका प्रमाणपत्र नीचे उत्पन्न हो गया है। इसे डाउनलोड करें और हमें ईमेल करें।',
       });
+       if(user) {
+        addNotification(user.email, {
+            id: `scholarship-${Date.now()}`,
+            icon: 'FilePen',
+            title: 'आवेदन जमा हो गया!',
+            description: 'आपके छात्रवृत्ति आवेदन की पुष्टि हो गई है।',
+            read: false,
+            timestamp: new Date().toISOString(),
+        });
+      }
     }, 1000);
   }
 

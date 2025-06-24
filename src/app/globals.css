@@ -61,7 +61,7 @@ body {
     @apply bg-background text-foreground;
   }
   .eye-comfort-mode {
-    @apply sepia;
+    filter: sepia(60%) contrast(90%) brightness(95%);
   }
 }
 
@@ -71,7 +71,7 @@ body {
 }
 
 .marquee-text {
-  animation: marquee 20s linear infinite;
+  animation: marquee 25s linear infinite;
   display: inline-block;
   white-space: nowrap;
   padding-left: 100%;

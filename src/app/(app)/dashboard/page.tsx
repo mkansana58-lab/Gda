@@ -36,13 +36,13 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6 p-4 pb-24">
       <h1 className="text-2xl font-bold text-center font-headline">मुख्य विशेषताएं</h1>
       
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {menuItems.map((item) => (
           <Link href={item.href} key={item.href}>
             <Card className="bg-card text-card-foreground hover:bg-primary/20 transition-all aspect-square flex items-center justify-center shadow-lg border-border">
-              <CardContent className="p-2 pt-3 flex flex-col items-center text-center gap-2">
-                <item.icon className="w-8 h-8 text-primary" />
-                <span className="text-xs sm:text-sm font-semibold leading-tight">{item.label}</span>
+              <CardContent className="p-2 flex flex-col items-center text-center gap-1">
+                <item.icon className="w-7 h-7 text-primary" />
+                <span className="text-[11px] sm:text-xs font-semibold leading-tight">{item.label}</span>
               </CardContent>
             </Card>
           </Link>
@@ -54,8 +54,8 @@ export default function DashboardPage() {
           <CardTitle className="text-xl font-headline text-center">रक्षकों की एक पीढ़ी को प्रेरित करना</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="bg-card text-card-foreground rounded-lg p-4 text-center relative overflow-hidden">
-             <Marquee text='"अपने सपनों की दिशा में आत्मविश्वास से बढ़ें। वह जीवन जिएं जिसकी आपने कल्पना की है।"' />
+          <div className="bg-card text-card-foreground rounded-lg p-2 text-center relative overflow-hidden">
+             <Marquee text='"अपने सपनों की दिशा में आत्मविश्वास से बढ़ें। वह जीवन जिएं जिसकी आपने कल्पना की है।"    "सफलता का कोई रहस्य नहीं है, यह तैयारी और कड़ी मेहनत का परिणाम है।"    "कल के लिए सबसे अच्छी तैयारी यही है कि आज अपना सर्वश्रेष्ठ करो।"' />
           </div>
         </CardContent>
       </Card>

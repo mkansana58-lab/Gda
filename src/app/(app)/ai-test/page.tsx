@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUser } from '@/context/user-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { addNotification } from '@/lib/notifications';
 
 type PageState = 'mode-selection' | 'class-selection' | 'subject-test-setup' | 'test-dashboard' | 'test-in-progress' | 'certificate';
 type TestMode = 'sainik' | 'rms' | 'jnv' | 'olympiad' | 'rtse' | 'devnarayan';
@@ -150,6 +151,16 @@ export default function AiTestPage() {
         let correctAnswers = 0;
         currentTest.questions.forEach((q, index) => { if (q.correctAnswer === userAnswers[index]) { correctAnswers++; } });
         const timeTaken = currentTest.time - timeLeft;
+        const score = correctAnswers * marksPerQuestion;
+        
+        addNotification(user.email, {
+            id: `test-${currentTest.id}-${Date.now()}`,
+            icon: 'CheckCircle',
+            title: 'टेस्ट पूरा हुआ!',
+            description: `आपने ${currentTest.subject} में ${testConfig.questions * marksPerQuestion} में से ${score} अंक प्राप्त किए।`,
+            read: false,
+            timestamp: new Date().toISOString(),
+        });
 
         setProgress(prev => {
             if (!prev) return getInitialProgress(testMode, selectedClass);
@@ -190,6 +201,59 @@ export default function AiTestPage() {
         setCurrentTest(null);
         toast({ title: 'टेस्ट पूरा हुआ!', description: `${currentTest.subject} का आपका परिणाम सेव कर लिया गया है।` });
     }, [currentTest, userAnswers, timeLeft, selectedClass, user, toast, testMode]);
+    
+    const handleFinishSubjectTest = useCallback(() => {
+        if (!subjectTest || !user || !testMode) return;
+        let score = 0;
+        subjectTest.questions.forEach((q, i) => { if (q.correctAnswer === subjectTestAnswers[i]) score++; });
+        
+        const percentage = (score / subjectTest.questions.length) * 100;
+        let performanceStatus: 'पास' | 'औसत' | 'फेल';
+        if (percentage >= 65) { performanceStatus = 'पास'; }
+        else { performanceStatus = 'फेल'; }
+        
+        addNotification(user.email, {
+            id: `test-${testMode}-${subjectTest.subject}-${Date.now()}`,
+            icon: 'CheckCircle',
+            title: 'प्रैक्टिस टेस्ट पूरा हुआ!',
+            description: `आपने ${testMode.toUpperCase()} - ${subjectTest.subject} में ${subjectTest.questions.length} में से ${score} अंक प्राप्त किए।`,
+            read: false,
+            timestamp: new Date().toISOString(),
+        });
+
+        const certData = {
+          studentName: user.name,
+          studentClass: subjectTest.config.classLevel,
+          testTitle: `${testMode.toUpperCase()} - ${subjectTest.subject}`,
+          totalScore: score,
+          totalPossibleMarks: subjectTest.questions.length,
+          percentage: percentage,
+          performanceStatus: performanceStatus,
+          subjectResults: [{
+              subject: subjectTest.subject,
+              score: score,
+              totalMarks: subjectTest.questions.length
+          }]
+        };
+        setCertificateData(certData);
+
+        const topper = {
+            name: user.name, class: subjectTest.config.classLevel, percentage: percentage,
+            date: new Date().toISOString(), photo: user.profilePhotoUrl || '', hint: 'student portrait',
+            testMode: testMode, subject: subjectTest.subject,
+        };
+        const storageKey = `practice-test-toppers`;
+        const toppersRaw = localStorage.getItem(storageKey);
+        const toppers = toppersRaw ? JSON.parse(toppersRaw) : [];
+        const otherToppers = toppers.filter((t: any) => !(t.name === user.name && t.testMode === testMode && t.subject === topper.subject && t.class === topper.class));
+        const updatedToppers = [...otherToppers, topper];
+        updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
+        localStorage.setItem(storageKey, JSON.stringify(updatedToppers.slice(0, 20)));
+
+        setPageState('certificate');
+        setSubjectTest(null);
+    }, [subjectTest, subjectTestAnswers, user, testMode]);
+
 
     useEffect(() => {
         let timer: NodeJS.Timeout;
@@ -204,8 +268,8 @@ export default function AiTestPage() {
     }, [pageState, timeLeft, handleFinishMockTest, handleFinishSubjectTest, toast, currentTest, subjectTest]);
 
     const handleAnswer = (option: string) => {
-        const answers = pageState === 'test-in-progress' ? userAnswers : subjectTestAnswers;
-        const setAnswers = pageState === 'test-in-progress' ? setUserAnswers : setSubjectTestAnswers;
+        const answers = pageState === 'test-in-progress' && currentTest ? userAnswers : subjectTestAnswers;
+        const setAnswers = pageState === 'test-in-progress' && currentTest ? setUserAnswers : setSubjectTestAnswers;
         const newAnswers = [...answers];
         newAnswers[currentQuestionIndex] = option;
         setAnswers(newAnswers);
@@ -218,7 +282,7 @@ export default function AiTestPage() {
                 if(selectedClass && user?.email && testMode){
                     localStorage.removeItem(`${testMode}-progress-${selectedClass}-${user.email}`);
                     setProgress(getInitialProgress(testMode, selectedClass));
-                    toast({ title: 'प्रगति रीसेट', description: `आपकी प्रगति रीसेट कर दी गई है।` });
+                    toast({ title: 'प्रगति रीसेट', description: ` आपकी प्रगति रीसेट कर दी गई है।` });
                 }
             }
         });
@@ -256,12 +320,16 @@ export default function AiTestPage() {
 
         let questionsToGenerate: { subject: string, count: number }[] = [];
         let totalTime = 0;
+        let testTitle = '';
+
         if(testMode === 'olympiad') {
             questionsToGenerate.push({ subject: values.subject, count: currentConfig.questions });
             totalTime = currentConfig.time;
+            testTitle = values.subject;
         } else {
             questionsToGenerate = currentConfig.subjects.map((s: string) => ({ subject: s, count: currentConfig.questions }));
             totalTime = currentConfig.time;
+            testTitle = testMode.toUpperCase();
         }
         
         setIsLoading(true);
@@ -277,7 +345,7 @@ export default function AiTestPage() {
             }
 
             if(allQuestions.length > 0){
-                setSubjectTest({ subject: (testMode === 'olympiad' ? values.subject : testMode.toUpperCase()), questions: allQuestions, config: { ...values, time: totalTime } });
+                setSubjectTest({ subject: testTitle, questions: allQuestions, config: { ...values, time: totalTime } });
                 setSubjectTestAnswers(new Array(allQuestions.length).fill(''));
                 setCurrentQuestionIndex(0);
                 setTimeLeft(totalTime);
@@ -292,49 +360,6 @@ export default function AiTestPage() {
             setIsLoading(false);
         }
     };
-
-    const handleFinishSubjectTest = useCallback(() => {
-        if (!subjectTest || !user || !testMode) return;
-        let score = 0;
-        subjectTest.questions.forEach((q, i) => { if (q.correctAnswer === subjectTestAnswers[i]) score++; });
-        
-        const percentage = (score / subjectTest.questions.length) * 100;
-        let performanceStatus: 'पास' | 'औसत' | 'फेल';
-        if (percentage >= 65) { performanceStatus = 'पास'; }
-        else { performanceStatus = 'फेल'; }
-
-        const certData = {
-          studentName: user.name,
-          studentClass: subjectTest.config.classLevel,
-          testTitle: `${testMode.toUpperCase()} - ${subjectTest.subject}`,
-          totalScore: score,
-          totalPossibleMarks: subjectTest.questions.length,
-          percentage: percentage,
-          performanceStatus: performanceStatus,
-          subjectResults: [{
-              subject: subjectTest.subject,
-              score: score,
-              totalMarks: subjectTest.questions.length
-          }]
-        };
-        setCertificateData(certData);
-
-        const topper = {
-            name: user.name, class: subjectTest.config.classLevel, percentage: percentage,
-            date: new Date().toISOString(), photo: user.profilePhotoUrl || '', hint: 'student portrait',
-            testMode: testMode, subject: subjectTest.subject,
-        };
-        const storageKey = `practice-test-toppers`;
-        const toppersRaw = localStorage.getItem(storageKey);
-        const toppers = toppersRaw ? JSON.parse(toppersRaw) : [];
-        const otherToppers = toppers.filter((t: any) => !(t.name === user.name && t.testMode === testMode && t.subject === topper.subject && t.class === topper.class));
-        const updatedToppers = [...otherToppers, topper];
-        updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
-        localStorage.setItem(storageKey, JSON.stringify(updatedToppers.slice(0, 20)));
-
-        setPageState('certificate');
-        setSubjectTest(null);
-    }, [subjectTest, subjectTestAnswers, user, testMode]);
     
     const prepareCertificate = () => {
         if (!selectedClass || !progress || !user || !testMode) return;
@@ -439,7 +464,7 @@ export default function AiTestPage() {
                                             <CheckCircle className="w-5 h-5"/>
                                             <div>
                                                 <p className="font-semibold">पूरा हुआ! स्कोर: {testProgress.score * test.marksPerQuestion} / {test.questions * test.marksPerQuestion}</p>
-                                                {test.isQualifying && <p className={`text-sm font-bold ${testProgress.score >= test.qualifyingMarks! ? 'text-green-500' : 'text-red-500'}`}>{testProgress.score >= test.qualifyingMarks! ? 'योग्य' : 'योग्य नहीं'}</p>}
+                                                {test.isQualifying && <p className={`text-sm font-bold ${testProgress.score * test.marksPerQuestion >= test.qualifyingMarks! ? 'text-green-500' : 'text-red-500'}`}>{testProgress.score * test.marksPerQuestion >= test.qualifyingMarks! ? 'योग्य' : 'योग्य नहीं'}</p>}
                                             </div>
                                         </div>
                                     ) : ( <div className="flex items-center gap-2 text-muted-foreground"><p>अभी तक शुरू नहीं किया गया।</p></div> )}
