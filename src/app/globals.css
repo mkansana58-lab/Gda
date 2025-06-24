@@ -85,7 +85,4 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-  .eye-comfort-mode {
-    filter: sepia(60%) contrast(90%) brightness(95%);
-  }
 }

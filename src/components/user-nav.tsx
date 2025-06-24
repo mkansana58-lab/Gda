@@ -5,10 +5,9 @@ import {
   Moon,
   Sun,
   User as UserIcon,
-  Eye,
   Settings,
 } from 'lucide-react';
-import { useTheme as useNextTheme } from 'next-themes';
+import { useTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,14 +24,10 @@ import {
   DropdownMenuSubContent
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/context/user-context';
-import { useTheme } from '@/context/theme-provider';
-import { Switch } from './ui/switch';
-import { Label } from './ui/label';
 
 export function UserNav() {
   const { user, logout, setProfileDialogOpen } = useUser();
-  const { setTheme } = useNextTheme();
-  const { isEyeComfortMode, toggleEyeComfortMode } = useTheme();
+  const { setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -83,18 +78,6 @@ export function UserNav() {
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            <div className="flex items-center justify-between w-full">
-                <Label htmlFor="eye-comfort-mode" className="flex items-center gap-2 font-normal">
-                    <Eye className="h-4 w-4 text-primary"/> आई कम्फर्ट
-                </Label>
-                <Switch
-                    id="eye-comfort-mode"
-                    checked={isEyeComfortMode}
-                    onCheckedChange={toggleEyeComfortMode}
-                />
-            </div>
-          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
