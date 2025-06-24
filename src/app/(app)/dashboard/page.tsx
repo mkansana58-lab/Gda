@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Bookmark,
@@ -10,7 +11,7 @@ import {
   Users,
   Settings,
 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { useUser } from '@/context/user-context';
 import { Logo } from '@/components/logo';
@@ -55,10 +56,10 @@ export default function DashboardPage() {
             const isSettings = feature.title === 'सेटिंग्स';
             
             const content = (
-              <div className="bg-card text-primary aspect-square flex flex-col items-center justify-center text-center p-1 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer shadow-md">
+              <Card className="bg-card text-primary aspect-square flex flex-col items-center justify-center text-center p-1 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer shadow-md">
                 <feature.icon className="w-7 h-7 mb-2" />
                 <h3 className="text-xs font-semibold leading-tight text-center">{feature.title}</h3>
-              </div>
+              </Card>
             );
 
             if (isSettings) {
@@ -80,3 +81,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

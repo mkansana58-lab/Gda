@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Loader2, Download, Send, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Certificate } from '@/components/certificate';
 import { useToast } from '@/hooks/use-toast';
@@ -41,11 +42,11 @@ export default function ScholarshipFormPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: user?.name || '',
-      mobile: user?.mobile || '',
-      email: user?.email || '',
+      name: '',
+      mobile: '',
+      email: '',
       age: undefined,
-      class: user?.class || '',
+      class: '',
       school: '',
       village: '',
       district: '',
@@ -53,6 +54,24 @@ export default function ScholarshipFormPage() {
       state: '',
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name,
+        mobile: user.mobile,
+        email: user.email,
+        age: undefined,
+        class: user.class,
+        school: '',
+        village: user.village,
+        district: user.district,
+        pincode: user.pincode,
+        state: user.state,
+      });
+    }
+  }, [user, form]);
+
 
   const handleNext = async () => {
     let fieldsToValidate: (keyof FormValues)[] = [];
@@ -213,3 +232,5 @@ export default function ScholarshipFormPage() {
     </Card>
   );
 }
+
+    

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/context/user-context';
@@ -8,9 +9,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import Image from 'next/image';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { User as UserIcon } from 'lucide-react';
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
@@ -22,48 +26,86 @@ const profileSchema = z.object({
   state: z.string().min(2, { message: 'राज्य का नाम आवश्यक है।' }),
   class: z.string().min(1, { message: 'कृपया अपनी कक्षा दर्ज करें।' }),
   exam: z.string().min(1, { message: 'कृपया एक परीक्षा चुनें।' }),
+  profilePhoto: z.any().optional(),
 });
 
 export function ProfileEditDialog() {
   const { user, updateUser, isProfileDialogOpen, setProfileDialogOpen } = useUser();
   const { toast } = useToast();
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: user?.name || '',
-      mobile: user?.mobile || '',
-      email: user?.email || '',
-      village: user?.village || '',
-      district: user?.district || '',
-      pincode: user?.pincode || '',
-      state: user?.state || '',
-      class: user?.class || '',
-      exam: user?.exam || '',
-    },
+    defaultValues: user || {},
   });
 
   useEffect(() => {
     if (user) {
-      form.reset(user);
+      form.reset({ ...user, profilePhoto: undefined });
+      setPhotoPreview(user.profilePhotoUrl || null);
     }
   }, [user, form, isProfileDialogOpen]);
 
-  const onSubmit = (values: z.infer<typeof profileSchema>) => {
-    updateUser(values);
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof profileSchema>) => {
+    const { profilePhoto, ...userData } = values;
+    let updatedUserData = { ...userData };
+
+    if (photoPreview && photoPreview !== user?.profilePhotoUrl) {
+       Object.assign(updatedUserData, { profilePhotoUrl: photoPreview });
+    }
+
+    updateUser(updatedUserData);
     toast({ title: 'प्रोफ़ाइल अपडेट की गई', description: 'आपकी जानकारी सफलतापूर्वक सहेज ली गई है।' });
     setProfileDialogOpen(false);
   };
 
+  const photoInputRef = form.register('profilePhoto');
+
   return (
     <Dialog open={isProfileDialogOpen} onOpenChange={setProfileDialogOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>प्रोफ़ाइल संपादित करें</DialogTitle>
           <DialogDescription>अपनी व्यक्तिगत जानकारी में बदलाव करें।</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+             <div className="flex flex-col items-center gap-4">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src={photoPreview || undefined} alt={user?.name} />
+                  <AvatarFallback><UserIcon className="w-12 h-12" /></AvatarFallback>
+                </Avatar>
+                 <FormField control={form.control} name="profilePhoto" render={() => (
+                    <FormItem>
+                        <FormLabel htmlFor="photo-upload" className="cursor-pointer text-sm text-primary hover:underline">
+                            फोटो बदलें
+                        </FormLabel>
+                        <FormControl>
+                            <Input 
+                              id="photo-upload"
+                              type="file"
+                              accept="image/*" 
+                              className="hidden"
+                              {...photoInputRef}
+                              onChange={handlePhotoChange}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
+             </div>
              <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem><FormLabel>नाम</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )}/>
@@ -121,3 +163,5 @@ export function ProfileEditDialog() {
     </Dialog>
   );
 }
+
+    

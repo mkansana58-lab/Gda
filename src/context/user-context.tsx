@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -34,25 +35,25 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
+    // This effect runs only on the client
     try {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
-      } else {
-        router.replace('/');
       }
     } catch (error) {
       console.error('Failed to parse user from localStorage', error);
-      router.replace('/');
+      // If parsing fails, treat as logged out
+      localStorage.removeItem('user');
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, []);
   
   const logout = () => {
     localStorage.removeItem('user');
     setUser(null);
-    router.push('/');
+    router.push('/login');
   };
 
   const updateUser = (newUser: Partial<User>) => {
@@ -64,6 +65,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }
 
   if (isLoading) {
+    // While loading, we can show a global loader or nothing, 
+    // but we shouldn't render children that depend on the user state yet.
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-xl font-semibold">Loading...</div>
@@ -85,3 +88,5 @@ export const useUser = () => {
   }
   return context;
 };
+
+    
