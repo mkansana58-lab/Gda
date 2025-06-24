@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { generateAiTest, AiQuestion } from '@/ai/flows/generate-ai-test';
+import { generateSainikSchoolTest } from '@/ai/flows/generate-sainik-school-test';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Timer, CheckCircle, XCircle, Download, FileText } from 'lucide-react';
+import { Loader2, Timer, CheckCircle, XCircle, Download, FileText, BookCheck, Shield, ArrowLeft } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -23,8 +24,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 type TestStatus = 'not-started' | 'in-progress' | 'finished';
-const TEST_DURATION_SECONDS = 1800; // 30 minutes
-const TOTAL_QUESTIONS = 25;
+type TestMode = 'selection' | 'subject-wise' | 'sainik-school';
 
 interface Topper {
   name: string;
@@ -39,7 +39,7 @@ const testSetupSchema = z.object({
     name: z.string().min(2, "नाम आवश्यक है"),
     mobile: z.string().regex(/^\d{10}$/, "कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।"),
     class: z.string().min(1, "कक्षा आवश्यक है।"),
-    subject: z.string().min(1, "कृपया एक विषय चुनें।"),
+    subject: z.string().optional(),
 });
 type TestSetupFormValues = z.infer<typeof testSetupSchema>;
 
@@ -55,10 +55,11 @@ type TestResult = {
 export default function AiTestPage() {
   const [questions, setQuestions] = useState<AiQuestion[]>([]);
   const [status, setStatus] = useState<TestStatus>('not-started');
+  const [testMode, setTestMode] = useState<TestMode>('selection');
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
-  const [timeLeft, setTimeLeft] = useState(TEST_DURATION_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(0);
   const { toast } = useToast();
   const { user } = useUser();
   const [testSubject, setTestSubject] = useState('');
@@ -103,9 +104,9 @@ export default function AiTestPage() {
     if (percentage >= 80) {
         performanceStatus = 'पास';
     } else if (percentage >= 50) {
-        performanceStatus = 'औसत';
-    } else {
         performanceStatus = 'फेल';
+    } else {
+        performanceStatus = 'औसत';
     }
 
     setTestResult({
@@ -160,27 +161,42 @@ export default function AiTestPage() {
     return () => clearInterval(timer);
   }, [status, timeLeft, handleTestFinish, toast]);
 
+
   const startTest = async (values: TestSetupFormValues) => {
     setIsLoading(true);
-    setTestSubject(values.subject);
     try {
-      const result = await generateAiTest({ subject: values.subject });
-      if (result.questions && result.questions.length > 0) {
-        setQuestions(result.questions);
-        setStatus('in-progress');
-        setCurrentQuestionIndex(0);
-        setUserAnswers(new Array(result.questions.length).fill(''));
-        setTimeLeft(TEST_DURATION_SECONDS);
-        setTestResult(null);
-      } else {
-         toast({ variant: 'destructive', title: 'परीक्षा उत्पन्न करने में विफल।', description: 'कोई प्रश्न वापस नहीं किया गया। कृपया पुनः प्रयास करें।'});
-      }
+        let result;
+        if (testMode === 'subject-wise') {
+            if (!values.subject) {
+                toast({ variant: 'destructive', title: 'त्रुटि', description: 'कृपया एक विषय चुनें।'});
+                setIsLoading(false);
+                return;
+            }
+            setTestSubject(values.subject);
+            setTimeLeft(1800); // 30 minutes
+            result = await generateAiTest({ subject: values.subject });
+        } else { // sainik-school
+            setTestSubject('सैनिक स्कूल मॉक टेस्ट');
+            setTimeLeft(3600); // 60 minutes
+            result = await generateSainikSchoolTest({});
+        }
+
+        if (result.questions && result.questions.length > 0) {
+            setQuestions(result.questions);
+            setStatus('in-progress');
+            setCurrentQuestionIndex(0);
+            setUserAnswers(new Array(result.questions.length).fill(''));
+            setTestResult(null);
+        } else {
+            toast({ variant: 'destructive', title: 'परीक्षा उत्पन्न करने में विफल।', description: 'कोई प्रश्न वापस नहीं किया गया। कृपया पुनः प्रयास करें।'});
+        }
     } catch (e) {
       toast({ variant: 'destructive', title: 'परीक्षा उत्पन्न करने में विफल।', description: 'एक त्रुटि हुई। कृपया अपनी API कुंजी जांचें और पुनः प्रयास करें।'});
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const handleAnswer = (option: string) => {
     const newAnswers = [...userAnswers];
@@ -198,6 +214,7 @@ export default function AiTestPage() {
 
   const resetTest = () => {
     setStatus('not-started');
+    setTestMode('selection');
     setTestSubject('');
     setQuestions([]);
     setIsLoading(false);
@@ -358,13 +375,55 @@ export default function AiTestPage() {
     );
   }
 
+  if (testMode === 'selection') {
+    return (
+        <div className="flex flex-col gap-8">
+            <div>
+                <h1 className="font-headline text-3xl font-bold tracking-tight">AI टेस्ट सेंटर</h1>
+                <p className="text-muted-foreground">
+                अपनी तैयारी का आकलन करने के लिए एक टेस्ट प्रकार चुनें।
+                </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto w-full">
+                <Card className="hover:border-primary hover:shadow-lg transition-all">
+                    <CardContent className="pt-6">
+                        <div className="flex flex-col items-center text-center gap-4">
+                            <BookCheck className="w-12 h-12 text-primary"/>
+                            <h2 className="text-2xl font-headline font-bold">विषय वार टेस्ट</h2>
+                            <p className="text-muted-foreground min-h-[4rem]">गणित, विज्ञान, इतिहास आदि जैसे विशिष्ट विषयों में अपनी विशेषज्ञता का परीक्षण करें।</p>
+                            <Button onClick={() => setTestMode('subject-wise')} className="w-full">टेस्ट चुनें</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="hover:border-primary hover:shadow-lg transition-all">
+                    <CardContent className="pt-6">
+                        <div className="flex flex-col items-center text-center gap-4">
+                            <Shield className="w-12 h-12 text-primary"/>
+                            <h2 className="text-2xl font-headline font-bold">सैनिक स्कूल मॉक टेस्ट</h2>
+                            <p className="text-muted-foreground min-h-[4rem]">कक्षा 9 के लिए AISSEE पैटर्न पर आधारित एक पूर्ण मॉक टेस्ट का प्रयास करें।</p>
+                            <Button onClick={() => setTestMode('sainik-school')} className="w-full">टेस्ट चुनें</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">AI टेस्ट सेंटर</h1>
-        <p className="text-muted-foreground">
-          अपना विवरण भरें और AI द्वारा उत्पन्न एक समयबद्ध परीक्षा शुरू करें।
-        </p>
+      <div className="relative max-w-md mx-auto w-full">
+        <Button variant="ghost" size="icon" className="absolute -left-4 sm:-left-12 top-0" onClick={() => setTestMode('selection')}>
+          <ArrowLeft className="w-5 h-5"/>
+        </Button>
+        <div className="text-center sm:text-left">
+            <h1 className="font-headline text-3xl font-bold tracking-tight">
+            {testMode === 'subject-wise' ? 'विषय वार टेस्ट' : 'सैनिक स्कूल मॉक टेस्ट'}
+            </h1>
+            <p className="text-muted-foreground">
+            शुरू करने के लिए अपना विवरण भरें।
+            </p>
+        </div>
       </div>
 
       <Card className="w-full max-w-md mx-auto">
@@ -384,27 +443,30 @@ export default function AiTestPage() {
                     <FormField control={form.control} name="class" render={({ field }) => (
                         <FormItem><FormLabel>कक्षा</FormLabel><FormControl><Input placeholder="जैसे, 9वीं" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
-                    <FormField control={form.control} name="subject" render={({ field }) => (
-                        <FormItem><FormLabel>विषय</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="एक विषय चुनें" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    <SelectItem value="Maths">गणित</SelectItem>
-                                    <SelectItem value="Science">विज्ञान</SelectItem>
-                                    <SelectItem value="History">इतिहास</SelectItem>
-                                    <SelectItem value="Geography">भूगोल</SelectItem>
-                                    <SelectItem value="General Knowledge">सामान्य ज्ञान</SelectItem>
-                                    <SelectItem value="English">अंग्रेजी</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        <FormMessage /></FormItem>
-                    )} />
+                    
+                    {testMode === 'subject-wise' && (
+                        <FormField control={form.control} name="subject" render={({ field }) => (
+                            <FormItem><FormLabel>विषय</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="एक विषय चुनें" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Maths">गणित</SelectItem>
+                                        <SelectItem value="Science">विज्ञान</SelectItem>
+                                        <SelectItem value="History">इतिहास</SelectItem>
+                                        <SelectItem value="Geography">भूगोल</SelectItem>
+                                        <SelectItem value="General Knowledge">सामान्य ज्ञान</SelectItem>
+                                        <SelectItem value="English">अंग्रेजी</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            <FormMessage /></FormItem>
+                        )} />
+                    )}
 
                     <Alert>
                         <Timer className="h-4 w-4" />
                         <AlertTitle>समयबद्ध परीक्षा</AlertTitle>
                         <AlertDescription>
-                        आपको {TOTAL_QUESTIONS} प्रश्नों को पूरा करने के लिए {TEST_DURATION_SECONDS / 60} मिनट का समय मिलेगा।
+                        आपको {testMode === 'subject-wise' ? '25 प्रश्नों को पूरा करने के लिए 30' : '50 प्रश्नों को पूरा करने के लिए 60'} मिनट का समय मिलेगा।
                         </AlertDescription>
                     </Alert>
                     <Button type="submit" className="w-full" disabled={isLoading}>

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { generalChat } from '@/ai/flows/general-chat';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, User, Bot, MessageSquare } from 'lucide-react';
+import { Loader2, Send, User, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -88,26 +88,26 @@ export default function AiChatPage() {
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={message.role === 'user' ? user?.profilePhotoUrl : undefined} />
                   <AvatarFallback>
-                    {message.role === 'user' ? <User /> : <Bot />}
+                    {message.role === 'user' ? <User /> : <Sparkles />}
                   </AvatarFallback>
                 </Avatar>
                 <div
                   className={cn(
-                    'max-w-md rounded-lg p-3 text-sm shadow',
+                    'max-w-[85%] rounded-lg p-3 text-sm shadow',
                     {
                       'bg-primary text-primary-foreground': message.role === 'user',
                       'bg-muted': message.role === 'model',
                     }
                   )}
                 >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <p className="whitespace-pre-wrap break-words">{message.content}</p>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex items-start gap-3">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback><Bot /></AvatarFallback>
+                  <AvatarFallback><Sparkles /></AvatarFallback>
                 </Avatar>
                 <div className="bg-muted rounded-lg p-3">
                     <Loader2 className="w-5 h-5 animate-spin"/>
