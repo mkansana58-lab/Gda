@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ClipboardCheck, GraduationCap, FilePen, User } from 'lucide-react';
+import { Home, BookOpen, GraduationCap, FilePen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/user-context';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
-  { href: '/ai-test', icon: ClipboardCheck, label: 'Tests' },
-  { href: '/ai-tutor', icon: GraduationCap, label: 'AI Tutor' },
+  { href: '/learning-hub', icon: BookOpen, label: 'Learn' },
+  { href: '/ai-tutor', icon: GraduationCap, label: 'Tutor' },
   { href: '/plan-form', icon: FilePen, label: 'Apply' },
 ];
 
@@ -18,8 +18,8 @@ export function BottomNav() {
   const { setProfileDialogOpen } = useUser();
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-card/95 backdrop-blur-sm border-t md:hidden z-30">
-      <div className="flex items-center justify-around h-16">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-30 md:hidden">
+      <div className="flex items-center justify-around h-16 bg-card/80 backdrop-blur-lg rounded-full shadow-2xl border border-white/10">
         {navItems.map((item) => (
           <Link
             key={item.href}

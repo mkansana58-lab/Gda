@@ -37,10 +37,10 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:bg-primary-foreground/10">
-          <Avatar className="h-9 w-9">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <Avatar className="h-10 w-10 border-2 border-primary/50">
             <AvatarImage src={user?.profilePhotoUrl} alt={user?.name ?? ''} />
-            <AvatarFallback>{user?.name?.[0].toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-secondary">{user?.name?.[0].toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -56,11 +56,11 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-            <UserIcon className="mr-2 h-4 w-4" />
+            <UserIcon className="mr-2 h-4 w-4 text-primary" />
             <span>प्रोफ़ाइल</span>
           </DropdownMenuItem>
            <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-            <Settings className="mr-2 h-4 w-4" />
+            <Settings className="mr-2 h-4 w-4 text-primary" />
             <span>सेटिंग्स</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -69,9 +69,11 @@ export function UserNav() {
           <DropdownMenuLabel>उपस्थिति</DropdownMenuLabel>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="ml-2">थीम बदलें</span>
+               <div className="flex items-center">
+                 <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                 <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                 <span className="ml-2">थीम बदलें</span>
+               </div>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
@@ -84,7 +86,7 @@ export function UserNav() {
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <div className="flex items-center justify-between w-full">
                 <Label htmlFor="eye-comfort-mode" className="flex items-center gap-2 font-normal">
-                    <Eye className="h-4 w-4"/> आई कम्फर्ट
+                    <Eye className="h-4 w-4 text-primary"/> आई कम्फर्ट
                 </Label>
                 <Switch
                     id="eye-comfort-mode"
@@ -96,7 +98,7 @@ export function UserNav() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut className="mr-2 h-4 w-4 text-primary" />
           <span>लॉग आउट</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

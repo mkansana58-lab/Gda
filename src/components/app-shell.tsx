@@ -9,7 +9,6 @@ import {
   Home,
   Phone,
   Scaling,
-  ShieldCheck,
   ClipboardCheck,
   Trophy,
   Users,
@@ -37,6 +36,7 @@ import { BottomNav } from './bottom-nav';
 import { Button } from './ui/button';
 import { useState } from 'react';
 import { NotificationsSheet } from './notifications-sheet';
+import { Logo } from './logo';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'डैशबोर्ड' },
@@ -68,11 +68,11 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     <>
       <Sidebar>
         <SidebarHeader>
-          <div className="flex items-center gap-3 p-2">
-            <ShieldCheck className="h-8 w-8 text-primary" />
+          <div className="flex items-center gap-3 p-4">
+            <Logo className="h-12 w-12 p-2" />
             <div className="flex flex-col">
-              <h2 className="font-headline text-lg font-semibold">गो स्वामी</h2>
-              <p className="text-xs text-muted-foreground -mt-1">
+              <h2 className="font-headline text-xl font-semibold">गो स्वामी</h2>
+              <p className="text-sm text-muted-foreground -mt-1">
                 डिफेंस एकेडमी
               </p>
             </div>
@@ -111,25 +111,24 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <div className="flex-1 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b bg-background/95 backdrop-blur-sm px-4 sm:px-6">
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
-            <PanelLeft className="h-5 w-5" />
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
+          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+            <PanelLeft className="h-6 w-6" />
             <span className="sr-only">Toggle Sidebar</span>
           </Button>
-          <div className="flex-1"></div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsNotificationsOpen(true)}
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-6 w-6" />
               <span className="sr-only">सूचनाएं</span>
             </Button>
             <UserNav />
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto pb-24 md:pb-0">
+        <main className="flex-1 overflow-y-auto pb-28 md:pb-8">
           {children}
         </main>
         <BottomNav />

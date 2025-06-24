@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn("bg-primary text-primary-foreground rounded-full p-3 w-fit", className)}>
-      <ShieldCheck className="h-10 w-10" />
+    <div className={cn("bg-card text-primary-foreground rounded-full p-3 w-fit border-2 border-primary", className)}>
+      <ShieldCheck className="h-10 w-10 text-primary" />
     </div>
   );
 }
