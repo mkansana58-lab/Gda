@@ -33,7 +33,7 @@ const Marquee = ({ text }: { text: string }) => (
 
 export default function DashboardPage() {
   return (
-    <div className="flex flex-col gap-6 p-4 pb-28">
+    <div className="flex flex-col gap-6 p-4 pb-24">
       <h1 className="text-2xl font-bold text-center font-headline">मुख्य विशेषताएं</h1>
       
       <div className="grid grid-cols-3 gap-3">

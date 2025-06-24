@@ -145,15 +145,19 @@ export default function AiTestPage() {
     const handleFinishMockTest = useCallback(() => {
         if (!currentTest || !selectedClass || !user || !testMode) return;
         
-        let finalScore = 0;
-        currentTest.questions.forEach((q, index) => { if (q.correctAnswer === userAnswers[index]) { finalScore++; } });
+        const testConfig = ((getTestConfigs(testMode) as any)[selectedClass]?.tests || []).find((t: any) => t.id === currentTest.id);
+        const marksPerQuestion = testConfig?.marksPerQuestion || 1;
+        let correctAnswers = 0;
+        currentTest.questions.forEach((q, index) => { if (q.correctAnswer === userAnswers[index]) { correctAnswers++; } });
         const timeTaken = currentTest.time - timeLeft;
 
         setProgress(prev => {
             if (!prev) return getInitialProgress(testMode, selectedClass);
-            const newProgress = { ...prev, [currentTest.id]: { completed: true, score: finalScore, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken } };
+            const newProgress = { ...prev, [currentTest.id]: { completed: true, score: correctAnswers, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken } };
+            
             const config = (getTestConfigs(testMode) as any)[selectedClass];
             const allTestsCompleted = config.tests.every((t: any) => newProgress[t.id]?.completed);
+
             if (allTestsCompleted) {
                 const totalScoreObtained = config.tests.reduce((sum: number, test: any) => {
                     if (test.isQualifying) return sum;
@@ -161,7 +165,17 @@ export default function AiTestPage() {
                     return sum + (testProgress.score * test.marksPerQuestion);
                 }, 0);
                 const percentage = (totalScoreObtained / config.totalMarks) * 100;
-                const newOverallTopper = { name: user.name, class: selectedClass, percentage: percentage, date: new Date().toISOString(), photo: user.profilePhotoUrl || '', hint: 'student portrait', testMode: testMode };
+                
+                const newOverallTopper = { 
+                    name: user.name, 
+                    class: selectedClass, 
+                    percentage: percentage, 
+                    date: new Date().toISOString(), 
+                    photo: user.profilePhotoUrl || '', 
+                    hint: 'student portrait', 
+                    testMode: testMode 
+                };
+                
                 const storageKey = `mock-test-toppers`;
                 const overallToppersRaw = localStorage.getItem(storageKey);
                 const overallToppers = overallToppersRaw ? JSON.parse(overallToppersRaw) : [];
@@ -179,20 +193,22 @@ export default function AiTestPage() {
 
     useEffect(() => {
         let timer: NodeJS.Timeout;
-        if ((pageState === 'test-in-progress' || pageState === 'subject-test-setup') && timeLeft > 0) {
+        if (pageState === 'test-in-progress' && timeLeft > 0) {
             timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-        } else if ((pageState === 'test-in-progress' || pageState === 'subject-test-setup') && timeLeft <= 0) {
-            if(pageState === 'test-in-progress') handleFinishMockTest();
-            if(pageState === 'subject-test-setup') handleFinishSubjectTest();
+        } else if (pageState === 'test-in-progress' && timeLeft <= 0) {
+            if(currentTest) handleFinishMockTest();
+            else if(subjectTest) handleFinishSubjectTest();
             toast({ title: "समय समाप्त!", description: "आपका टेस्ट स्वचालित रूप से सबमिट कर दिया गया है।" });
         }
         return () => clearInterval(timer);
-    }, [pageState, timeLeft, handleFinishMockTest, handleFinishSubjectTest, toast]);
+    }, [pageState, timeLeft, handleFinishMockTest, handleFinishSubjectTest, toast, currentTest, subjectTest]);
 
     const handleAnswer = (option: string) => {
-        const newAnswers = [...userAnswers];
+        const answers = pageState === 'test-in-progress' ? userAnswers : subjectTestAnswers;
+        const setAnswers = pageState === 'test-in-progress' ? setUserAnswers : setSubjectTestAnswers;
+        const newAnswers = [...answers];
         newAnswers[currentQuestionIndex] = option;
-        setUserAnswers(newAnswers);
+        setAnswers(newAnswers);
     };
 
     const handleResetProgress = () => {
@@ -326,11 +342,12 @@ export default function AiTestPage() {
         const subjectResults = config.tests.map((test: any) => {
             const testProgress = progress[test.id];
             const score = testProgress.completed ? testProgress.score * test.marksPerQuestion : 0;
-            const isQualified = test.isQualifying && testProgress.completed ? score >= test.qualifyingMarks! : undefined;
+            const isQualified = test.isQualifying && testProgress.completed ? (testProgress.score * test.marksPerQuestion) >= test.qualifyingMarks! : undefined;
             return { subject: test.subject, score: score, totalMarks: test.questions * test.marksPerQuestion, isQualifying: !!test.isQualifying, qualifyingStatus: isQualified === undefined ? undefined : (isQualified ? 'योग्य' : 'योग्य नहीं') };
         });
         const totalScoreObtained = subjectResults.reduce((sum: number, res: any) => res.isQualifying ? sum : sum + res.score, 0);
-        const percentage = (totalScoreObtained / config.totalMarks) * 100;
+        const totalPossibleScore = subjectResults.reduce((sum: number, res: any) => res.isQualifying ? sum : sum + res.totalMarks, 0);
+        const percentage = (totalScoreObtained / totalPossibleScore) * 100;
         const allQualifyingPassed = subjectResults.filter((r: any) => r.isQualifying).every((r: any) => r.qualifyingStatus === 'योग्य');
         let performanceStatus: 'पास' | 'औसत' | 'फेल' | 'योग्य नहीं';
         if (!allQualifyingPassed) {
@@ -421,7 +438,7 @@ export default function AiTestPage() {
                                         <div className="flex items-center gap-2 text-green-500">
                                             <CheckCircle className="w-5 h-5"/>
                                             <div>
-                                                <p className="font-semibold">पूरा हुआ! स्कोर: {test.isQualifying ? testProgress.score : testProgress.score * test.marksPerQuestion} / {test.isQualifying ? test.questions : test.questions * test.marksPerQuestion}</p>
+                                                <p className="font-semibold">पूरा हुआ! स्कोर: {testProgress.score * test.marksPerQuestion} / {test.questions * test.marksPerQuestion}</p>
                                                 {test.isQualifying && <p className={`text-sm font-bold ${testProgress.score >= test.qualifyingMarks! ? 'text-green-500' : 'text-red-500'}`}>{testProgress.score >= test.qualifyingMarks! ? 'योग्य' : 'योग्य नहीं'}</p>}
                                             </div>
                                         </div>
@@ -437,20 +454,14 @@ export default function AiTestPage() {
         );
     };
 
-    const renderMockTestInProgress = () => {
-        const currentQData = pageState === 'test-in-progress' ? currentTest : subjectTest;
+    const renderTestInProgress = () => {
+        const currentQData = currentTest || subjectTest;
         if (!currentQData) return null;
-        const currentQ = currentQData.questions[currentQuestionIndex];
-        const answers = pageState === 'test-in-progress' ? userAnswers : subjectTestAnswers;
-        const setAnswers = pageState === 'test-in-progress' ? setUserAnswers : setSubjectTestAnswers;
-        const finishHandler = pageState === 'test-in-progress' ? handleFinishMockTest : handleFinishSubjectTest;
-
-        const handleAnswerSelect = (option: string) => {
-            const newAnswers = [...answers];
-            newAnswers[currentQuestionIndex] = option;
-            setAnswers(newAnswers);
-        };
         
+        const currentQ = currentQData.questions[currentQuestionIndex];
+        const answers = subjectTest ? subjectTestAnswers : userAnswers;
+        const finishHandler = subjectTest ? handleFinishSubjectTest : handleFinishMockTest;
+
         const nextHandler = () => {
             if (currentQuestionIndex < currentQData.questions.length - 1) {
                 setCurrentQuestionIndex(prev => prev + 1);
@@ -470,7 +481,7 @@ export default function AiTestPage() {
                         <Progress value={((currentQuestionIndex + 1) / currentQData.questions.length) * 100} className="mb-6"/>
                         <p className="text-xl font-semibold mb-4">{currentQ.question}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {currentQ.options.map(option => <Button key={option} variant={answers[currentQuestionIndex] === option ? 'default' : 'outline'} onClick={() => handleAnswerSelect(option)} className="justify-start h-auto py-3 text-left">{option}</Button>)}
+                            {currentQ.options.map(option => <Button key={option} variant={answers[currentQuestionIndex] === option ? 'default' : 'outline'} onClick={() => handleAnswer(option)} className="justify-start h-auto py-3 text-left">{option}</Button>)}
                         </div>
                     </CardContent>
                     <CardFooter className="justify-between">
@@ -489,7 +500,7 @@ export default function AiTestPage() {
         return (
             <div className="flex flex-col items-center gap-6 p-4 pb-24">
                 <div ref={certificateRef} className="p-4 bg-background w-full max-w-4xl"><TestResultCertificate {...certificateData}/></div>
-                <Card className="w-full max-w-2xl bg-card"><CardHeader><CardTitle className="font-headline text-center">अगले चरण</CardTitle></CardHeader><CardContent className="flex flex-wrap justify-center gap-4"><Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />सर्टिफिकेट डाउनलोड करें</Button><Button variant="outline" onClick={() => setPageState('mode-selection')}><ArrowLeft className="mr-2 h-4 w-4" />डैशबोर्ड पर वापस जाएं</Button></CardContent></Card>
+                <Card className="w-full max-w-2xl bg-card"><CardHeader><CardTitle className="font-headline text-center">अगले चरण</CardTitle></CardHeader><CardContent className="flex flex-wrap justify-center gap-4"><Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />सर्टिफिकेट डाउनलोड करें</Button><Button variant="outline" onClick={() => { setPageState('mode-selection'); setCertificateData(null); }}><ArrowLeft className="mr-2 h-4 w-4" />डैशबोर्ड पर वापस जाएं</Button></CardContent></Card>
             </div>
         );
     }
@@ -553,7 +564,7 @@ export default function AiTestPage() {
             case 'mode-selection': return renderModeSelection();
             case 'class-selection': return renderClassSelection();
             case 'test-dashboard': return renderTestDashboard();
-            case 'test-in-progress': return renderMockTestInProgress();
+            case 'test-in-progress': return renderTestInProgress();
             case 'certificate': return <CertificateRenderer />;
             case 'subject-test-setup': return renderSubjectTestSetup();
             default: return renderModeSelection();
@@ -561,7 +572,7 @@ export default function AiTestPage() {
     }
 
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto p-0 sm:p-4">
             {renderPageContent()}
             {renderSolutionSheet()}
             <AlertDialog open={isConfirming} onOpenChange={setIsConfirming}>
