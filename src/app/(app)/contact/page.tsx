@@ -29,6 +29,8 @@ export default function ContactPage() {
     const { user } = useUser();
     const { toast } = useToast();
 
+    const fullAddress = user ? `${user.village}, ${user.district}, ${user.state}` : '';
+
     const emailForm = useForm<z.infer<typeof emailFormSchema>>({
         resolver: zodResolver(emailFormSchema),
         defaultValues: { name: user?.name || '', email: user?.email || '', message: '' },
@@ -36,7 +38,7 @@ export default function ContactPage() {
 
     const smsForm = useForm<z.infer<typeof smsFormSchema>>({
         resolver: zodResolver(smsFormSchema),
-        defaultValues: { name: user?.name || '', mobile: user?.mobile || '', question: '', address: user?.address || '' },
+        defaultValues: { name: user?.name || '', mobile: user?.mobile || '', question: '', address: fullAddress },
     });
 
     function onEmailSubmit(values: z.infer<typeof emailFormSchema>) {

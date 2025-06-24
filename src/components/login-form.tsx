@@ -16,7 +16,10 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
   mobile: z.string().regex(/^\d{10}$/, { message: 'कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।' }),
   email: z.string().email({ message: 'कृपया एक वैध ईमेल पता दर्ज करें।' }),
-  address: z.string().min(5, { message: 'पता कम से कम 5 अक्षरों का होना चाहिए।' }),
+  village: z.string().min(3, { message: 'गाँव/शहर का नाम आवश्यक है।' }),
+  district: z.string().min(3, { message: 'ज़िले का नाम आवश्यक है।' }),
+  pincode: z.string().regex(/^\d{6}$/, { message: 'कृपया एक वैध 6-अंकीय पिनकोड दर्ज करें।' }),
+  state: z.string().min(2, { message: 'राज्य का नाम आवश्यक है।' }),
   class: z.string().min(1, { message: 'कृपया अपनी कक्षा दर्ज करें।' }),
   exam: z.string().min(1, { message: 'कृपया एक परीक्षा चुनें।' }),
   profilePhoto: z.any().optional(),
@@ -33,7 +36,10 @@ export function LoginForm() {
       name: '',
       mobile: '',
       email: '',
-      address: '',
+      village: '',
+      district: '',
+      pincode: '',
+      state: '',
       class: '',
       exam: '',
     },
@@ -108,7 +114,25 @@ export function LoginForm() {
                 <FormItem><FormLabel>ईमेल</FormLabel><FormControl><Input type="email" placeholder="आपका ईमेल" {...field} /></FormControl><FormMessage /></FormItem>
               )}
             />
-             <FormField control={form.control} name="class" render={({ field }) => (
+        </div>
+        
+        <FormField control={form.control} name="village" render={({ field }) => (
+            <FormItem><FormLabel>गाँव / कस्बा</FormLabel><FormControl><Input placeholder="आपके गाँव/कस्बे का नाम" {...field} /></FormControl><FormMessage /></FormItem>
+        )}/>
+        <div className="grid grid-cols-2 gap-4">
+            <FormField control={form.control} name="district" render={({ field }) => (
+                <FormItem><FormLabel>ज़िला</FormLabel><FormControl><Input placeholder="आपके ज़िले का नाम" {...field} /></FormControl><FormMessage /></FormItem>
+            )}/>
+            <FormField control={form.control} name="pincode" render={({ field }) => (
+                <FormItem><FormLabel>पिनकोड</FormLabel><FormControl><Input type="tel" placeholder="आपका पिनकोड" {...field} /></FormControl><FormMessage /></FormItem>
+            )}/>
+        </div>
+        <FormField control={form.control} name="state" render={({ field }) => (
+            <FormItem><FormLabel>राज्य</FormLabel><FormControl><Input placeholder="आपके राज्य का नाम" {...field} /></FormControl><FormMessage /></FormItem>
+        )}/>
+
+        <div className="grid grid-cols-2 gap-4">
+            <FormField control={form.control} name="class" render={({ field }) => (
                 <FormItem><FormLabel>कक्षा</FormLabel><FormControl><Input placeholder="जैसे 10वीं, NDA" {...field} /></FormControl><FormMessage /></FormItem>
               )}
             />
@@ -131,10 +155,7 @@ export function LoginForm() {
               )}
             />
         </div>
-        <FormField control={form.control} name="address" render={({ field }) => (
-            <FormItem><FormLabel>पता</FormLabel><FormControl><Input placeholder="अपना पता दर्ज करें" {...field} /></FormControl><FormMessage /></FormItem>
-          )}
-        />
+        
         <FormField control={form.control} name="profilePhoto" render={() => (
             <FormItem><FormLabel>प्रोफ़ाइल फ़ोटो (वैकल्पिक)</FormLabel><FormControl><Input type="file" accept="image/*" {...profilePhotoRef} /></FormControl><FormMessage /></FormItem>
           )}

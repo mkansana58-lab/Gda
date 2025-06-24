@@ -20,6 +20,16 @@ type PageState = 'mode-selection' | 'class-selection' | 'test-dashboard' | 'test
 type TestMode = 'sainik' | 'rms';
 type TestId = string;
 
+type TestConfig = {
+    id: TestId;
+    subject: string;
+    questions: number;
+    marksPerQuestion: number;
+    time: number;
+    isQualifying?: boolean;
+    qualifyingMarks?: number;
+};
+
 type TestProgress = { completed: boolean; score: number; answers: string[]; questions: AiQuestion[]; timeTaken: number; };
 type ClassProgress = Record<TestId, TestProgress>;
 
@@ -45,13 +55,14 @@ const sainikTestConfigs = {
   },
 };
 
-const rmsTestConfigs = {
+const rmsTestConfigs: Record<string, { passingScore: number; failScore: number; totalMarks: number; language: string; totalTimeMinutes: number; tests: TestConfig[] }> = {
   '6': {
     passingScore: 90, failScore: 60, totalMarks: 150, language: 'Hindi', totalTimeMinutes: 150,
     tests: [
       { id: 'rms_maths_6', subject: 'गणित (Maths)', questions: 50, marksPerQuestion: 1, time: 50 * 60 },
       { id: 'rms_reasoning_6', subject: 'रीजनिंग (Reasoning)', questions: 50, marksPerQuestion: 1, time: 50 * 60 },
-      { id: 'rms_gk_eng_6', subject: 'सामान्य ज्ञान और अंग्रेजी', questions: 50, marksPerQuestion: 1, time: 50 * 60 },
+      { id: 'rms_gk_6', subject: 'सामान्य ज्ञान (GK)', questions: 50, marksPerQuestion: 1, time: 25 * 60 },
+      { id: 'rms_english_6', subject: 'अंग्रेजी (English)', questions: 50, marksPerQuestion: 1, time: 25 * 60, isQualifying: true, qualifyingMarks: 25 },
     ],
   },
   '9': {
@@ -178,9 +189,11 @@ export default function AiTestPage() {
             };
             
             const config = getTestConfigs(testMode)[selectedClass];
-            const completedCount = config.tests.filter(t => newProgress[t.id]?.completed).length;
-            if (completedCount === config.tests.length) {
+            const allTestsCompleted = config.tests.every(t => newProgress[t.id]?.completed);
+            
+            if (allTestsCompleted) {
                 const totalScoreObtained = config.tests.reduce((sum, test) => {
+                    if (test.isQualifying) return sum;
                     const testProgress = newProgress[test.id];
                     return sum + (testProgress.score * test.marksPerQuestion);
                 }, 0);
@@ -381,8 +394,24 @@ export default function AiTestPage() {
                         const testProgress = progress[test.id];
                         return (
                             <Card key={test.id} className="flex flex-col">
-                                <CardHeader><CardTitle>{test.subject}</CardTitle><CardDescription>{test.questions} प्रश्न, {test.questions * test.marksPerQuestion} अंक</CardDescription></CardHeader>
-                                <CardContent className="flex-grow">{testProgress?.completed ? <div className="flex items-center gap-2 text-green-600"><CheckCircle className="w-5 h-5"/><p className="font-semibold">पूरा हुआ! स्कोर: {testProgress.score * test.marksPerQuestion} / {test.questions * test.marksPerQuestion}</p></div> : <div className="flex items-center gap-2 text-muted-foreground"><p>अभी तक शुरू नहीं किया गया।</p></div>}</CardContent>
+                                <CardHeader><CardTitle>{test.subject}</CardTitle><CardDescription>{test.questions} प्रश्न, {test.isQualifying ? 'क्वालीफाइंग' : `${test.questions * test.marksPerQuestion} अंक`}</CardDescription></CardHeader>
+                                <CardContent className="flex-grow">
+                                    {testProgress?.completed ? (
+                                        <div className="flex items-center gap-2 text-green-600">
+                                            <CheckCircle className="w-5 h-5"/>
+                                            <div>
+                                                <p className="font-semibold">पूरा हुआ! स्कोर: {testProgress.score * test.marksPerQuestion} / {test.questions * test.marksPerQuestion}</p>
+                                                {test.isQualifying && (
+                                                    <p className={`text-sm font-bold ${testProgress.score >= test.qualifyingMarks! ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {testProgress.score >= test.qualifyingMarks! ? 'योग्य (Qualified)' : 'योग्य नहीं (Not Qualified)'}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2 text-muted-foreground"><p>अभी तक शुरू नहीं किया गया।</p></div>
+                                    )}
+                                </CardContent>
                                 <CardFooter className="flex justify-between"><Button variant="outline" disabled={!testProgress?.completed} onClick={() => setSolutionSheet({open: true, testId: test.id})}>हल देखें</Button><Button onClick={() => handleStartMockTest(test.id)}>{testProgress?.completed ? 'पुनः प्रयास करें' : 'टेस्ट शुरू करें'}</Button></CardFooter>
                             </Card>
                         );
@@ -406,10 +435,7 @@ export default function AiTestPage() {
             <div className="w-full max-w-2xl mx-auto space-y-4 animate-in fade-in">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="font-headline">{currentTest.subject}</CardTitle>
-                            <CardDescription>प्रश्न {currentQuestionIndex + 1} / {currentTest.questions.length}</CardDescription>
-                        </div>
+                        <div><CardTitle className="font-headline">{currentTest.subject}</CardTitle><CardDescription>प्रश्न {currentQuestionIndex + 1} / {currentTest.questions.length}</CardDescription></div>
                         <Badge variant="outline" className="flex items-center gap-2 text-lg py-2 px-4"><Timer className="w-5 h-5"/>{formatTime(timeLeft)}</Badge>
                     </CardHeader>
                     <CardContent>
@@ -440,12 +466,43 @@ export default function AiTestPage() {
     const MockTestCertificateRenderer = () => {
         if (!selectedClass || !progress || !user || !testMode) return null;
         const config = getTestConfigs(testMode)[selectedClass];
-        const subjectResults = config.tests.map(test => { const testProgress = progress[test.id]; return { subject: test.subject, score: testProgress.completed ? testProgress.score * test.marksPerQuestion : 0, totalMarks: test.questions * test.marksPerQuestion }; });
-        const totalScoreObtained = subjectResults.reduce((sum, res) => sum + res.score, 0);
+        
+        const subjectResults = config.tests.map(test => {
+            const testProgress = progress[test.id];
+            const score = testProgress.completed ? testProgress.score * test.marksPerQuestion : 0;
+            const isQualified = test.isQualifying && testProgress.completed ? score >= test.qualifyingMarks! : undefined;
+
+            return {
+                subject: test.subject,
+                score: score,
+                totalMarks: test.questions * test.marksPerQuestion,
+                isQualifying: !!test.isQualifying,
+                qualifyingStatus: isQualified === undefined ? undefined : (isQualified ? 'योग्य' : 'योग्य नहीं')
+            };
+        });
+
+        const totalScoreObtained = subjectResults.reduce((sum, res) => {
+            if (res.isQualifying) return sum;
+            return sum + res.score;
+        }, 0);
+        
         const percentage = (totalScoreObtained / config.totalMarks) * 100;
-        let performanceStatus: 'पास' | 'औसत' | 'फेल';
-        if (totalScoreObtained >= config.passingScore) { performanceStatus = 'पास'; } else if (totalScoreObtained < config.failScore) { performanceStatus = 'फेल'; } else { performanceStatus = 'औसत'; }
+        
+        const allQualifyingPassed = subjectResults.filter(r => r.isQualifying).every(r => r.qualifyingStatus === 'योग्य');
+        
+        let performanceStatus: 'पास' | 'औसत' | 'फेल' | 'योग्य नहीं';
+        if (!allQualifyingPassed) {
+            performanceStatus = 'योग्य नहीं';
+        } else if (totalScoreObtained >= config.passingScore) {
+            performanceStatus = 'पास';
+        } else if (totalScoreObtained < config.failScore) {
+            performanceStatus = 'फेल';
+        } else {
+            performanceStatus = 'औसत';
+        }
+        
         const testTitle = `${testMode === 'sainik' ? 'सैनिक स्कूल' : 'RMS'} मॉक टेस्ट - कक्षा ${selectedClass}`;
+        
         return (
             <div className="flex flex-col items-center gap-6">
                 <div ref={certificateRef} className="p-4 bg-background w-full max-w-4xl"><TestResultCertificate studentName={user?.name || 'Student'} studentClass={`कक्षा ${selectedClass}`} subject={testTitle} totalScore={totalScoreObtained} totalPossibleMarks={config.totalMarks} percentage={percentage} performanceStatus={performanceStatus} subjectResults={subjectResults}/></div>

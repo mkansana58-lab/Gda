@@ -7,7 +7,10 @@ export interface User {
   name: string;
   mobile: string;
   email: string;
-  address: string;
+  village: string;
+  district: string;
+  pincode: string;
+  state: string;
   class: string;
   exam: string;
   profilePhotoUrl?: string;

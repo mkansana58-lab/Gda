@@ -11,11 +11,13 @@ interface CertificateProps {
   totalScore: number;
   totalPossibleMarks: number;
   percentage: number;
-  performanceStatus: 'पास' | 'औसत' | 'फेल';
+  performanceStatus: 'पास' | 'औसत' | 'फेल' | 'योग्य नहीं';
   subjectResults: {
     subject: string;
     score: number;
     totalMarks: number;
+    isQualifying?: boolean;
+    qualifyingStatus?: 'योग्य' | 'योग्य नहीं';
   }[];
 }
 
@@ -43,6 +45,8 @@ export function TestResultCertificate({
         return { text: 'औसत (Average)', color: 'text-yellow-600' };
       case 'फेल':
         return { text: 'अनुत्तीर्ण (Failed)', color: 'text-red-600' };
+      case 'योग्य नहीं':
+        return { text: 'योग्य नहीं (Not Qualified)', color: 'text-red-600' };
       default:
         return { text: '', color: '' };
     }
@@ -79,7 +83,7 @@ export function TestResultCertificate({
                 <div className="grid grid-cols-3 gap-1 text-center">
                     <div>
                         <p className="text-xl sm:text-2xl font-bold text-primary">{totalScore}/{totalPossibleMarks}</p>
-                        <p className="text-xs text-gray-600 font-semibold">कुल अंक</p>
+                        <p className="text-xs text-gray-600 font-semibold">कुल अंक (मेरिट)</p>
                     </div>
                     <div>
                         <p className="text-xl sm:text-2xl font-bold text-primary">{percentage.toFixed(2)}%</p>
@@ -98,14 +102,16 @@ export function TestResultCertificate({
                       <TableHeader>
                           <TableRow>
                               <TableHead className="h-8 text-xs">विषय</TableHead>
-                              <TableHead className="text-right h-8 text-xs">अंक</TableHead>
+                              <TableHead className="text-right h-8 text-xs">अंक / स्थिति</TableHead>
                           </TableRow>
                       </TableHeader>
                       <TableBody>
                         {subjectResults.map(res => (
                             <TableRow key={res.subject}>
                                 <TableCell className="font-medium py-1 text-xs sm:text-sm">{res.subject}</TableCell>
-                                <TableCell className="text-right font-mono py-1 text-xs sm:text-sm">{res.score} / {res.totalMarks}</TableCell>
+                                <TableCell className={`text-right font-mono py-1 text-xs sm:text-sm ${res.isQualifying ? (res.qualifyingStatus === 'योग्य' ? 'text-green-600' : 'text-red-600') : ''}`}>
+                                    {res.isQualifying ? res.qualifyingStatus : `${res.score} / ${res.totalMarks}`}
+                                </TableCell>
                             </TableRow>
                         ))}
                       </TableBody>
