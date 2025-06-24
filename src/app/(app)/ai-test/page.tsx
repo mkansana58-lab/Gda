@@ -115,8 +115,8 @@ export default function AiTestPage() {
             } else {
                 toast({ variant: 'destructive', title: 'परीक्षा उत्पन्न करने में विफल।', description: 'AI कोई प्रश्न वापस करने में विफल रहा। कृपया पुनः प्रयास करें।' });
             }
-        } catch (e) {
-            toast({ variant: 'destructive', title: 'एक त्रुटि हुई।', description: 'परीक्षा उत्पन्न करने में विफल। कृपया अपनी API कुंजी जांचें और पुनः प्रयास करें।' });
+        } catch (e: any) {
+            toast({ variant: 'destructive', title: 'एक त्रुटि हुई।', description: e.message || 'परीक्षा उत्पन्न करने में विफल। कृपया पुनः प्रयास करें।' });
         } finally {
             setIsLoading(false);
         }
@@ -212,8 +212,8 @@ export default function AiTestPage() {
             } else {
                 toast({ variant: 'destructive', title: 'Failed to generate test.', description: 'The AI failed to return any questions. Please try again.' });
             }
-        } catch (e) {
-            toast({ variant: 'destructive', title: 'An error occurred.', description: 'Failed to generate test. Check your API key and try again.' });
+        } catch (e: any) {
+            toast({ variant: 'destructive', title: 'एक त्रुटि हुई।', description: e.message || 'परीक्षा उत्पन्न करने में विफल। कृपया पुनः प्रयास करें।' });
         } finally {
             setIsLoading(false);
         }
@@ -337,7 +337,15 @@ export default function AiTestPage() {
                             {currentQ.options.map(option => <Button key={option} variant={userAnswers[currentQuestionIndex] === option ? 'default' : 'outline'} onClick={() => handleAnswer(option)} className="justify-start h-auto py-3 text-left">{option}</Button>)}
                         </div>
                     </CardContent>
-                    <CardFooter className="justify-end">
+                    <CardFooter className="justify-between">
+                         <Button variant="destructive" onClick={() => {
+                            setConfirmAction({
+                                title: 'क्या आप निश्चित हैं?',
+                                description: 'यह टेस्ट को समाप्त कर देगा और आपके परिणामों की गणना करेगा।',
+                                onConfirm: handleFinishSainikTest
+                            });
+                            setIsConfirming(true);
+                        }}>जल्दी सबमिट करें</Button>
                         <Button onClick={() => { if (currentQuestionIndex < currentTest.questions.length - 1) { setCurrentQuestionIndex(prev => prev + 1); } else { handleFinishSainikTest(); } }} disabled={!userAnswers[currentQuestionIndex]}>
                             {currentQuestionIndex < currentTest.questions.length - 1 ? 'अगला प्रश्न' : 'टेस्ट खत्म करें'} <ChevronRight className="w-4 h-4 ml-2"/>
                         </Button>
@@ -430,7 +438,15 @@ export default function AiTestPage() {
                             {currentQ.options.map(option => <Button key={option} variant={subjectTestAnswers[currentQuestionIndex] === option ? 'default' : 'outline'} onClick={() => { const newAnswers = [...subjectTestAnswers]; newAnswers[currentQuestionIndex] = option; setSubjectTestAnswers(newAnswers); }} className="justify-start h-auto py-3 text-left">{option}</Button>)}
                         </div>
                     </CardContent>
-                    <CardFooter className="justify-end">
+                    <CardFooter className="justify-between">
+                         <Button variant="destructive" onClick={() => {
+                            setConfirmAction({
+                                title: 'क्या आप निश्चित हैं?',
+                                description: 'यह टेस्ट को समाप्त कर देगा और आपके परिणामों की गणना करेगा।',
+                                onConfirm: handleFinishSubjectTest
+                            });
+                            setIsConfirming(true);
+                        }}>जल्दी सबमिट करें</Button>
                         <Button onClick={() => { if (currentQuestionIndex < subjectTest.questions.length - 1) { setCurrentQuestionIndex(prev => prev + 1); } else { handleFinishSubjectTest(); }}} disabled={!subjectTestAnswers[currentQuestionIndex]}>
                             {currentQuestionIndex < subjectTest.questions.length - 1 ? 'अगला प्रश्न' : 'टेस्ट खत्म करें'} <ChevronRight className="w-4 h-4 ml-2"/>
                         </Button>
