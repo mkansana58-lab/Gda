@@ -70,7 +70,7 @@ export default function SchoolPriorityListPage() {
 
   if (submittedData) {
     return (
-      <div className="flex flex-col items-center gap-6 p-4 pb-24">
+      <div className="flex flex-col items-center gap-6 p-4">
         <div ref={documentRef} className="p-4 bg-white w-full max-w-4xl">
            <SchoolPriorityListDocument data={submittedData} />
         </div>
@@ -93,7 +93,7 @@ export default function SchoolPriorityListPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-4 pb-24">
+    <div className="flex flex-col gap-8 p-4">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">स्कूल प्राथमिकता सूची</h1>
         <p className="text-muted-foreground">सैनिक स्कूल काउंसलिंग के लिए अपनी प्राथमिकता सूची बनाएं।</p>

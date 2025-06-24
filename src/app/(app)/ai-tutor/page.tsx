@@ -28,7 +28,7 @@ export default function AiTutorPage() {
   }, initialState);
 
   return (
-    <div className="flex flex-col gap-8 p-4 pb-24">
+    <div className="flex flex-col gap-8 p-4">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI ट्यूटर</h1>
         <p className="text-muted-foreground">

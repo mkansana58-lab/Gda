@@ -392,7 +392,7 @@ export default function AiTestPage() {
     };
 
     const renderModeSelection = () => (
-        <div className="flex flex-col gap-6 p-4 pb-24">
+        <div className="flex flex-col gap-6 p-4">
             <div>
                 <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI टेस्ट सेंटर</h1>
                 <p className="text-muted-foreground">अपनी तैयारी का आकलन करने के लिए एक मोड चुनें।</p>
@@ -423,7 +423,7 @@ export default function AiTestPage() {
     );
 
     const renderClassSelection = () => (
-        <div className="flex flex-col gap-8 p-4 pb-24">
+        <div className="flex flex-col gap-8 p-4">
             <div className="relative">
                 <Button variant="ghost" size="icon" className="absolute -left-4 sm:-left-12 -top-2" onClick={() => setPageState('mode-selection')}><ArrowLeft className="w-5 h-5"/></Button>
                 <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-center sm:text-left">{testMode?.toUpperCase()} मॉक टेस्ट</h1>
@@ -446,7 +446,7 @@ export default function AiTestPage() {
         const completedCount = config.tests.filter((t: any) => progress[t.id]?.completed).length;
         const allTestsCompleted = completedCount === config.tests.length;
         return (
-            <div className="flex flex-col gap-6 p-4 pb-24">
+            <div className="flex flex-col gap-6 p-4">
                 <div className="relative">
                     <Button variant="ghost" size="icon" className="absolute -left-4 sm:-left-12 -top-2" onClick={() => setPageState('class-selection')}><ArrowLeft className="w-5 h-5"/></Button>
                     <div className="text-center sm:text-left"><h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">मॉक टेस्ट डैशबोर्ड - {testMode.toUpperCase()} कक्षा {selectedClass}</h1><p className="text-muted-foreground">अपनी प्रगति को ट्रैक करें और टेस्ट शुरू करें। कुल समय: {config.totalTimeMinutes} मिनट।</p></div>
@@ -496,7 +496,7 @@ export default function AiTestPage() {
         };
 
         return (
-            <div className="w-full max-w-2xl mx-auto space-y-4 animate-in fade-in p-4 pb-24">
+            <div className="w-full max-w-2xl mx-auto space-y-4 animate-in fade-in p-4">
                 <Card className="bg-card">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div><CardTitle className="font-headline">{currentQData.subject}</CardTitle><CardDescription>प्रश्न {currentQuestionIndex + 1} / {currentQData.questions.length}</CardDescription></div>
@@ -523,7 +523,7 @@ export default function AiTestPage() {
     const CertificateRenderer = () => {
         if (!certificateData) return null;
         return (
-            <div className="flex flex-col items-center gap-6 p-4 pb-24">
+            <div className="flex flex-col items-center gap-6 p-4">
                 <div ref={certificateRef} className="p-4 bg-background w-full max-w-4xl"><TestResultCertificate {...certificateData}/></div>
                 <Card className="w-full max-w-2xl bg-card"><CardHeader><CardTitle className="font-headline text-center">अगले चरण</CardTitle></CardHeader><CardContent className="flex flex-wrap justify-center gap-4"><Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />सर्टिफिकेट डाउनलोड करें</Button><Button variant="outline" onClick={() => { setPageState('mode-selection'); setCertificateData(null); }}><ArrowLeft className="mr-2 h-4 w-4" />डैशबोर्ड पर वापस जाएं</Button></CardContent></Card>
             </div>
@@ -547,7 +547,7 @@ export default function AiTestPage() {
         };
         const currentConfig = testConfigMap[testMode];
         return (
-            <div className="flex flex-col gap-8 p-4 pb-24">
+            <div className="flex flex-col gap-8 p-4">
                  <div className="relative">
                     <Button variant="ghost" size="icon" className="absolute -left-4 sm:-left-12 -top-2" onClick={() => setPageState('mode-selection')}><ArrowLeft className="w-5 h-5"/></Button>
                     <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-center sm:text-left">{currentConfig.title}</h1>

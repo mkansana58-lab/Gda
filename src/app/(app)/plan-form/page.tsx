@@ -128,7 +128,7 @@ export default function ScholarshipFormPage() {
 
   if (submittedData) {
     return (
-      <div className="flex flex-col items-center gap-6 p-4 pb-24">
+      <div className="flex flex-col items-center gap-6 p-4">
         <div ref={certificateRef} className="p-4 bg-card">
           <Certificate data={submittedData} />
         </div>
@@ -160,7 +160,7 @@ export default function ScholarshipFormPage() {
   }
 
   return (
-    <div className="p-4 pb-24">
+    <div className="p-4">
         <Card className="w-full max-w-2xl mx-auto bg-card">
         <CardHeader>
             <CardTitle className="font-headline text-2xl">छात्रवृत्ति आवेदन पत्र</CardTitle>
