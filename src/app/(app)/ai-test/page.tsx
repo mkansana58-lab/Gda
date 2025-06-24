@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { generateAiTest, AiQuestion } from '@/ai/flows/generate-ai-test';
+import { generateAiTest, AiQuestion, GenerateAiTestOutput } from '@/ai/flows/generate-ai-test';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Timer, CheckCircle, XCircle, Download, FileText, ArrowLeft, Shield, BookCopy, ChevronRight, RefreshCw, Trophy, BrainCircuit, Book } from 'lucide-react';
@@ -111,6 +111,7 @@ export default function AiTestPage() {
         setIsLoading(true);
         try {
             const result = await generateAiTest({ subject: testConfig.subject, questionCount: testConfig.questions, classLevel: selectedClass, language: config.language });
+
             if (result.questions && result.questions.length > 0) {
                 setCurrentTest({ id: testId, subject: testConfig.subject, questions: result.questions, language: config.language, classLevel: selectedClass, time: testConfig.time });
                 setTimeLeft(testConfig.time);
@@ -137,7 +138,7 @@ export default function AiTestPage() {
 
         setProgress(prev => {
             if (!prev) return getInitialProgress(selectedClass); // Fallback
-            return {
+            const newProgress = {
                 ...prev,
                 [currentTest.id]: {
                     completed: true,
@@ -147,6 +148,33 @@ export default function AiTestPage() {
                     timeTaken: timeTaken
                 }
             };
+            
+            const config = testConfigs[selectedClass];
+            const completedCount = config.tests.filter(t => newProgress[t.id]?.completed).length;
+            if (completedCount === config.tests.length) {
+                const totalScoreObtained = config.tests.reduce((sum, test) => {
+                    const testProgress = newProgress[test.id];
+                    return sum + (testProgress.score * test.marksPerQuestion);
+                }, 0);
+                const percentage = (totalScoreObtained / config.totalMarks) * 100;
+
+                const newOverallTopper = { 
+                    name: user.name, 
+                    class: selectedClass, 
+                    percentage: percentage, 
+                    date: new Date().toISOString(), 
+                    photo: user.profilePhotoUrl || 'https://placehold.co/100x100.png', 
+                    hint: 'student portrait' 
+                };
+                const overallToppersRaw = localStorage.getItem('sainik-school-overall-toppers');
+                const overallToppers = overallToppersRaw ? JSON.parse(overallToppersRaw) : [];
+                const otherToppers = overallToppers.filter((t: any) => !(t.name === user.name && t.class === selectedClass));
+                const updatedToppers = [...otherToppers, newOverallTopper];
+                updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
+                localStorage.setItem('sainik-school-overall-toppers', JSON.stringify(updatedToppers.slice(0, 10)));
+            }
+
+            return newProgress;
         });
 
         setPageState('test-dashboard');
@@ -366,19 +394,6 @@ export default function AiTestPage() {
         let performanceStatus: 'पास' | 'औसत' | 'फेल';
         if (totalScoreObtained >= config.passingScore) { performanceStatus = 'पास'; } else if (totalScoreObtained < config.failScore) { performanceStatus = 'फेल'; } else { performanceStatus = 'औसत'; }
 
-        const handleSaveOverallTopper = useCallback(() => {
-            if (!user || !selectedClass) return;
-            const newOverallTopper = { name: user.name, class: selectedClass, percentage: percentage, date: new Date().toISOString(), photo: user.profilePhotoUrl || 'https://placehold.co/100x100.png', hint: 'student portrait' };
-            const overallToppersRaw = localStorage.getItem('sainik-school-overall-toppers');
-            const overallToppers = overallToppersRaw ? JSON.parse(overallToppersRaw) : [];
-            const otherToppers = overallToppers.filter((t: any) => !(t.name === user.name && t.class === selectedClass));
-            const updatedToppers = [...otherToppers, newOverallTopper];
-            updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
-            localStorage.setItem('sainik-school-overall-toppers', JSON.stringify(updatedToppers.slice(0, 10)));
-        }, [user, selectedClass, percentage]);
-
-        useEffect(() => { handleSaveOverallTopper(); }, [handleSaveOverallTopper]);
-
         return (
             <div className="flex flex-col items-center gap-6">
                 <div ref={certificateRef} className="p-4 bg-background w-full max-w-4xl"><TestResultCertificate studentName={user?.name || 'Student'} studentClass={`कक्षा ${selectedClass}`} subject={`सैनिक स्कूल मॉक टेस्ट - कक्षा ${selectedClass}`} totalScore={totalScoreObtained} totalPossibleMarks={config.totalMarks} percentage={percentage} performanceStatus={performanceStatus} subjectResults={subjectResults}/></div>
@@ -459,15 +474,44 @@ export default function AiTestPage() {
     }
 
     const renderSubjectTestCertificate = () => {
-        if (!subjectTestResult) return null;
+        if (!subjectTestResult || !user) return null;
+        const percentage = (subjectTestResult.score / subjectTestResult.questions.length) * 100;
+        let performanceStatus: 'पास' | 'औसत' | 'फेल';
+        if (percentage >= 80) { performanceStatus = 'पास'; }
+        else if (percentage >= 50) { performanceStatus = 'औसत'; }
+        else { performanceStatus = 'फेल'; }
+        
         return (
             <div className="flex flex-col items-center gap-6 animate-in fade-in">
-                <Card className="w-full max-w-2xl text-center">
-                    <CardHeader><CardTitle className="font-headline text-3xl">टेस्ट पूरा हुआ!</CardTitle><CardDescription>यहां आपका प्रदर्शन है</CardDescription></CardHeader>
-                    <CardContent className="space-y-4">
-                        <p className="text-5xl font-bold text-primary">{subjectTestResult.score} <span className="text-2xl text-muted-foreground">/ {subjectTestResult.questions.length}</span></p>
-                        <p className="font-semibold">सही उत्तर</p>
-                        <Button onClick={() => setPageState('subject-test-setup')}>एक और प्रैक्टिस टेस्ट दें</Button>
+                <div ref={certificateRef} className="p-4 bg-background w-full max-w-4xl">
+                     <TestResultCertificate
+                        studentName={user.name}
+                        studentClass={user.class}
+                        subject={`प्रैक्टिस टेस्ट - ${subjectForTest}`}
+                        totalScore={subjectTestResult.score}
+                        totalPossibleMarks={subjectTestResult.questions.length}
+                        percentage={percentage}
+                        performanceStatus={performanceStatus}
+                        subjectResults={[{
+                            subject: subjectForTest,
+                            score: subjectTestResult.score,
+                            totalMarks: subjectTestResult.questions.length
+                        }]}
+                    />
+                </div>
+                <Card className="w-full max-w-2xl">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-center">अगले चरण</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap justify-center gap-4">
+                        <Button onClick={handleDownloadCertificate}>
+                            <Download className="mr-2 h-4 w-4" />
+                            सर्टिफिकेट डाउनलोड करें
+                        </Button>
+                        <Button variant="outline" onClick={() => setPageState('subject-test-setup')}>
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            एक और टेस्ट दें
+                        </Button>
                     </CardContent>
                 </Card>
             </div>

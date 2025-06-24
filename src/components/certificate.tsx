@@ -5,9 +5,10 @@ import { ShieldCheck } from "lucide-react";
 interface CertificateProps {
   data: {
     name: string;
-    exam: string;
     class: string;
     school: string;
+    village: string;
+    district: string;
   };
 }
 
@@ -37,8 +38,9 @@ export function Certificate({ data }: CertificateProps) {
             </div>
 
             <p className="text-center text-lg text-foreground/80 leading-relaxed">
-                <strong>{data.exam}</strong> छात्रवृत्ति योजना के लिए सफलतापूर्वक आवेदन करने हेतु।
-                हम <strong>{data.school}</strong> के कक्षा <strong>{data.class}</strong> से आपके पंजीकरण को स्वीकार करते हैं।
+                **छात्रवृत्ति** योजना के लिए सफलतापूर्वक आवेदन करने हेतु।
+                हम **{data.school}** के कक्षा **{data.class}** से आपके पंजीकरण को स्वीकार करते हैं।
+                आप **{data.village}, {data.district}** के निवासी हैं।
             </p>
 
             <div className="mt-12 flex justify-between items-end">
