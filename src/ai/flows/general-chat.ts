@@ -48,10 +48,8 @@ const generalChatFlow = ai.defineFlow({
     inputSchema: GeneralChatInputSchema,
     outputSchema: GeneralChatOutputSchema,
 }, async (input) => {
-    const validMessages = input.messages.filter(m => m.content.trim() !== '' || (input.photoDataUri && input.messages.indexOf(m) === input.messages.length - 1));
-
-    const history = validMessages.map((msg, index) => {
-        const isLastMessage = index === validMessages.length - 1;
+    const history = input.messages.map((msg, index) => {
+        const isLastMessage = index === input.messages.length - 1;
         const content: ({ text: string } | { media: { url: string } })[] = [];
         
         if (msg.content) {
