@@ -47,15 +47,13 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-3 gap-4">
         {menuItems.map((item) => (
-          <Link href={item.href} key={item.href} legacyBehavior>
-            <a className="block">
+          <Link href={item.href} key={item.href} className="block">
               <Card className="flex flex-col items-center justify-center bg-card text-card-foreground hover:bg-accent transition-colors shadow-lg aspect-square rounded-2xl">
                 <CardContent className="flex flex-col items-center justify-center p-2 text-center">
                   <item.icon className="mb-2 h-7 w-7 sm:h-8 sm:w-8 text-primary" />
                   <span className="text-xs sm:text-sm font-semibold leading-tight">{item.label}</span>
                 </CardContent>
               </Card>
-            </a>
           </Link>
         ))}
       </div>
