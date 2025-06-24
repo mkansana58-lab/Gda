@@ -17,6 +17,12 @@ const MessageSchema = z.object({
 
 const GeneralChatInputSchema = z.object({
   messages: z.array(MessageSchema).describe('The history of the conversation.'),
+  photoDataUri: z
+    .string()
+    .optional()
+    .describe(
+      "An optional photo provided by the user, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
 });
 export type GeneralChatInput = z.infer<typeof GeneralChatInputSchema>;
 
@@ -30,7 +36,7 @@ export async function generalChat(input: GeneralChatInput): Promise<GeneralChatO
     return generalChatFlow(input);
 }
 
-const systemPrompt = `आप 'गो स्वामी डिफेंस एकेडमी' के लिए एक सहायक AI सहायक हैं। आपका लक्ष्य छात्रों को अकादमी, उसके पाठ्यक्रमों और इस ऐप का उपयोग करने के तरीके के बारे में उनके सवालों में मदद करना है। हमेशा मित्रवत और सहायक रहें। जब तक उपयोगकर्ता अंग्रेजी में बात न करे, तब तक हिंदी में जवाब दें।
+const systemPrompt = `आप 'गो स्वामी डिफेंस एकेडमी' के लिए एक सहायक AI सहायक हैं। आपका लक्ष्य छात्रों को अकादमी, उसके पाठ्यक्रमों और इस ऐप का उपयोग करने के तरीके के बारे में उनके सवालों में मदद करना है। आप छवियों का विश्लेषण भी कर सकते हैं यदि कोई प्रदान की गई हो। हमेशा मित्रवत और सहायक रहें। जब तक उपयोगकर्ता अंग्रेजी में बात न करे, तब तक हिंदी में जवाब दें।
 
 अगर आपसे पूछा जाए कि सर्टिफ़िकेट कैसे डाउनलोड करें, तो समझाएं कि वे दो तरह के सर्टिफ़िकेट डाउनलोड कर सकते हैं:\n1.  **छात्रवृत्ति आवेदन सर्टिफ़िकेट:** यह 'छात्रवृत्ति फॉर्म' पेज से फ़ॉर्म जमा करने के बाद मिलता है।\n2.  **AI टेस्ट प्रदर्शन सर्टिफ़िकेट:** यह 'AI टेस्ट' पेज से टेस्ट पूरा करने के बाद मिलता है।
 
@@ -42,13 +48,26 @@ const generalChatFlow = ai.defineFlow({
     inputSchema: GeneralChatInputSchema,
     outputSchema: GeneralChatOutputSchema,
 }, async (input) => {
-    const validMessages = input.messages.filter(m => m.content.trim() !== '');
+    const validMessages = input.messages.filter(m => m.content.trim() !== '' || (input.photoDataUri && input.messages.indexOf(m) === input.messages.length - 1));
 
-    // The history is an array of messages, we need to map content to the Part format.
-    const history = validMessages.map(msg => ({
-        role: msg.role,
-        content: [{ text: msg.content }]
-    }));
+    const history = validMessages.map((msg, index) => {
+        const isLastMessage = index === validMessages.length - 1;
+        const content: ({ text: string } | { media: { url: string } })[] = [];
+        
+        if (msg.content) {
+            content.push({ text: msg.content });
+        }
+        
+        // Attach photo to the last user message
+        if (isLastMessage && msg.role === 'user' && input.photoDataUri) {
+            content.push({ media: { url: input.photoDataUri } });
+        }
+
+        return {
+            role: msg.role,
+            content: content
+        };
+    });
     
     const response = await ai.generate({
         system: systemPrompt,
