@@ -10,12 +10,15 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
   mobile: z.string().regex(/^\d{10}$/, { message: 'कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।' }),
   email: z.string().email({ message: 'कृपया एक वैध ईमेल पता दर्ज करें।' }),
   address: z.string().min(5, { message: 'पता कम से कम 5 अक्षरों का होना चाहिए।' }),
+  class: z.string().min(1, { message: 'कृपया अपनी कक्षा दर्ज करें।' }),
+  exam: z.string().min(1, { message: 'कृपया एक परीक्षा चुनें।' }),
   profilePhoto: z.any().optional(),
 });
 
@@ -31,6 +34,8 @@ export function LoginForm() {
       mobile: '',
       email: '',
       address: '',
+      class: '',
+      exam: '',
     },
   });
 
@@ -39,7 +44,6 @@ export function LoginForm() {
 
     const handleLogin = (profilePhotoUrl: string) => {
       try {
-        // Create user object without the file list
         const { profilePhoto, ...userData } = values;
         const user = { ...userData, profilePhotoUrl };
         localStorage.setItem('user', JSON.stringify(user));
@@ -82,76 +86,57 @@ export function LoginForm() {
     }
   }
 
-  // Use a different name for the form field to avoid conflict with the native `name` property
-  const { register, ...restOfForm } = form;
-  const profilePhotoRef = register('profilePhoto');
+  const profilePhotoRef = form.register('profilePhoto');
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
+        <FormField control={form.control} name="name" render={({ field }) => (
             <FormItem>
               <FormLabel>नाम</FormLabel>
-              <FormControl>
-                <Input placeholder="अपना नाम दर्ज करें" {...field} />
-              </FormControl>
+              <FormControl><Input placeholder="अपना नाम दर्ज करें" {...field} /></FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="mobile"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>मोबाइल नंबर</FormLabel>
-              <FormControl>
-                <Input type="tel" placeholder="अपना मोबाइल नंबर दर्ज करें" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        <div className="grid grid-cols-2 gap-4">
+            <FormField control={form.control} name="mobile" render={({ field }) => (
+                <FormItem><FormLabel>मोबाइल</FormLabel><FormControl><Input type="tel" placeholder="10-अंकीय मोबाइल" {...field} /></FormControl><FormMessage /></FormItem>
+              )}
+            />
+            <FormField control={form.control} name="email" render={({ field }) => (
+                <FormItem><FormLabel>ईमेल</FormLabel><FormControl><Input type="email" placeholder="आपका ईमेल" {...field} /></FormControl><FormMessage /></FormItem>
+              )}
+            />
+             <FormField control={form.control} name="class" render={({ field }) => (
+                <FormItem><FormLabel>कक्षा</FormLabel><FormControl><Input placeholder="जैसे 10वीं, NDA" {...field} /></FormControl><FormMessage /></FormItem>
+              )}
+            />
+             <FormField control={form.control} name="exam" render={({ field }) => (
+                <FormItem><FormLabel>परीक्षा</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="एक परीक्षा चुनें" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            <SelectItem value="Sainik School">सैनिक स्कूल</SelectItem>
+                            <SelectItem value="Military School">मिलिट्री स्कूल</SelectItem>
+                            <SelectItem value="RMS">आरएमएस</SelectItem>
+                            <SelectItem value="RIMC">आरआईएमसी</SelectItem>
+                            <SelectItem value="JNV">जेएनवी</SelectItem>
+                            <SelectItem value="NDA">NDA</SelectItem>
+                            <SelectItem value="CDS">CDS</SelectItem>
+                            <SelectItem value="Other">अन्य</SelectItem>
+                        </SelectContent>
+                    </Select>
+                <FormMessage /></FormItem>
+              )}
+            />
+        </div>
+        <FormField control={form.control} name="address" render={({ field }) => (
+            <FormItem><FormLabel>पता</FormLabel><FormControl><Input placeholder="अपना पता दर्ज करें" {...field} /></FormControl><FormMessage /></FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>ईमेल</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="अपना ईमेल दर्ज करें" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>पता</FormLabel>
-              <FormControl>
-                <Input placeholder="अपना पता दर्ज करें" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profilePhoto"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>प्रोफ़ाइल फ़ोटो</FormLabel>
-              <FormControl>
-                <Input type="file" accept="image/*" {...profilePhotoRef} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        <FormField control={form.control} name="profilePhoto" render={() => (
+            <FormItem><FormLabel>प्रोफ़ाइल फ़ोटो (वैकल्पिक)</FormLabel><FormControl><Input type="file" accept="image/*" {...profilePhotoRef} /></FormControl><FormMessage /></FormItem>
           )}
         />
         <Button type="submit" className="w-full" disabled={isLoading}>

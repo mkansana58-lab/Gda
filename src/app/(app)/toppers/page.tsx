@@ -19,7 +19,8 @@ interface OverallTopper {
 
 interface SubjectTopper {
   name: string;
-  class: '6' | '9';
+  class: string;
+  exam: string;
   subject: string;
   score: number;
   totalMarks: number;
@@ -38,7 +39,7 @@ export default function ToppersPage() {
       setOverallToppers(JSON.parse(storedOverallToppers));
     }
     
-    const storedSubjectToppers = localStorage.getItem('sainik-school-subject-toppers');
+    const storedSubjectToppers = localStorage.getItem('subject-wise-toppers');
     if (storedSubjectToppers) {
         setSubjectToppers(JSON.parse(storedSubjectToppers));
     }
@@ -47,18 +48,6 @@ export default function ToppersPage() {
   const topOverallClass6 = overallToppers.filter(t => t.class === '6').slice(0, 5);
   const topOverallClass9 = overallToppers.filter(t => t.class === '9').slice(0, 5);
   
-  const getSubjectTopPerformers = (className: '6' | '9') => {
-      const classSubjects: {[key: string]: SubjectTopper} = {};
-      subjectToppers
-          .filter(t => t.class === className)
-          .forEach(topper => {
-              if (!classSubjects[topper.subject] || (topper.score / topper.totalMarks) > (classSubjects[topper.subject].score / classSubjects[topper.subject].totalMarks)) {
-                  classSubjects[topper.subject] = topper;
-              }
-          });
-      return Object.values(classSubjects);
-  }
-
   const renderTopperList = (toppers: OverallTopper[]) => (
       <div className="space-y-4">
           {toppers.length === 0 ? (
@@ -101,6 +90,7 @@ export default function ToppersPage() {
                                 <AvatarFallback><User /></AvatarFallback>
                             </Avatar>
                             <p className="font-semibold">{topper.name}</p>
+                            <p className="text-sm text-muted-foreground">{topper.class} | {topper.exam}</p>
                             <p className="text-primary font-bold text-xl mt-1">{topper.score}/{topper.totalMarks}</p>
                             <p className="text-xs text-muted-foreground">अंक</p>
                         </CardContent>
@@ -114,28 +104,28 @@ export default function ToppersPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">हॉल ऑफ फेम / टॉपर्स</h1>
-        <p className="text-muted-foreground">मॉक टेस्ट के हमारे शीर्ष उपलब्धि हासिल करने वालों का जश्न।</p>
+        <p className="text-muted-foreground">हमारे मॉक टेस्ट और प्रैक्टिस टेस्ट के शीर्ष प्रदर्शन करने वालों का जश्न।</p>
       </div>
 
        <Alert>
         <Crown className="h-4 w-4" />
-        <AlertTitle>सैनिक स्कूल मॉक टेस्ट टॉपर्स!</AlertTitle>
+        <AlertTitle>टेस्ट टॉपर्स!</AlertTitle>
         <AlertDescription>
-          यह सूची हमारे मॉक टेस्ट में समग्र और विषय-वार शीर्ष प्रदर्शन करने वालों को दिखाती है।
+          यह सूची हमारे मॉक टेस्ट में समग्र और सभी प्रैक्टिस टेस्ट में विषय-वार शीर्ष प्रदर्शन करने वालों को दिखाती है।
         </AlertDescription>
       </Alert>
       
       <Tabs defaultValue="overall" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="overall">समग्र टॉपर्स</TabsTrigger>
-          <TabsTrigger value="subject">विषय-वार टॉपर्स</TabsTrigger>
+          <TabsTrigger value="overall" className="text-xs sm:text-sm">समग्र टॉपर्स (सैनिक स्कूल)</TabsTrigger>
+          <TabsTrigger value="subject" className="text-xs sm:text-sm">विषय-वार टॉपर्स (सभी)</TabsTrigger>
         </TabsList>
         <TabsContent value="overall" className="mt-6">
             <div className="grid md:grid-cols-2 gap-8">
                 <Card>
                     <CardHeader className="flex-row items-center gap-2">
                         <BookCopy className="w-6 h-6 text-primary"/>
-                        <CardTitle>कक्षा 6 के चैंपियंस</CardTitle>
+                        <CardTitle>कक्षा 6 चैंपियंस</CardTitle>
                     </CardHeader>
                     <CardContent>
                        {renderTopperList(topOverallClass6)}
@@ -144,7 +134,7 @@ export default function ToppersPage() {
                 <Card>
                     <CardHeader className="flex-row items-center gap-2">
                         <Shield className="w-6 h-6 text-primary"/>
-                        <CardTitle>कक्षा 9 के चैंपियंस</CardTitle>
+                        <CardTitle>कक्षा 9 चैंपियंस</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {renderTopperList(topOverallClass9)}
@@ -153,17 +143,7 @@ export default function ToppersPage() {
             </div>
         </TabsContent>
         <TabsContent value="subject" className="mt-6">
-             <div className="space-y-8">
-                <div>
-                    <h3 className="text-2xl font-bold font-headline mb-4 text-center">कक्षा 6 विषय टॉपर्स</h3>
-                    {renderSubjectToppers(getSubjectTopPerformers('6'))}
-                </div>
-                <Separator />
-                <div>
-                    <h3 className="text-2xl font-bold font-headline mb-4 text-center">कक्षा 9 विषय टॉपर्स</h3>
-                    {renderSubjectToppers(getSubjectTopPerformers('9'))}
-                </div>
-            </div>
+             {renderSubjectToppers(subjectToppers)}
         </TabsContent>
       </Tabs>
     </div>

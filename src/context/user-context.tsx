@@ -8,6 +8,8 @@ export interface User {
   mobile: string;
   email: string;
   address: string;
+  class: string;
+  exam: string;
   profilePhotoUrl?: string;
 }
 
