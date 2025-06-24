@@ -18,11 +18,11 @@ const menuItems = [
   { href: '/ai-test', icon: ClipboardCheck, label: 'टेस्ट सीरीज़' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
   { href: '/school-priority-list', icon: ListChecks, label: 'सैनिक स्कूल सूची' },
-  { href: '/cutoff-checker', icon: Scaling, label: 'डेली क्विज़' },
+  { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'हमारे शिक्षक' },
   { href: '/contact', icon: MessageSquare, label: 'हमसे संपर्क करें' },
-  { href: '/plan-form', icon: FilePen, label: 'मेरी प्रोफ़ाइल' },
+  { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
 ];
 
 const Marquee = ({ text }: { text: string }) => (
