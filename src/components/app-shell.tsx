@@ -62,8 +62,6 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     }
   };
   
-  const isDashboard = pathname === '/dashboard';
-
   return (
     <>
       <Sidebar>
@@ -115,17 +113,11 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           <SidebarTrigger className="md:hidden" />
           <UserNav />
         </header>
-        <div className={cn(
-            "flex-1 pb-24",
-            !isDashboard && "pt-14"
-          )}>
-          <div className={cn(
-              "w-full max-w-7xl mx-auto h-full",
-              isDashboard ? "max-w-none mx-0" : "px-4 sm:px-6"
-            )}>
-              {children}
-          </div>
-        </div>
+        <main className="h-full pt-14 pb-24">
+            <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6">
+                 {children}
+            </div>
+        </main>
         <BottomNav />
       </SidebarInset>
     </>
