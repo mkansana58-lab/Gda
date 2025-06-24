@@ -119,7 +119,7 @@ export default function AiChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full p-4">
+    <div className="flex flex-col h-[calc(100vh-10rem)] p-4">
       <div className="mb-4">
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI सहायक</h1>
         <p className="text-muted-foreground">
@@ -129,7 +129,7 @@ export default function AiChatPage() {
 
       <Card className="flex flex-col flex-grow bg-card">
         <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
-          <div className="space-y-6 pb-24">
+          <div className="space-y-6">
             {displayedMessages.map((message, index) => (
               <div
                 key={index}
