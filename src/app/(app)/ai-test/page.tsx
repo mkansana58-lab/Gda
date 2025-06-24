@@ -75,7 +75,7 @@ export default function AiTestPage() {
 
     // Load Sainik School progress from localStorage
     useEffect(() => {
-        if (pageState.startsWith('test-') && selectedClass && user?.email) {
+        if (selectedClass && user?.email) {
             const savedProgressRaw = localStorage.getItem(`sainik-school-progress-${selectedClass}-${user.email}`);
             if (savedProgressRaw) {
                 try {
@@ -88,7 +88,7 @@ export default function AiTestPage() {
                 setProgress(getInitialProgress(selectedClass));
             }
         }
-    }, [pageState, selectedClass, user?.email]);
+    }, [selectedClass, user?.email]);
 
     // Save Sainik School progress to localStorage
     useEffect(() => {
