@@ -114,7 +114,7 @@ export default function AiChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full pb-16">
       <div className="mb-4">
         <h1 className="font-headline text-3xl font-bold tracking-tight">AI सहायक</h1>
         <p className="text-muted-foreground">
