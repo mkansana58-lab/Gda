@@ -71,6 +71,7 @@ export default function AiTestPage() {
     const [subjectTest, setSubjectTest] = useState<{ subject: string; questions: AiQuestion[] } | null>(null);
     const [subjectTestAnswers, setSubjectTestAnswers] = useState<string[]>([]);
     const [subjectTestResult, setSubjectTestResult] = useState<{ score: number, questions: AiQuestion[], answers: string[] } | null>(null);
+    const [subjectForTest, setSubjectForTest] = useState('');
 
     // Load Sainik School progress from localStorage
     useEffect(() => {
@@ -384,7 +385,6 @@ export default function AiTestPage() {
     }
 
     const renderSubjectTestSetup = () => {
-        const [subject, setSubject] = useState('');
         return (
             <div className="flex flex-col gap-8">
                  <div className="relative">
@@ -397,7 +397,7 @@ export default function AiTestPage() {
                     <CardContent className="space-y-4">
                         <p>कक्षा: <span className="font-semibold">{user?.class}</span></p>
                         <p>परीक्षा: <span className="font-semibold">{user?.exam}</span></p>
-                        <Select onValueChange={setSubject} value={subject}>
+                        <Select onValueChange={setSubjectForTest} value={subjectForTest}>
                             <SelectTrigger><SelectValue placeholder="एक विषय चुनें" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="Maths">गणित</SelectItem>
@@ -408,7 +408,7 @@ export default function AiTestPage() {
                                 <SelectItem value="General Knowledge">सामान्य ज्ञान</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Button className="w-full" disabled={!subject || isLoading} onClick={() => handleStartSubjectTest({subject})}>
+                        <Button className="w-full" disabled={!subjectForTest || isLoading} onClick={() => handleStartSubjectTest({subject: subjectForTest})}>
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                             प्रैक्टिस शुरू करें
                         </Button>
