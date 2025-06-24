@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Loader2, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
@@ -36,6 +37,7 @@ export default function ScholarshipFormPage() {
   const [step, setStep] = useState(1);
   const { toast } = useToast();
   const { user } = useUser();
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -102,8 +104,6 @@ export default function ScholarshipFormPage() {
               icon: 'FilePen',
               title: 'आवेदन जमा हो गया!',
               description: `आपका आवेदन क्रमांक ${applicationNo} है। इसे भविष्य के लिए सहेजें।`,
-              read: false,
-              timestamp: new Date().toISOString(),
           });
         }
         toast({
