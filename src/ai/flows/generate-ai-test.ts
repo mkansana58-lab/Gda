@@ -25,7 +25,7 @@ const QuestionSchema = z.object({
     correctAnswer: z.string().describe('The correct answer from the options in the specified language.'),
 });
 
-export const GenerateAiTestOutputSchema = z.object({
+const GenerateAiTestOutputSchema = z.object({
     questions: z.array(QuestionSchema).describe('An array of questions for the test.'),
 });
 export type GenerateAiTestOutput = z.infer<typeof GenerateAiTestOutputSchema>;
