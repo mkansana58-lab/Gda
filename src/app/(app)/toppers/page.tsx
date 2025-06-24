@@ -1,20 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown, User, BookCopy, Shield } from 'lucide-react';
+import { Crown, User, BookCopy, Shield, Award } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from '@/components/ui/separator';
 
-interface OverallTopper {
+interface MockTopper {
   name: string;
   class: '6' | '9';
   percentage: number;
   date: string;
   photo: string;
   hint: string;
+  testMode: 'sainik' | 'rms';
 }
 
 interface SubjectTopper {
@@ -30,31 +30,33 @@ interface SubjectTopper {
 }
 
 export default function ToppersPage() {
-  const [overallToppers, setOverallToppers] = useState<OverallTopper[]>([]);
+  const [sainikToppers, setSainikToppers] = useState<MockTopper[]>([]);
+  const [rmsToppers, setRmsToppers] = useState<MockTopper[]>([]);
   const [subjectToppers, setSubjectToppers] = useState<SubjectTopper[]>([]);
   
   useEffect(() => {
-    const storedOverallToppers = localStorage.getItem('sainik-school-overall-toppers');
-    if (storedOverallToppers) {
-      setOverallToppers(JSON.parse(storedOverallToppers));
-    }
+    const storedSainik = localStorage.getItem('sainik-school-overall-toppers');
+    if (storedSainik) setSainikToppers(JSON.parse(storedSainik));
+
+    const storedRms = localStorage.getItem('rms-school-overall-toppers');
+    if (storedRms) setRmsToppers(JSON.parse(storedRms));
     
-    const storedSubjectToppers = localStorage.getItem('subject-wise-toppers');
-    if (storedSubjectToppers) {
-        setSubjectToppers(JSON.parse(storedSubjectToppers));
-    }
+    const storedSubject = localStorage.getItem('subject-wise-toppers');
+    if (storedSubject) setSubjectToppers(JSON.parse(storedSubject));
   }, []);
   
-  const topOverallClass6 = overallToppers.filter(t => t.class === '6').slice(0, 5);
-  const topOverallClass9 = overallToppers.filter(t => t.class === '9').slice(0, 5);
+  const topSainik6 = sainikToppers.filter(t => t.class === '6').slice(0, 5);
+  const topSainik9 = sainikToppers.filter(t => t.class === '9').slice(0, 5);
+  const topRms6 = rmsToppers.filter(t => t.class === '6').slice(0, 5);
+  const topRms9 = rmsToppers.filter(t => t.class === '9').slice(0, 5);
   
-  const renderTopperList = (toppers: OverallTopper[]) => (
+  const renderMockTopperList = (toppers: MockTopper[]) => (
       <div className="space-y-4">
           {toppers.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">इस श्रेणी में अभी तक कोई टॉपर नहीं है।</p>
           ) : (
               toppers.map((topper, index) => (
-                  <Card key={index} className="flex items-center p-4 gap-4">
+                  <Card key={index} className="flex items-center p-4 gap-4 hover:bg-muted/50 transition-colors">
                       <span className={`text-2xl font-bold w-8 text-center ${index < 3 ? 'text-primary' : 'text-muted-foreground'}`}>{index + 1}</span>
                       <Avatar className="w-12 h-12">
                           <AvatarImage src={topper.photo} alt={topper.name} data-ai-hint={topper.hint}/>
@@ -80,7 +82,7 @@ export default function ToppersPage() {
                  <p className="text-muted-foreground text-center py-4 col-span-full">इस श्रेणी में अभी तक कोई टॉपर नहीं है।</p>
             ) : (
                 toppers.map((topper, index) => (
-                    <Card key={index} className="flex flex-col items-center text-center p-4">
+                    <Card key={index} className="flex flex-col items-center text-center p-4 hover:shadow-lg hover:border-primary/50 transition-all">
                         <CardHeader className="p-2">
                              <CardTitle className="font-headline text-lg">{topper.subject}</CardTitle>
                         </CardHeader>
@@ -111,35 +113,31 @@ export default function ToppersPage() {
         <Crown className="h-4 w-4" />
         <AlertTitle>टेस्ट टॉपर्स!</AlertTitle>
         <AlertDescription>
-          यह सूची हमारे मॉक टेस्ट में समग्र और सभी प्रैक्टिस टेस्ट में विषय-वार शीर्ष प्रदर्शन करने वालों को दिखाती है।
+          यह सूची हमारे मॉक टेस्ट और प्रैक्टिस टेस्ट में शीर्ष प्रदर्शन करने वालों को दिखाती है।
         </AlertDescription>
       </Alert>
       
-      <Tabs defaultValue="overall" className="w-full">
+      <Tabs defaultValue="mock-test" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="overall" className="text-xs sm:text-sm">समग्र टॉपर्स (सैनिक स्कूल)</TabsTrigger>
-          <TabsTrigger value="subject" className="text-xs sm:text-sm">विषय-वार टॉपर्स (सभी)</TabsTrigger>
+          <TabsTrigger value="mock-test">मॉक टेस्ट टॉपर्स</TabsTrigger>
+          <TabsTrigger value="subject">विषय-वार टॉपर्स</TabsTrigger>
         </TabsList>
-        <TabsContent value="overall" className="mt-6">
-            <div className="grid md:grid-cols-2 gap-8">
-                <Card>
-                    <CardHeader className="flex-row items-center gap-2">
-                        <BookCopy className="w-6 h-6 text-primary"/>
-                        <CardTitle>कक्षा 6 चैंपियंस</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                       {renderTopperList(topOverallClass6)}
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex-row items-center gap-2">
-                        <Shield className="w-6 h-6 text-primary"/>
-                        <CardTitle>कक्षा 9 चैंपियंस</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {renderTopperList(topOverallClass9)}
-                    </CardContent>
-                </Card>
+        <TabsContent value="mock-test" className="mt-6">
+            <div className="space-y-8">
+                <div>
+                    <h2 className="text-2xl font-headline font-bold mb-4 flex items-center gap-2"><Shield /> सैनिक स्कूल टॉपर्स</h2>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <Card><CardHeader><CardTitle>कक्षा 6 चैंपियंस</CardTitle></CardHeader><CardContent>{renderMockTopperList(topSainik6)}</CardContent></Card>
+                        <Card><CardHeader><CardTitle>कक्षा 9 चैंपियंस</CardTitle></CardHeader><CardContent>{renderMockTopperList(topSainik9)}</CardContent></Card>
+                    </div>
+                </div>
+                <div>
+                    <h2 className="text-2xl font-headline font-bold mb-4 flex items-center gap-2"><Award /> RMS टॉपर्स</h2>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <Card><CardHeader><CardTitle>कक्षा 6 चैंपियंस</CardTitle></CardHeader><CardContent>{renderMockTopperList(topRms6)}</CardContent></Card>
+                        <Card><CardHeader><CardTitle>कक्षा 9 चैंपियंस</CardTitle></CardHeader><CardContent>{renderMockTopperList(topRms9)}</CardContent></Card>
+                    </div>
+                </div>
             </div>
         </TabsContent>
         <TabsContent value="subject" className="mt-6">

@@ -85,7 +85,6 @@ export default function AiChatPage() {
         imageUrl: imagePreview || undefined 
     };
 
-    // History for the API should only contain text content of past messages plus the current one
     const historyForApi = messages.map(m => ({ role: m.role, content: m.content }));
     const allMessagesForApi = [...historyForApi, { role: 'user' as const, content: input }];
     const dataUriToSend = imageDataUri;
@@ -180,16 +179,16 @@ export default function AiChatPage() {
                 </div>
             )}
             <form onSubmit={handleSubmit} className="flex items-start gap-2">
-                <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                 <Button type="button" variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isLoading || !!imagePreview}>
                     <Paperclip className="w-4 h-4" />
                     <span className="sr-only">छवि संलग्न करें</span>
                 </Button>
+                <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                 <Textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="छवि के साथ या उसके बिना अपना सवाल यहाँ लिखें..."
-                    className="flex-grow resize-none"
+                    className="flex-grow resize-none max-h-40"
                     rows={1}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {

@@ -76,7 +76,7 @@ export default function ScholarshipFormPage() {
       setIsLoading(false);
       toast({
         title: 'आवेदन जमा हो गया!',
-        description: 'आपका प्रमाणपत्र नीचे उत्पन्न हो गया है।',
+        description: 'आपका प्रमाणपत्र नीचे उत्पन्न हो गया है। इसे डाउनलोड करें और हमें ईमेल करें।',
       });
     }, 1000);
   }

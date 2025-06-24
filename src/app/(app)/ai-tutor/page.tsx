@@ -1,11 +1,11 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { askAcademicQuestion, AskAcademicQuestionOutput } from '@/ai/flows/academic-question-tutor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Lightbulb } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 
@@ -27,7 +27,6 @@ export default function AiTutorPage() {
     }
   }, initialState);
 
-
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -37,49 +36,65 @@ export default function AiTutorPage() {
         </p>
       </div>
 
-      <Card>
-        <form action={formAction}>
-          <CardHeader>
-            <CardTitle className="font-headline">अपना शैक्षणिक सवाल पूछें</CardTitle>
-            <CardDescription>विस्तृत उत्तर पाने के लिए अपना प्रश्न नीचे दर्ज करें।</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid w-full gap-2">
-              <Label htmlFor="question-input" className="sr-only">प्रश्न</Label>
-              <Textarea
-                id="question-input"
-                name="question"
-                placeholder="अपना प्रश्न यहाँ लिखें..."
-                rows={4}
-                required
-              />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              उत्तर प्राप्त करें
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-2">
+          <Card className="h-full">
+            <form action={formAction}>
+              <CardHeader>
+                <CardTitle className="font-headline">अपना शैक्षणिक सवाल पूछें</CardTitle>
+                <CardDescription>विस्तृत उत्तर पाने के लिए अपना प्रश्न नीचे दर्ज करें।</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid w-full gap-2">
+                  <Label htmlFor="question-input" className="sr-only">प्रश्न</Label>
+                  <Textarea
+                    id="question-input"
+                    name="question"
+                    placeholder="अपना प्रश्न यहाँ लिखें, जैसे 'भारत का सबसे ऊँचा पुल कौन सा है?'"
+                    rows={6}
+                    required
+                    className="text-base"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  उत्तर प्राप्त करें
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        </div>
 
-      {state.output && (
-        <Card className="animate-in fade-in">
-          <CardHeader>
-            <CardTitle className="font-headline">उत्तर</CardTitle>
-            <div className="flex gap-2 pt-2">
-              <Badge variant="secondary">विषय: {state.output.subject}</Badge>
-              <Badge variant="secondary">कठिनाई: {state.output.difficultyLevel}</Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg leading-relaxed">{state.output.answer}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {state.error && <p className="text-destructive">{state.error}</p>}
+        <div className="md:col-span-1">
+          {state.output ? (
+            <Card className="animate-in fade-in sticky top-20">
+              <CardHeader>
+                <CardTitle className="font-headline">AI का जवाब</CardTitle>
+                <div className="flex gap-2 pt-2 flex-wrap">
+                  <Badge variant="secondary">विषय: {state.output.subject}</Badge>
+                  <Badge variant="secondary">कठिनाई: {state.output.difficultyLevel}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-base leading-relaxed">{state.output.answer}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="sticky top-20 bg-muted/50 border-dashed">
+                <CardContent className="p-6 text-center">
+                    <Lightbulb className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="font-semibold text-muted-foreground">आपका जवाब यहाँ दिखेगा</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        बाएं ओर अपना सवाल पूछें।
+                    </p>
+                </CardContent>
+            </Card>
+          )}
+          {state.error && <p className="text-destructive mt-4">{state.error}</p>}
+        </div>
+      </div>
     </div>
   );
 }
