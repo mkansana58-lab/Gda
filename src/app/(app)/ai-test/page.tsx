@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Timer, CheckCircle, XCircle, Download, FileText, ArrowLeft, Shield, BookCopy, ChevronRight, RefreshCw, Trophy } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { TestResultCertificate } from '@/components/test-result-certificate';
@@ -144,7 +143,11 @@ export default function SainikSchoolTestPage() {
     };
     
     const handleFinishTest = useCallback(() => {
-        if (!currentTest || !progress) return;
+        if (!currentTest || !progress || !selectedClass || !user) return;
+
+        const config = testConfigs[selectedClass!];
+        const testConfig = config.tests.find(t => t.id === currentTest.id);
+        if (!testConfig) return;
 
         let finalScore = 0;
         currentTest.questions.forEach((q, index) => {
@@ -154,6 +157,29 @@ export default function SainikSchoolTestPage() {
         });
         
         const timeTaken = currentTest.time - timeLeft;
+
+        const marksPerQuestion = testConfig.marksPerQuestion;
+        const totalMarks = currentTest.questions.length * marksPerQuestion;
+        
+        // Save subject topper
+        const newSubjectTopper = {
+            name: user.name,
+            class: selectedClass,
+            subject: currentTest.subject,
+            score: finalScore * marksPerQuestion,
+            totalMarks: totalMarks,
+            date: new Date().toISOString(),
+            photo: user.profilePhotoUrl || 'https://placehold.co/100x100.png',
+            hint: 'student portrait'
+        };
+
+        const subjectToppersRaw = localStorage.getItem('sainik-school-subject-toppers');
+        const subjectToppers = subjectToppersRaw ? JSON.parse(subjectToppersRaw) : [];
+        const otherToppers = subjectToppers.filter((t: any) => !(t.name === user.name && t.class === selectedClass && t.subject === currentTest.subject));
+        const updatedToppers = [...otherToppers, newSubjectTopper];
+        updatedToppers.sort((a: any, b: any) => (b.score / b.totalMarks) - (a.score / a.totalMarks));
+        localStorage.setItem('sainik-school-subject-toppers', JSON.stringify(updatedToppers));
+
 
         setProgress(prev => ({
             ...prev!,
@@ -169,7 +195,7 @@ export default function SainikSchoolTestPage() {
         setPageState('test-dashboard');
         setCurrentTest(null);
         toast({ title: 'टेस्ट पूरा हुआ!', description: `${currentTest.subject} का आपका परिणाम सेव कर लिया गया है।` });
-    }, [currentTest, userAnswers, progress, timeLeft]);
+    }, [currentTest, userAnswers, progress, timeLeft, selectedClass, user, toast]);
 
     useEffect(() => {
         if (pageState !== 'test-in-progress') return;
@@ -199,6 +225,7 @@ export default function SainikSchoolTestPage() {
             description: `यह कक्षा ${selectedClass} के लिए आपकी सभी परीक्षा प्रगति को रीसेट कर देगा। यह क्रिया पूर्ववत नहीं की जा सकती।`,
             onConfirm: () => {
                 if(selectedClass){
+                    localStorage.removeItem(`sainik-school-progress-${selectedClass}-${user?.email}`);
                     setProgress(getInitialProgress(selectedClass));
                     toast({ title: 'प्रगति रीसेट', description: `कक्षा ${selectedClass} के लिए आपकी प्रगति रीसेट कर दी गई है।` });
                 }
@@ -262,13 +289,7 @@ export default function SainikSchoolTestPage() {
         const config = testConfigs[selectedClass];
         const completedCount = config.tests.filter(t => progress[t.id]?.completed).length;
         const allTestsCompleted = completedCount === config.tests.length;
-
-        let totalScore = 0;
-        config.tests.forEach(test => {
-            if(progress[test.id]?.completed) {
-                totalScore += progress[test.id].score * test.marksPerQuestion;
-            }
-        });
+        const totalMinutes = config.tests.reduce((sum, test) => sum + (test.time / 60), 0);
 
         return (
             <div className="flex flex-col gap-6">
@@ -278,7 +299,7 @@ export default function SainikSchoolTestPage() {
                     </Button>
                     <div className="text-center sm:text-left">
                         <h1 className="font-headline text-3xl font-bold tracking-tight">मॉक टेस्ट डैशबोर्ड - कक्षा {selectedClass}</h1>
-                        <p className="text-muted-foreground">अपनी प्रगति को ट्रैक करें और टेस्ट शुरू करें।</p>
+                        <p className="text-muted-foreground">अपनी प्रगति को ट्रैक करें और टेस्ट शुरू करें। कुल समय: {totalMinutes} मिनट।</p>
                     </div>
                 </div>
 
@@ -391,8 +412,8 @@ export default function SainikSchoolTestPage() {
         );
     };
 
-    const renderCertificate = () => {
-        if (!selectedClass || !progress) return null;
+    const CertificateRenderer = () => {
+        if (!selectedClass || !progress || !user) return null;
 
         const config = testConfigs[selectedClass];
         const subjectResults = config.tests.map(test => {
@@ -415,6 +436,30 @@ export default function SainikSchoolTestPage() {
         } else {
             performanceStatus = 'औसत';
         }
+
+        const handleSaveOverallTopper = useCallback(() => {
+            if (!user || !selectedClass) return;
+
+            const newOverallTopper = {
+                name: user.name,
+                class: selectedClass,
+                percentage: percentage,
+                date: new Date().toISOString(),
+                photo: user.profilePhotoUrl || 'https://placehold.co/100x100.png',
+                hint: 'student portrait'
+            };
+
+            const overallToppersRaw = localStorage.getItem('sainik-school-overall-toppers');
+            const overallToppers = overallToppersRaw ? JSON.parse(overallToppersRaw) : [];
+            const otherToppers = overallToppers.filter((t: any) => !(t.name === user.name && t.class === selectedClass));
+            const updatedToppers = [...otherToppers, newOverallTopper];
+            updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
+            localStorage.setItem('sainik-school-overall-toppers', JSON.stringify(updatedToppers.slice(0, 10)));
+        }, [user, selectedClass, percentage]);
+
+        useEffect(() => {
+            handleSaveOverallTopper();
+        }, [handleSaveOverallTopper]);
 
         return (
             <div className="flex flex-col items-center gap-6">
@@ -447,7 +492,7 @@ export default function SainikSchoolTestPage() {
                 </Card>
             </div>
         );
-    };
+    }
     
     const renderSolutionSheet = () => {
         if (!solutionSheet.testId || !progress || !selectedClass) return null;
@@ -496,7 +541,7 @@ export default function SainikSchoolTestPage() {
             {pageState === 'class-selection' && renderClassSelection()}
             {pageState === 'test-dashboard' && renderTestDashboard()}
             {pageState === 'test-in-progress' && renderTestInProgress()}
-            {pageState === 'certificate' && renderCertificate()}
+            {pageState === 'certificate' && <CertificateRenderer />}
             {renderSolutionSheet()}
 
             <AlertDialog open={isConfirming} onOpenChange={setIsConfirming}>
