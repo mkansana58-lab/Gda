@@ -10,9 +10,9 @@ import {
   Trophy,
   Users,
   Contact,
-  Ticket,
 } from 'lucide-react';
 import Link from 'next/link';
+import { Logo } from '@/components/logo';
 
 const menuItems = [
   { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
@@ -23,29 +23,33 @@ const menuItems = [
   { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
-  { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
   { href: '/contact', icon: Contact, label: 'संपर्क करें' },
 ];
 
 export default function DashboardPage() {
   return (
-    <div className="flex flex-col h-full p-4 sm:p-6 bg-background">
-      <header className="flex items-center gap-4 mb-6">
-        {/* Header content removed as per new design */}
+    <div className="p-4 sm:p-6 space-y-6">
+      <header className="flex items-center gap-4 text-foreground">
+        <Logo className="h-12 w-12 bg-card text-primary" />
+        <div>
+          <h1 className="text-xl font-bold font-headline leading-none">Goswami</h1>
+          <h2 className="text-xl font-bold font-headline leading-none">Defence Academy</h2>
+        </div>
       </header>
-       <Card className="mb-6 bg-primary/10 border-2 border-dashed border-primary/20">
+
+       <Card className="bg-card text-card-foreground shadow-lg rounded-2xl">
          <CardContent className="p-4 sm:p-6">
-           <p className="text-center font-headline text-2xl sm:text-3xl font-semibold text-primary-foreground tracking-wider">
-             "सफलता अंतिम नहीं है, असफलता घातक नहीं है: यह जारी रखने का साहस है जो मायने रखता है।"
+           <p className="text-center font-headline text-xl sm:text-2xl font-semibold">
+             "आपके संघर्ष की ताकत ही आपकी उपलब्धि की सफलता को निर्धारित करती है।"
            </p>
          </CardContent>
        </Card>
 
-      <div className="grid grid-cols-3 gap-3 sm:gap-4 flex-grow">
+      <div className="grid grid-cols-3 gap-4">
         {menuItems.map((item) => (
           <Link href={item.href} key={item.href} legacyBehavior>
             <a className="block">
-              <Card className="h-full flex flex-col items-center justify-center bg-card hover:bg-accent/50 transition-colors shadow-lg border border-border aspect-square">
+              <Card className="flex flex-col items-center justify-center bg-card text-card-foreground hover:bg-accent transition-colors shadow-lg aspect-square rounded-2xl">
                 <CardContent className="flex flex-col items-center justify-center p-2 text-center">
                   <item.icon className="mb-2 h-7 w-7 sm:h-8 sm:w-8 text-primary" />
                   <span className="text-xs sm:text-sm font-semibold leading-tight">{item.label}</span>

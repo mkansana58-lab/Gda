@@ -100,7 +100,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex items-center gap-3 p-2 border-t">
+          <div className="flex items-center gap-3 p-2 border-t border-sidebar-border">
             <Avatar>
               <AvatarImage src={user?.profilePhotoUrl} alt={user?.name ?? ''} />
               <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
@@ -112,9 +112,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </SidebarFooter>
       </Sidebar>
-      <div className="flex-1 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+      <div className="flex-1 flex flex-col min-h-screen bg-background">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-border/20 bg-background/80 backdrop-blur-sm px-4 sm:px-6">
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-foreground hover:bg-white/20">
             <PanelLeft className="h-6 w-6" />
             <span className="sr-only">Toggle Sidebar</span>
           </Button>
@@ -123,6 +123,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsNotificationsOpen(true)}
+              className="text-foreground hover:bg-white/20"
             >
               <Bell className="h-6 w-6" />
               <span className="sr-only">सूचनाएं</span>
