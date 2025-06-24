@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 interface CertificateProps {
   studentName: string;
   studentClass: string;
-  subject: string;
+  testTitle: string;
   totalScore: number;
   totalPossibleMarks: number;
   percentage: number;
@@ -24,7 +24,7 @@ interface CertificateProps {
 export function TestResultCertificate({
   studentName,
   studentClass,
-  subject,
+  testTitle,
   totalScore,
   totalPossibleMarks,
   percentage,
@@ -39,25 +39,20 @@ export function TestResultCertificate({
 
   const getStatusInfo = () => {
     switch (performanceStatus) {
-      case 'पास':
-        return { text: 'उत्तीर्ण (Pass)', color: 'text-green-600' };
-      case 'औसत':
-        return { text: 'औसत (Average)', color: 'text-yellow-600' };
-      case 'फेल':
-        return { text: 'अनुत्तीर्ण (Failed)', color: 'text-red-600' };
-      case 'योग्य नहीं':
-        return { text: 'योग्य नहीं (Not Qualified)', color: 'text-red-600' };
-      default:
-        return { text: '', color: '' };
+      case 'पास': return { text: 'उत्तीर्ण (Pass)', color: 'text-green-500' };
+      case 'औसत': return { text: 'औसत (Average)', color: 'text-yellow-500' };
+      case 'फेल': return { text: 'अनुत्तीर्ण (Failed)', color: 'text-red-500' };
+      case 'योग्य नहीं': return { text: 'योग्य नहीं (Not Qualified)', color: 'text-red-500' };
+      default: return { text: '', color: '' };
     }
   };
 
   const statusInfo = getStatusInfo();
   
   return (
-    <div className="w-full max-w-2xl bg-slate-50 shadow-2xl rounded-lg border-4 border-primary/20 p-2 font-body mx-auto">
-      <div className="w-full h-full border-2 border-primary/50 p-4 sm:p-6 relative flex flex-col bg-white">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/az-subtle.png')] opacity-10"></div>
+    <div className="w-full max-w-3xl bg-card shadow-2xl rounded-lg border-4 border-primary/20 p-2 font-body mx-auto text-card-foreground">
+      <div className="w-full h-full border-2 border-primary/50 p-4 sm:p-6 relative flex flex-col">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/az-subtle.png')] opacity-5"></div>
         
         <div className="text-center z-10 relative mb-4">
             <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary">गो स्वामी डिफेंस एकेडमी</h1>
@@ -65,51 +60,48 @@ export function TestResultCertificate({
         </div>
 
         <div className="text-center my-2 z-10 relative">
-            <p className="text-lg sm:text-xl font-bold tracking-wider text-gray-800 uppercase">प्रदर्शन का प्रमाण पत्र</p>
-            <p className="text-xs text-gray-500 uppercase">Certificate of Performance</p>
+            <p className="text-lg sm:text-xl font-bold tracking-wider uppercase">प्रदर्शन का प्रमाण पत्र</p>
+            <p className="text-xs text-muted-foreground uppercase">Certificate of Performance</p>
         </div>
 
         <div className="text-center my-4 z-10 relative">
-            <p className="text-base text-gray-800">यह प्रमाणित किया जाता है कि</p>
+            <p className="text-base">यह प्रमाणित किया जाता है कि</p>
             <p className="text-3xl sm:text-4xl font-bold font-headline text-primary my-2 break-words">{studentName}</p>
-            <p className="text-base text-gray-800 leading-relaxed">
-                ने <strong>{subject}</strong> में सफलतापूर्वक भाग लिया है।
+            <p className="text-base leading-relaxed">
+                ने <strong>{testTitle}</strong> ({studentClass}) में सफलतापूर्वक भाग लिया है।
             </p>
         </div>
         
         <div className="flex flex-col gap-4 my-4 z-10 relative">
-            <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
+            <div className="bg-secondary/30 p-3 rounded-lg border border-border">
                 <h3 className="font-headline text-base sm:text-lg text-center mb-2 font-bold text-primary">कुल प्रदर्शन</h3>
                 <div className="grid grid-cols-3 gap-1 text-center">
                     <div>
                         <p className="text-xl sm:text-2xl font-bold text-primary">{totalScore}/{totalPossibleMarks}</p>
-                        <p className="text-xs text-gray-600 font-semibold">कुल अंक (मेरिट)</p>
+                        <p className="text-xs text-muted-foreground font-semibold">कुल अंक</p>
                     </div>
                     <div>
                         <p className="text-xl sm:text-2xl font-bold text-primary">{percentage.toFixed(2)}%</p>
-                        <p className="text-xs text-gray-600 font-semibold">प्रतिशत</p>
+                        <p className="text-xs text-muted-foreground font-semibold">प्रतिशत</p>
                     </div>
                     <div>
                         <p className={`text-lg sm:text-xl font-bold ${statusInfo.color}`}>{statusInfo.text}</p>
-                        <p className="text-xs text-gray-600 font-semibold">परिणाम</p>
+                        <p className="text-xs text-muted-foreground font-semibold">परिणाम</p>
                     </div>
                 </div>
             </div>
             {subjectResults.length > 1 && (
-              <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
+              <div className="bg-secondary/30 p-3 rounded-lg border border-border">
                   <h3 className="font-headline text-base sm:text-lg text-center mb-2 font-bold text-primary">विषयवार स्कोर</h3>
                   <Table>
                       <TableHeader>
-                          <TableRow>
-                              <TableHead className="h-8 text-xs">विषय</TableHead>
-                              <TableHead className="text-right h-8 text-xs">अंक / स्थिति</TableHead>
-                          </TableRow>
+                          <TableRow><TableHead className="h-8 text-xs">विषय</TableHead><TableHead className="text-right h-8 text-xs">अंक / स्थिति</TableHead></TableRow>
                       </TableHeader>
                       <TableBody>
                         {subjectResults.map(res => (
                             <TableRow key={res.subject}>
                                 <TableCell className="font-medium py-1 text-xs sm:text-sm">{res.subject}</TableCell>
-                                <TableCell className={`text-right font-mono py-1 text-xs sm:text-sm ${res.isQualifying ? (res.qualifyingStatus === 'योग्य' ? 'text-green-600' : 'text-red-600') : ''}`}>
+                                <TableCell className={`text-right font-mono py-1 text-xs sm:text-sm ${res.isQualifying ? (res.qualifyingStatus === 'योग्य' ? 'text-green-500' : 'text-red-500') : ''}`}>
                                     {res.isQualifying ? res.qualifyingStatus : `${res.score} / ${res.totalMarks}`}
                                 </TableCell>
                             </TableRow>
@@ -123,7 +115,7 @@ export function TestResultCertificate({
         <div className="mt-auto pt-4 flex justify-between items-end z-10 relative">
             <div className="text-center">
                 <p className="font-semibold text-xs sm:text-sm">{currentDate}</p>
-                <Separator className="my-1 bg-gray-400"/>
+                <Separator className="my-1 bg-muted-foreground"/>
                 <p className="text-xs text-muted-foreground">दिनांक</p>
             </div>
             <div className="w-16 h-16 sm:w-20 sm:h-20 relative">
@@ -132,8 +124,8 @@ export function TestResultCertificate({
                 </div>
             </div>
             <div className="text-center">
-                <p className="font-signature text-2xl sm:text-3xl text-slate-800 -mb-2">Lokesh Goswami</p>
-                <Separator className="my-1 bg-gray-400"/>
+                <p className="font-signature text-2xl sm:text-3xl text-card-foreground -mb-2">Lokesh Goswami</p>
+                <Separator className="my-1 bg-muted-foreground"/>
                 <p className="text-xs text-muted-foreground">निदेशक</p>
             </div>
         </div>

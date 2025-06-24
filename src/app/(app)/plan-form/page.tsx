@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -118,11 +117,11 @@ export default function ScholarshipFormPage() {
 
   if (submittedData) {
     return (
-      <div className="flex flex-col items-center gap-6 pb-16">
-        <div ref={certificateRef} className="p-4 bg-background">
+      <div className="flex flex-col items-center gap-6 p-4 pb-24">
+        <div ref={certificateRef} className="p-4 bg-card">
           <Certificate data={submittedData} />
         </div>
-        <Card className="w-full max-w-2xl">
+        <Card className="w-full max-w-2xl bg-card">
             <CardHeader>
                 <CardTitle className="font-headline">अगले चरण</CardTitle>
                 <CardDescription>
@@ -150,85 +149,87 @@ export default function ScholarshipFormPage() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="font-headline text-2xl">छात्रवृत्ति आवेदन पत्र</CardTitle>
-        <CardDescription>
-          आवेदन शुल्क ₹50 है। टेस्ट में अच्छे अंक लाने पर आपको एक माह की ट्यूशन फीस फ्री रहेगी।
-        </CardDescription>
-        <div className="pt-2">
-            <Progress value={(step / 3) * 100} className="w-full" />
-            <p className="text-xs text-muted-foreground text-center mt-1">चरण {step} / 3</p>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {step === 1 && (
-                <div className="space-y-6 animate-in fade-in">
-                    <FormField control={form.control} name="name" render={({ field }) => (
-                      <FormItem><FormLabel>पूरा नाम</FormLabel><FormControl><Input placeholder="आपका पूरा नाम" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="mobile" render={({ field }) => (
-                      <FormItem><FormLabel>मोबाइल नंबर</FormLabel><FormControl><Input type="tel" placeholder="आपका मोबाइल नंबर" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="email" render={({ field }) => (
-                      <FormItem><FormLabel>ईमेल पता</FormLabel><FormControl><Input type="email" placeholder="आपका ईमेल पता" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                </div>
-            )}
-            {step === 2 && (
-                <div className="space-y-6 animate-in fade-in">
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="age" render={({ field }) => (
-                          <FormItem><FormLabel>आयु</FormLabel><FormControl><Input type="number" placeholder="आपकी आयु" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+    <div className="p-4 pb-24">
+        <Card className="w-full max-w-2xl mx-auto bg-card">
+        <CardHeader>
+            <CardTitle className="font-headline text-2xl">छात्रवृत्ति आवेदन पत्र</CardTitle>
+            <CardDescription>
+            आवेदन शुल्क ₹50 है। टेस्ट में अच्छे अंक लाने पर आपको एक माह की ट्यूशन फीस फ्री रहेगी।
+            </CardDescription>
+            <div className="pt-2">
+                <Progress value={(step / 3) * 100} className="w-full" />
+                <p className="text-xs text-muted-foreground text-center mt-1">चरण {step} / 3</p>
+            </div>
+        </CardHeader>
+        <CardContent>
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {step === 1 && (
+                    <div className="space-y-6 animate-in fade-in">
+                        <FormField control={form.control} name="name" render={({ field }) => (
+                        <FormItem><FormLabel>पूरा नाम</FormLabel><FormControl><Input placeholder="आपका पूरा नाम" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={form.control} name="class" render={({ field }) => (
-                          <FormItem><FormLabel>कक्षा</FormLabel><FormControl><Input placeholder="जैसे, 10वीं" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormField control={form.control} name="mobile" render={({ field }) => (
+                        <FormItem><FormLabel>मोबाइल नंबर</FormLabel><FormControl><Input type="tel" placeholder="आपका मोबाइल नंबर" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="email" render={({ field }) => (
+                        <FormItem><FormLabel>ईमेल पता</FormLabel><FormControl><Input type="email" placeholder="आपका ईमेल पता" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                     </div>
-                     <FormField control={form.control} name="school" render={({ field }) => (
-                          <FormItem><FormLabel>स्कूल का नाम</FormLabel><FormControl><Input placeholder="आपके स्कूल का नाम" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                </div>
-            )}
-            {step === 3 && (
-                <div className="space-y-6 animate-in fade-in">
-                     <FormField control={form.control} name="village" render={({ field }) => (
-                        <FormItem><FormLabel>गाँव / कस्बा</FormLabel><FormControl><Input placeholder="आपके गाँव/कस्बे का नाम" {...field} /></FormControl><FormMessage /></FormItem>
-                      )}/>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="district" render={({ field }) => (
-                            <FormItem><FormLabel>ज़िला</FormLabel><FormControl><Input placeholder="आपके ज़िले का नाम" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name="pincode" render={({ field }) => (
-                            <FormItem><FormLabel>पिनकोड</FormLabel><FormControl><Input type="tel" placeholder="आपका पिनकोड" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                    </div>
-                     <FormField control={form.control} name="state" render={({ field }) => (
-                        <FormItem><FormLabel>राज्य</FormLabel><FormControl><Input placeholder="आपके राज्य का नाम" {...field} /></FormControl><FormMessage /></FormItem>
-                      )}/>
-                </div>
-            )}
-            <CardFooter className="justify-between px-0">
-                <Button type="button" variant="outline" onClick={handleBack} disabled={step === 1}>
-                    <ArrowLeft className="mr-2 h-4 w-4"/> वापस
-                </Button>
-
-                {step < 3 ? (
-                    <Button type="button" onClick={handleNext}>
-                       आगे <ArrowRight className="ml-2 h-4 w-4"/>
-                    </Button>
-                ) : (
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      प्रमाणपत्र बनाएं
-                    </Button>
                 )}
-            </CardFooter>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+                {step === 2 && (
+                    <div className="space-y-6 animate-in fade-in">
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <FormField control={form.control} name="age" render={({ field }) => (
+                            <FormItem><FormLabel>आयु</FormLabel><FormControl><Input type="number" placeholder="आपकी आयु" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="class" render={({ field }) => (
+                            <FormItem><FormLabel>कक्षा</FormLabel><FormControl><Input placeholder="जैसे, 10वीं" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                        </div>
+                        <FormField control={form.control} name="school" render={({ field }) => (
+                            <FormItem><FormLabel>स्कूल का नाम</FormLabel><FormControl><Input placeholder="आपके स्कूल का नाम" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                    </div>
+                )}
+                {step === 3 && (
+                    <div className="space-y-6 animate-in fade-in">
+                        <FormField control={form.control} name="village" render={({ field }) => (
+                            <FormItem><FormLabel>गाँव / कस्बा</FormLabel><FormControl><Input placeholder="आपके गाँव/कस्बे का नाम" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <FormField control={form.control} name="district" render={({ field }) => (
+                                <FormItem><FormLabel>ज़िला</FormLabel><FormControl><Input placeholder="आपके ज़िले का नाम" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="pincode" render={({ field }) => (
+                                <FormItem><FormLabel>पिनकोड</FormLabel><FormControl><Input type="tel" placeholder="आपका पिनकोड" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                        </div>
+                        <FormField control={form.control} name="state" render={({ field }) => (
+                            <FormItem><FormLabel>राज्य</FormLabel><FormControl><Input placeholder="आपके राज्य का नाम" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                    </div>
+                )}
+                <CardFooter className="justify-between px-0">
+                    <Button type="button" variant="outline" onClick={handleBack} disabled={step === 1}>
+                        <ArrowLeft className="mr-2 h-4 w-4"/> वापस
+                    </Button>
+
+                    {step < 3 ? (
+                        <Button type="button" onClick={handleNext}>
+                        आगे <ArrowRight className="ml-2 h-4 w-4"/>
+                        </Button>
+                    ) : (
+                        <Button type="submit" disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        प्रमाणपत्र बनाएं
+                        </Button>
+                    )}
+                </CardFooter>
+            </form>
+            </Form>
+        </CardContent>
+        </Card>
+    </div>
   );
 }

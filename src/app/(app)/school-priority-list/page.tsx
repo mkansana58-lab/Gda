@@ -58,7 +58,7 @@ export default function SchoolPriorityListPage() {
   const handleDownload = () => {
     if (documentRef.current) {
       toast({ title: 'दस्तावेज़ डाउनलोड हो रहा है...', description: 'कृपया प्रतीक्षा करें।' });
-      html2canvas(documentRef.current, { scale: 2.5 }).then((canvas) => {
+      html2canvas(documentRef.current, { scale: 2.5, backgroundColor: '#ffffff' }).then((canvas) => {
         const link = document.createElement('a');
         link.download = `sainik-school-priority-list-${submittedData?.applicationNo}.png`;
         link.href = canvas.toDataURL('image/png');
@@ -70,11 +70,11 @@ export default function SchoolPriorityListPage() {
 
   if (submittedData) {
     return (
-      <div className="flex flex-col items-center gap-6 pb-24">
+      <div className="flex flex-col items-center gap-6 p-4 pb-24">
         <div ref={documentRef} className="p-4 bg-white w-full max-w-4xl">
            <SchoolPriorityListDocument data={submittedData} />
         </div>
-        <Card className="w-full max-w-2xl">
+        <Card className="w-full max-w-2xl bg-card">
             <CardHeader>
                 <CardTitle className="font-headline text-center">अगले चरण</CardTitle>
             </CardHeader>
@@ -93,12 +93,12 @@ export default function SchoolPriorityListPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-24">
+    <div className="flex flex-col gap-8 p-4 pb-24">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">स्कूल प्राथमिकता सूची</h1>
         <p className="text-muted-foreground">सैनिक स्कूल काउंसलिंग के लिए अपनी प्राथमिकता सूची बनाएं।</p>
       </div>
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="w-full max-w-2xl mx-auto bg-card">
         <CardHeader>
           <CardTitle className="font-headline">अपना विवरण भरें</CardTitle>
           <CardDescription>सूची बनाने के लिए नीचे दिए गए विवरण दर्ज करें।</CardDescription>

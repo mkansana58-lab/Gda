@@ -16,6 +16,7 @@ const GenerateAiTestInputSchema = z.object({
   questionCount: z.number().describe('The number of questions to generate.'),
   classLevel: z.string().describe('The class level for the test (e.g., "6" or "9").'),
   language: z.string().describe('The language for the questions and answers (e.g., "Hindi" or "English").'),
+  examContext: z.string().optional().describe('Optional context about the specific exam (e.g., "JNV Class 6", "RTSE").'),
 });
 export type GenerateAiTestInput = z.infer<typeof GenerateAiTestInputSchema>;
 
@@ -40,14 +41,19 @@ const prompt = ai.definePrompt({
   name: 'generateDynamicAiTestPrompt',
   input: {schema: GenerateAiTestInputSchema},
   output: {schema: GenerateAiTestOutputSchema},
-  prompt: `You are an expert test creator for students preparing for Indian competitive exams like AISSEE (Sainik School), RMS (Military School), and JNV.
+  prompt: `You are an expert test creator for students preparing for Indian competitive exams.
 Generate a multiple-choice test with exactly {{{questionCount}}} questions in the {{{language}}} language.
 
 The test details are as follows:
 - Subject: {{{subject}}}
 - Class Level: {{{classLevel}}}
+{{#if examContext}}- Exam Context: {{{examContext}}}{{/if}}
 
-The questions must be challenging and aligned with high standards, designed to rigorously test the student's preparation. For Class 6, ensure the questions require critical thinking and problem-solving skills, not just simple recall. For Class 9, the complexity should increase accordingly.
+The questions must be challenging and aligned with high standards, designed to rigorously test the student's preparation.
+For Class 6, ensure the questions require critical thinking and problem-solving skills, not just simple recall. For Class 9 and 10, the complexity should increase accordingly.
+
+If the subject is 'मानसिक योग्यता (Mental Ability)' for JNV Class 6, include questions from topics like odd one out, figure matching, pattern completion, figure series completion, analogy, geometrical figure completion (triangle, square, circle), mirror imaging, punched hold pattern, space visualisation, and embedded figure.
+
 Each question must have 4 options, and you must specify the correct answer.
 Ensure the response is a valid JSON object matching the output schema. All text must be in {{{language}}}.
 `,

@@ -1,4 +1,3 @@
-
 'use client';
 import { AppShell } from "@/components/app-shell";
 import { ProfileEditDialog } from "@/components/profile-edit-dialog";
@@ -28,12 +27,12 @@ export default function AppLayout({
 
   return (
     <UserProvider>
-      <AppShell>
-        {children}
-      </AppShell>
+      <div className="md:flex">
+        <AppShell>
+          {children}
+        </AppShell>
+      </div>
       <ProfileEditDialog />
     </UserProvider>
   );
 }
-
-    

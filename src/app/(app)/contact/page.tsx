@@ -55,7 +55,7 @@ export default function ContactPage() {
     }
 
   return (
-    <div className="flex flex-col gap-8 pb-24">
+    <div className="flex flex-col gap-8 p-4 pb-24">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">हमसे संपर्क करें</h1>
         <p className="text-muted-foreground">
@@ -63,7 +63,7 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <Card>
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2"><MapPin/> हमारा पता</CardTitle>
         </CardHeader>
@@ -85,7 +85,7 @@ export default function ContactPage() {
 
 
       <div className="grid md:grid-cols-2 gap-8">
-        <Card>
+        <Card className="bg-card">
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><Mail/> हमें ईमेल करें</CardTitle>
                 <CardDescription>विस्तृत पूछताछ के लिए हमें एक ईमेल भेजें।</CardDescription>
@@ -108,7 +108,7 @@ export default function ContactPage() {
             </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card">
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><MessageSquare/> एक एसएमएस भेजें</CardTitle>
                 <CardDescription>त्वरित प्रतिक्रिया के लिए एक टेक्स्ट भेजें।</CardDescription>

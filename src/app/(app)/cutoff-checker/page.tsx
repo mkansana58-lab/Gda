@@ -1,4 +1,3 @@
-
 'use client';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -134,7 +133,7 @@ export default function CutoffCheckerPage() {
 
 
   return (
-    <div className="flex flex-col gap-8 pb-24">
+    <div className="flex flex-col gap-8 p-4 pb-24">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">कट-ऑफ और चयन की संभावना</h1>
         <p className="text-muted-foreground">
@@ -142,7 +141,7 @@ export default function CutoffCheckerPage() {
         </p>
       </div>
 
-       <Card>
+       <Card className="bg-card">
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2"><Sparkles className="text-primary"/> AI चयन संभावना परीक्षक</CardTitle>
           <CardDescription>अपने चयन की संभावनाओं का AI-संचालित विश्लेषण प्राप्त करने के लिए अपना विवरण दर्ज करें।</CardDescription>
@@ -190,7 +189,7 @@ export default function CutoffCheckerPage() {
       </Card>
       
       {aiResult && (
-        <Card className="animate-in fade-in">
+        <Card className="animate-in fade-in bg-card">
           <CardHeader>
             <CardTitle className="font-headline">AI विश्लेषण परिणाम</CardTitle>
           </CardHeader>
@@ -211,7 +210,7 @@ export default function CutoffCheckerPage() {
         </Card>
       )}
 
-      <Card>
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle className="font-headline">पिछले वर्ष की कट-ऑफ</CardTitle>
           <CardDescription>ऐतिहासिक कट-ऑफ डेटा देखने के लिए एक परीक्षा और वर्ष चुनें।</CardDescription>
@@ -242,7 +241,7 @@ export default function CutoffCheckerPage() {
       </Card>
 
       {data && (
-        <Card className="animate-in fade-in">
+        <Card className="animate-in fade-in bg-card">
           <CardHeader>
             <CardTitle className="font-headline">{selectedExam} - {selectedYear} विवरण</CardTitle>
           </CardHeader>

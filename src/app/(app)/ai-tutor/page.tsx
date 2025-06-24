@@ -28,7 +28,7 @@ export default function AiTutorPage() {
   }, initialState);
 
   return (
-    <div className="flex flex-col gap-8 pb-24">
+    <div className="flex flex-col gap-8 p-4 pb-24">
       <div>
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI ट्यूटर</h1>
         <p className="text-muted-foreground">
@@ -38,7 +38,7 @@ export default function AiTutorPage() {
 
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
-          <Card className="h-full">
+          <Card className="h-full bg-card">
             <form action={formAction}>
               <CardHeader>
                 <CardTitle className="font-headline">अपना शैक्षणिक सवाल पूछें</CardTitle>
@@ -53,7 +53,7 @@ export default function AiTutorPage() {
                     placeholder="अपना प्रश्न यहाँ लिखें, जैसे 'भारत का सबसे ऊँचा पुल कौन सा है?'"
                     rows={6}
                     required
-                    className="text-base"
+                    className="text-base bg-secondary"
                   />
                 </div>
               </CardContent>
@@ -69,7 +69,7 @@ export default function AiTutorPage() {
 
         <div className="md:col-span-1">
           {state.output ? (
-            <Card className="animate-in fade-in sticky top-20">
+            <Card className="animate-in fade-in sticky top-20 bg-card">
               <CardHeader>
                 <CardTitle className="font-headline">AI का जवाब</CardTitle>
                 <div className="flex gap-2 pt-2 flex-wrap">
@@ -82,7 +82,7 @@ export default function AiTutorPage() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="sticky top-20 bg-muted/50 border-dashed">
+            <Card className="sticky top-20 bg-secondary/30 border-dashed">
                 <CardContent className="p-6 text-center">
                     <Lightbulb className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="font-semibold text-muted-foreground">आपका जवाब यहाँ दिखेगा</h3>

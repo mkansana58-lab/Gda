@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Video, MessageSquare, FilePen, User } from 'lucide-react';
+import { Home, ClipboardCheck, GraduationCap, FilePen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/user-context';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
-  { href: '/learning-hub', icon: Video, label: 'Learn' },
-  { href: '/ai-tutor', icon: MessageSquare, label: 'Tutor' },
+  { href: '/ai-test', icon: ClipboardCheck, label: 'Tests' },
+  { href: '/ai-tutor', icon: GraduationCap, label: 'AI Tutor' },
   { href: '/plan-form', icon: FilePen, label: 'Apply' },
 ];
 
@@ -25,7 +25,7 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              'flex flex-col items-center justify-center h-full w-16 text-muted-foreground hover:bg-accent/50 transition-colors',
+              'flex flex-col items-center justify-center h-full w-16 text-muted-foreground hover:text-primary transition-colors',
               pathname === item.href ? 'text-primary' : ''
             )}
           >
@@ -35,7 +35,7 @@ export function BottomNav() {
         ))}
         <button
           onClick={() => setProfileDialogOpen(true)}
-          className="flex flex-col items-center justify-center h-full w-16 text-muted-foreground hover:bg-accent/50 transition-colors"
+          className="flex flex-col items-center justify-center h-full w-16 text-muted-foreground hover:text-primary transition-colors"
         >
           <User className="w-6 h-6 mb-1" />
           <span className="text-xs font-medium">Account</span>

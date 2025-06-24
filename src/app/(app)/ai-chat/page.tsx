@@ -119,7 +119,7 @@ export default function AiChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-10rem)]">
+    <div className="flex flex-col h-full p-4">
       <div className="mb-4">
         <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">AI सहायक</h1>
         <p className="text-muted-foreground">
@@ -127,9 +127,9 @@ export default function AiChatPage() {
         </p>
       </div>
 
-      <Card className="flex flex-col flex-grow">
+      <Card className="flex flex-col flex-grow bg-card">
         <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
-          <div className="space-y-6">
+          <div className="space-y-6 pb-24">
             {displayedMessages.map((message, index) => (
               <div
                 key={index}
@@ -148,7 +148,7 @@ export default function AiChatPage() {
                     'max-w-[85%] rounded-lg p-3 text-sm shadow',
                     {
                       'bg-primary text-primary-foreground': message.role === 'user',
-                      'bg-muted': message.role === 'model',
+                      'bg-secondary': message.role === 'model',
                     }
                   )}
                 >
@@ -174,7 +174,7 @@ export default function AiChatPage() {
           </div>
         </ScrollArea>
         
-        <div className="p-4 border-t bg-background">
+        <div className="p-4 border-t border-border bg-card">
             {imagePreview && (
                 <div className="relative w-24 h-24 mb-2">
                     <Image src={imagePreview} alt="Preview" fill style={{objectFit: 'cover'}} className="rounded-md" />
@@ -193,7 +193,7 @@ export default function AiChatPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="छवि के साथ या उसके बिना अपना सवाल यहाँ लिखें..."
-                    className="flex-grow resize-none max-h-40"
+                    className="flex-grow resize-none max-h-40 bg-secondary"
                     rows={1}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {

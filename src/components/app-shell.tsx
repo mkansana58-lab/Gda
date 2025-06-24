@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -17,6 +16,7 @@ import {
   MessageSquare,
   ListChecks,
   Bell,
+  PanelLeft,
 } from 'lucide-react';
 
 import {
@@ -28,18 +28,15 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarTrigger,
-  SidebarInset,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { UserNav } from './user-nav';
 import { useUser } from '@/context/user-context';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { BottomNav } from './bottom-nav';
-import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
 import { useState } from 'react';
 import { NotificationsSheet } from './notifications-sheet';
-import { Button } from './ui/button';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'डैशबोर्ड' },
@@ -58,7 +55,7 @@ const navItems = [
 function AppShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useUser();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpenMobile, toggleSidebar } = useSidebar();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const handleLinkClick = () => {
@@ -113,16 +110,17 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b bg-primary px-4 text-primary-foreground sm:px-6">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="md:hidden hover:bg-primary-foreground/10" />
-          </div>
+      <div className="flex-1 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b bg-background/95 backdrop-blur-sm px-4 sm:px-6">
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
+            <PanelLeft className="h-5 w-5" />
+            <span className="sr-only">Toggle Sidebar</span>
+          </Button>
+          <div className="flex-1"></div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary-foreground/10"
               onClick={() => setIsNotificationsOpen(true)}
             >
               <Bell className="h-5 w-5" />
@@ -131,17 +129,15 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             <UserNav />
           </div>
         </header>
-        <main className="h-full pb-24">
-            <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6">
-                 {children}
-            </div>
+        <main className="flex-1 overflow-y-auto">
+          {children}
         </main>
         <BottomNav />
         <NotificationsSheet
           open={isNotificationsOpen}
           onOpenChange={setIsNotificationsOpen}
         />
-      </SidebarInset>
+      </div>
     </>
   );
 }

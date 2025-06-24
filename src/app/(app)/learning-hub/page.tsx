@@ -34,7 +34,7 @@ const learningSections = [
 
 export default function LearningHubPage() {
     return (
-        <div className="flex flex-col gap-8 pb-24">
+        <div className="flex flex-col gap-8 p-4 pb-24">
             <div>
                 <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">लर्निंग हब</h1>
                 <p className="text-muted-foreground">सभी शिक्षण संसाधनों के लिए आपका वन-स्टॉप डेस्टिनेशन।</p>
@@ -42,7 +42,7 @@ export default function LearningHubPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {learningSections.map(section => (
-                    <Card key={section.title} className="flex flex-col hover:shadow-lg hover:border-primary/50 transition-all duration-200">
+                    <Card key={section.title} className="flex flex-col hover:shadow-lg hover:border-primary/50 transition-all duration-200 bg-card">
                         <CardHeader className="flex-row items-start gap-4">
                            <div className="p-3 bg-primary/10 rounded-lg">
                                 <section.icon className="w-8 h-8 text-primary"/>
@@ -63,7 +63,7 @@ export default function LearningHubPage() {
                 ))}
             </div>
 
-            <Card className="mt-4">
+            <Card className="mt-4 bg-card">
                 <CardHeader>
                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                      <div>
