@@ -22,7 +22,7 @@ const QuestionSchema = z.object({
     correctAnswer: z.string().describe('The correct answer from the options in Hindi.'),
 });
 
-const GenerateAiTestOutputSchema = z.object({
+export const GenerateAiTestOutputSchema = z.object({
     questions: z.array(QuestionSchema).describe('An array of 25 questions for the test in Hindi.'),
 });
 export type GenerateAiTestOutput = z.infer<typeof GenerateAiTestOutputSchema>;
