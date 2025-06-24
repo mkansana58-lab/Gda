@@ -8,7 +8,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Loader2, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
@@ -37,7 +36,6 @@ export default function ScholarshipFormPage() {
   const [step, setStep] = useState(1);
   const { toast } = useToast();
   const { user } = useUser();
-  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -92,7 +90,7 @@ export default function ScholarshipFormPage() {
 
   function onSubmit(values: FormValues) {
     setIsLoading(true);
-    const applicationNo = `GSDA${Date.now().toString().slice(-6)}`;
+    const applicationNo = Date.now().toString();
     try {
         localStorage.setItem(`scholarship-application-${applicationNo}`, JSON.stringify(values));
         setSubmissionResult({ applicationNo, name: values.name });
@@ -141,17 +139,13 @@ export default function ScholarshipFormPage() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p className="text-muted-foreground">कृपया अपना आवेदन क्रमांक भविष्य के संदर्भ के लिए सहेज लें। आपको अपना एडमिट कार्ड डाउनलोड करने के लिए इसकी आवश्यकता होगी।</p>
+                <p className="text-muted-foreground">कृपया अपना आवेदन क्रमांक भविष्य के संदर्भ के लिए सहेज लें। आपको अपना एडमिट कार्ड **'एडमिट कार्ड'** सेक्शन से डाउनलोड करने के लिए इसकी आवश्यकता होगी।</p>
                 <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
                     <p className="text-sm text-primary font-semibold">आपका आवेदन क्रमांक</p>
                     <p className="text-2xl font-bold tracking-widest text-primary-foreground">{submissionResult.applicationNo}</p>
                 </div>
             </CardContent>
-            <CardFooter className="flex-col gap-4">
-                <Button onClick={() => router.push('/admit-card')} className="w-full">
-                  <ArrowRight className="mr-2 h-4 w-4"/>
-                  एडमिट कार्ड डाउनलोड करें
-                </Button>
+            <CardFooter>
                 <Button variant="outline" onClick={resetForm} className="w-full">
                   एक और आवेदन जमा करें
                 </Button>
@@ -170,8 +164,8 @@ export default function ScholarshipFormPage() {
             आवेदन शुल्क ₹50 है। टेस्ट में अच्छे अंक लाने पर आपको एक माह की ट्यूशन फीस फ्री रहेगी।
             </CardDescription>
             <div className="pt-2">
-                <Progress value={(step / 4) * 100} className="w-full" />
-                <p className="text-xs text-muted-foreground text-center mt-1">चरण {step} / 4</p>
+                <Progress value={(step / 3) * 100} className="w-full" />
+                <p className="text-xs text-muted-foreground text-center mt-1">चरण {step} / 3</p>
             </div>
         </CardHeader>
         <CardContent>

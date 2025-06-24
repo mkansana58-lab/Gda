@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
 import html2canvas from 'html2canvas';
 import { AdmitCard } from '@/components/admit-card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ScholarshipData {
   name: string;
@@ -95,9 +94,9 @@ export default function AdmitCardPage() {
             <CardContent>
               <Input
                 type="text"
-                placeholder="आवेदन क्रमांक दर्ज करें (जैसे, GSDA123456)"
+                placeholder="आवेदन क्रमांक दर्ज करें"
                 value={applicationNo}
-                onChange={(e) => setApplicationNo(e.target.value.toUpperCase())}
+                onChange={(e) => setApplicationNo(e.target.value.replace(/\D/g, ''))}
                 required
               />
               {error && <p className="text-destructive text-sm mt-2">{error}</p>}
@@ -123,7 +122,7 @@ export default function AdmitCardPage() {
                 <Download className="mr-2 h-4 w-4" />
                 एडमिट कार्ड डाउनलोड करें
               </Button>
-              <Button variant="outline" onClick={() => setAdmitCardData(null)} className="w-full sm:w-auto">
+              <Button variant="outline" onClick={() => { setAdmitCardData(null); setApplicationNo(''); }} className="w-full sm:w-auto">
                 एक और खोजें
               </Button>
             </CardContent>

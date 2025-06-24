@@ -26,6 +26,9 @@ export function AdmitCard({ data, applicationNo, user }: AdmitCardProps) {
     const reportingTime = "सुबह 09:30 बजे";
     const examCenter = "गो स्वामी डिफेंस एकेडमी, खड़गपुर, धौलपुर (राज.)";
 
+    // Generate a deterministic, numeric-only roll number different from application number
+    const rollNo = (parseInt(applicationNo.slice(-9)) + 54321).toString().padStart(8, '0');
+
   return (
     <div className="border-2 border-black p-4 font-sans space-y-3">
         <header className="flex items-center justify-between border-b-2 border-black pb-2">
@@ -44,24 +47,24 @@ export function AdmitCard({ data, applicationNo, user }: AdmitCardProps) {
 
         <main className="grid grid-cols-12 gap-4">
             <div className="col-span-9 space-y-2">
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
                     <p className="text-xs font-semibold">रोल नंबर:</p>
-                    <p className="text-sm font-bold">{applicationNo}</p>
+                    <p className="text-sm font-bold">{rollNo}</p>
                     
                     <p className="text-xs font-semibold">आवेदन क्रमांक:</p>
-                    <p className="text-sm font-bold">{applicationNo}</p>
+                    <p className="text-sm font-bold break-words">{applicationNo}</p>
 
                     <p className="text-xs font-semibold">अभ्यर्थी का नाम:</p>
-                    <p className="text-sm font-bold">{data.name}</p>
+                    <p className="text-sm font-bold break-words">{data.name}</p>
 
                     <p className="text-xs font-semibold">पिता का नाम:</p>
-                    <p className="text-sm font-bold">{data.fatherName}</p>
+                    <p className="text-sm font-bold break-words">{data.fatherName}</p>
 
                     <p className="text-xs font-semibold">कक्षा:</p>
-                    <p className="text-sm font-bold">{data.class}</p>
+                    <p className="text-sm font-bold break-words">{data.class}</p>
                 </div>
                 <Separator className="bg-black"/>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
                     <p className="text-xs font-semibold">परीक्षा की तिथि और दिन:</p>
                     <p className="text-sm font-bold">{formattedExamDate}</p>
 
@@ -73,20 +76,20 @@ export function AdmitCard({ data, applicationNo, user }: AdmitCardProps) {
                 </div>
             </div>
             <div className="col-span-3 flex flex-col items-center">
-                 <div className="w-28 h-32 border-2 border-black flex items-center justify-center bg-gray-100">
+                 <div className="w-full h-auto aspect-[3/4] border-2 border-black flex items-center justify-center bg-gray-100">
                     {user?.profilePhotoUrl ? (
                         <Avatar className="w-full h-full rounded-none">
                             <AvatarImage src={user.profilePhotoUrl} alt={data.name} className="object-cover" />
                             <AvatarFallback>{data.name[0]}</AvatarFallback>
                         </Avatar>
                     ) : (
-                        <div className="text-center text-gray-500">
-                            <Camera className="mx-auto h-8 w-8"/>
-                            <p className="text-[10px] mt-1">फोटो चिपकाएं</p>
+                        <div className="text-center text-gray-500 p-1">
+                            <Camera className="mx-auto h-6 w-6"/>
+                            <p className="text-[10px] mt-1 leading-tight">फोटो चिपकाएं</p>
                         </div>
                     )}
                 </div>
-                <div className="w-28 mt-2 h-10 border-2 border-black"></div>
+                <div className="w-full mt-2 h-10 border-2 border-black"></div>
                 <p className="text-[8px] text-center mt-1">अभ्यर्थी के हस्ताक्षर</p>
             </div>
         </main>
