@@ -47,7 +47,7 @@ The test details are as follows:
 - Subject: {{{subject}}}
 - Class Level: {{{classLevel}}}
 
-The questions must be challenging and appropriate for the specified class level and subject, matching the difficulty and curriculum of the AISSEE.
+The questions must be challenging and aligned with the high standards of the AISSEE, designed to rigorously test the student's preparation. For Class 6, ensure the questions require critical thinking and problem-solving skills, not just simple recall. For Class 9, the complexity should increase accordingly.
 Each question must have 4 options, and you must specify the correct answer.
 Ensure the response is a valid JSON object matching the output schema. All text must be in {{{language}}}.
 `,

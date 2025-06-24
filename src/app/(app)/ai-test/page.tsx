@@ -124,27 +124,11 @@ export default function AiTestPage() {
     
     const handleFinishSainikTest = useCallback(() => {
         if (!currentTest || !progress || !selectedClass || !user) return;
-        const config = testConfigs[selectedClass!];
-        const testConfig = config.tests.find(t => t.id === currentTest.id);
-        if (!testConfig) return;
-
+        
         let finalScore = 0;
         currentTest.questions.forEach((q, index) => { if (q.correctAnswer === userAnswers[index]) { finalScore++; } });
         
         const timeTaken = currentTest.time - timeLeft;
-        const marksPerQuestion = testConfig.marksPerQuestion;
-
-        const subjectTopper = {
-            name: user.name, class: selectedClass, exam: `Sainik School Class ${selectedClass}`, subject: currentTest.subject,
-            score: finalScore * marksPerQuestion, totalMarks: currentTest.questions.length * marksPerQuestion,
-            date: new Date().toISOString(), photo: user.profilePhotoUrl || 'https://placehold.co/100x100.png', hint: 'student portrait'
-        };
-        const allToppersRaw = localStorage.getItem('subject-wise-toppers');
-        const allToppers = allToppersRaw ? JSON.parse(allToppersRaw) : [];
-        const otherToppers = allToppers.filter((t: any) => !(t.name === user.name && t.exam === subjectTopper.exam && t.subject === currentTest.subject));
-        const updatedToppers = [...otherToppers, subjectTopper];
-        updatedToppers.sort((a: any, b: any) => (b.score / b.totalMarks) - (a.score / a.totalMarks));
-        localStorage.setItem('subject-wise-toppers', JSON.stringify(updatedToppers));
 
         setProgress(prev => ({ ...prev!, [currentTest.id]: { completed: true, score: finalScore, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken } }));
         setPageState('test-dashboard');
