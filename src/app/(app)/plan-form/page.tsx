@@ -90,7 +90,7 @@ export default function ScholarshipFormPage() {
 
   function onSubmit(values: FormValues) {
     setIsLoading(true);
-    const applicationNo = Date.now().toString();
+    const applicationNo = (Math.floor(Math.random() * 99900) + 100).toString();
     try {
         localStorage.setItem(`scholarship-application-${applicationNo}`, JSON.stringify(values));
         setSubmissionResult({ applicationNo, name: values.name });

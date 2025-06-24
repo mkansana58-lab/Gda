@@ -27,7 +27,7 @@ export function AdmitCard({ data, applicationNo, user }: AdmitCardProps) {
     const examCenter = "गो स्वामी डिफेंस एकेडमी, खड़गपुर, धौलपुर (राज.)";
 
     // Generate a deterministic, numeric-only roll number different from application number
-    const rollNo = (parseInt(applicationNo.slice(-9)) + 54321).toString().padStart(8, '0');
+    const rollNo = (parseInt(applicationNo.split('').reverse().join('')) + 1).toString();
 
   return (
     <div className="border-2 border-black p-4 font-sans space-y-3">
