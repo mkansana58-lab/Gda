@@ -8,7 +8,6 @@ import {
   Scaling,
   Trophy,
   Users,
-  Phone,
   BookOpen,
   ListChecks,
 } from 'lucide-react';
@@ -25,7 +24,6 @@ const menuItems = [
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
   { href: '/school-priority-list', icon: ListChecks, label: 'स्कूल सूची' },
-  { href: '/contact', icon: Phone, label: 'संपर्क' },
 ];
 
 export default function DashboardPage() {

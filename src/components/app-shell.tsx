@@ -16,6 +16,7 @@ import {
   Users,
   MessageSquare,
   ListChecks,
+  Bell,
 } from 'lucide-react';
 
 import {
@@ -36,6 +37,9 @@ import { useUser } from '@/context/user-context';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { BottomNav } from './bottom-nav';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { NotificationsSheet } from './notifications-sheet';
+import { Button } from './ui/button';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'डैशबोर्ड' },
@@ -55,6 +59,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useUser();
   const { isMobile, setOpenMobile } = useSidebar();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -109,16 +114,33 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="absolute top-0 right-0 z-20 flex h-14 items-center justify-end gap-4 px-4 sm:px-6">
-          <SidebarTrigger className="md:hidden" />
-          <UserNav />
+        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b bg-primary px-4 text-primary-foreground sm:px-6">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="md:hidden hover:bg-primary-foreground/10" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-primary-foreground/10"
+              onClick={() => setIsNotificationsOpen(true)}
+            >
+              <Bell className="h-5 w-5" />
+              <span className="sr-only">सूचनाएं</span>
+            </Button>
+            <UserNav />
+          </div>
         </header>
-        <main className="h-full pt-14 pb-24">
+        <main className="h-full pb-24">
             <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6">
                  {children}
             </div>
         </main>
         <BottomNav />
+        <NotificationsSheet
+          open={isNotificationsOpen}
+          onOpenChange={setIsNotificationsOpen}
+        />
       </SidebarInset>
     </>
   );
