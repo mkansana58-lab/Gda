@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardContent } from '@/components/ui/card';
 import { FilePen, ClipboardCheck, GraduationCap, Scaling, Trophy, Users, ListChecks, Phone } from 'lucide-react';
@@ -23,15 +24,15 @@ export default function DashboardPage() {
             मुख्य सुविधाओं तक त्वरित पहुंच।
             </p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
             {menuItems.map((item) => (
             <Card key={item.href} className="hover:border-primary hover:shadow-lg transition-all">
-                <CardContent className="pt-6">
+                <CardContent className="p-3 pt-4 sm:p-4 sm:pt-6">
                     <Link href={item.href} className="flex flex-col items-center text-center gap-2">
-                        <div className="p-3 bg-primary/10 rounded-full">
-                            <item.icon className="w-7 h-7 text-primary"/>
+                        <div className="p-2 sm:p-3 bg-primary/10 rounded-full">
+                            <item.icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary"/>
                         </div>
-                        <span className="text-sm font-semibold font-headline">{item.label}</span>
+                        <span className="text-xs sm:text-sm font-semibold font-headline leading-tight">{item.label}</span>
                     </Link>
                 </CardContent>
             </Card>
