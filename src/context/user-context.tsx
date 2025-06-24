@@ -18,6 +18,8 @@ interface UserContextType {
   isLoading: boolean;
   logout: () => void;
   updateUser: (newUser: Partial<User>) => void;
+  isProfileDialogOpen: boolean;
+  setProfileDialogOpen: (open: boolean) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -25,6 +27,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, isLoading, logout, updateUser }}>
+    <UserContext.Provider value={{ user, isLoading, logout, updateUser, isProfileDialogOpen, setProfileDialogOpen }}>
       {children}
     </UserContext.Provider>
   );

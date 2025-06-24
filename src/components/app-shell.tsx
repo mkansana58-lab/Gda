@@ -33,6 +33,7 @@ import { UserNav } from './user-nav';
 import { useUser } from '@/context/user-context';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { BottomNav } from './bottom-nav';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'डैशबोर्ड' },
@@ -57,6 +58,8 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
       setOpenMobile(false);
     }
   };
+  
+  const isDashboard = pathname === '/dashboard';
 
   return (
     <>
@@ -105,13 +108,20 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
+        <header className="absolute top-0 right-0 z-20 flex h-14 items-center justify-end gap-4 px-4 sm:px-6">
           <SidebarTrigger className="md:hidden" />
-          <div className="flex-1" />
           <UserNav />
         </header>
-        <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-6">
-          <div className="w-full max-w-7xl mx-auto">{children}</div>
+        <main className={cn(
+            "flex-1 pb-24", 
+            !isDashboard && "p-4 sm:p-6"
+          )}>
+          <div className={cn(
+              "w-full max-w-7xl mx-auto",
+              isDashboard && "max-w-none mx-0"
+            )}>
+              {children}
+          </div>
         </main>
         <BottomNav />
       </SidebarInset>

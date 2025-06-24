@@ -13,11 +13,6 @@ import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
-interface ProfileEditDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 const profileSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
   mobile: z.string().regex(/^\d{10}$/, { message: 'कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।' }),
@@ -27,8 +22,8 @@ const profileSchema = z.object({
   exam: z.string().min(1, { message: 'कृपया एक परीक्षा चुनें।' }),
 });
 
-export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps) {
-  const { user, updateUser } = useUser();
+export function ProfileEditDialog() {
+  const { user, updateUser, isProfileDialogOpen, setProfileDialogOpen } = useUser();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof profileSchema>>({
@@ -52,11 +47,11 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
   const onSubmit = (values: z.infer<typeof profileSchema>) => {
     updateUser(values);
     toast({ title: 'प्रोफ़ाइल अपडेट की गई', description: 'आपकी जानकारी सफलतापूर्वक सहेज ली गई है।' });
-    onOpenChange(false);
+    setProfileDialogOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isProfileDialogOpen} onOpenChange={setProfileDialogOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>प्रोफ़ाइल संपादित करें</DialogTitle>
@@ -99,7 +94,7 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
                 <FormItem><FormLabel>पता</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )}/>
             <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>रद्द करें</Button>
+                <Button type="button" variant="ghost" onClick={() => setProfileDialogOpen(false)}>रद्द करें</Button>
                 <Button type="submit">बदलाव सहेजें</Button>
             </DialogFooter>
           </form>

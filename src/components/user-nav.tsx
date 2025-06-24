@@ -8,6 +8,7 @@ import {
   User as UserIcon,
   Bell,
   Eye,
+  Settings,
 } from 'lucide-react';
 import { useTheme as useNextTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,14 +30,12 @@ import { useUser } from '@/context/user-context';
 import { useTheme } from '@/context/theme-provider';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
-import { ProfileEditDialog } from './profile-edit-dialog';
 import { NotificationsSheet } from './notifications-sheet';
 
 export function UserNav() {
-  const { user, logout } = useUser();
+  const { user, logout, setProfileDialogOpen } = useUser();
   const { setTheme } = useNextTheme();
   const { isEyeComfortMode, toggleEyeComfortMode } = useTheme();
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   return (
@@ -61,13 +60,17 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={() => setIsProfileDialogOpen(true)}>
+            <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
               <UserIcon className="mr-2 h-4 w-4" />
-              <span>प्रोफ़ाइल संपादित करें</span>
+              <span>प्रोफ़ाइल</span>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setIsNotificationsOpen(true)}>
               <Bell className="mr-2 h-4 w-4" />
               <span>सूचनाएं</span>
+            </DropdownMenuItem>
+             <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>सेटिंग्स</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
@@ -107,8 +110,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <ProfileEditDialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen} />
+      
       <NotificationsSheet open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen} />
     </>
   );
