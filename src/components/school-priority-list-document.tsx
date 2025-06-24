@@ -19,36 +19,28 @@ export function SchoolPriorityListDocument({ data }: DocumentProps) {
   const list_part_1 = schoolList.slice(0, 41);
   const list_part_2 = schoolList.slice(41);
 
+  const UserDetailsTable = () => (
+     <Table className="border-collapse border border-black mb-2">
+        <TableBody>
+            <TableRow><TableCell className="border border-black p-1 font-semibold">Application No :</TableCell><TableCell className="border border-black p-1">{data.applicationNo}</TableCell></TableRow>
+            <TableRow><TableCell className="border border-black p-1 font-semibold">Candidate Name :</TableCell><TableCell className="border border-black p-1">{data.candidateName}</TableCell></TableRow>
+            <TableRow><TableCell className="border border-black p-1 font-semibold">Father Name :</TableCell><TableCell className="border border-black p-1">{data.fatherName}</TableCell></TableRow>
+            <TableRow><TableCell className="border border-black p-1 font-semibold">Category :</TableCell><TableCell className="border border-black p-1">{data.category}</TableCell></TableRow>
+            <TableRow><TableCell className="border border-black p-1 font-semibold">Gender :</TableCell><TableCell className="border border-black p-1">{data.gender}</TableCell></TableRow>
+            <TableRow><TableCell className="border border-black p-1 font-semibold">Domicile :</TableCell><TableCell className="border border-black p-1">{data.domicile}</TableCell></TableRow>
+        </TableBody>
+    </Table>
+  );
+
   return (
-    <div className="bg-white text-black p-4 space-y-4 font-sans text-xs">
+    <div className="bg-white text-black p-2 space-y-4 font-sans text-xs">
         {/* Document 1 */}
       <div className="border border-black p-2">
         <div className="text-center mb-2">
           <p className="font-bold">ALL INDIA SAINIK SCHOOLS ADMISSION COUNSELLING</p>
           <p className="font-bold underline">PRIORITY LIST OF SCHOOL</p>
         </div>
-        <Table className="border-collapse border border-black">
-          <TableBody>
-            <TableRow>
-              <TableCell className="border border-black p-1">Application No :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.applicationNo}</TableCell>
-              <TableCell className="border border-black p-1">Candidate Name :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.candidateName}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="border border-black p-1">Father Name :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.fatherName}</TableCell>
-              <TableCell className="border border-black p-1">Category :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.category}</TableCell>
-            </TableRow>
-             <TableRow>
-              <TableCell className="border border-black p-1">Gender :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.gender}</TableCell>
-              <TableCell className="border border-black p-1">Domicile :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.domicile}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <UserDetailsTable />
         <Table className="border-collapse border border-black mt-2 w-full">
             <TableHeader>
                 <TableRow>
@@ -78,28 +70,7 @@ export function SchoolPriorityListDocument({ data }: DocumentProps) {
           <p className="font-bold">ALL INDIA SAINIK SCHOOLS ADMISSION COUNSELLING</p>
           <p className="font-bold underline">PRIORITY LIST OF SCHOOL</p>
         </div>
-        <Table className="border-collapse border border-black">
-          <TableBody>
-            <TableRow>
-              <TableCell className="border border-black p-1">Application No :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.applicationNo}</TableCell>
-              <TableCell className="border border-black p-1">Candidate Name :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.candidateName}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="border border-black p-1">Father Name :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.fatherName}</TableCell>
-              <TableCell className="border border-black p-1">Category :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.category}</TableCell>
-            </TableRow>
-             <TableRow>
-              <TableCell className="border border-black p-1">Gender :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.gender}</TableCell>
-              <TableCell className="border border-black p-1">Domicile :</TableCell>
-              <TableCell className="border border-black p-1 font-semibold">{data.domicile}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <UserDetailsTable />
         <Table className="border-collapse border border-black mt-2 w-full">
             <TableHeader>
                 <TableRow>

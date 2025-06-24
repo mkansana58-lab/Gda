@@ -109,15 +109,15 @@ export default function SchoolPriorityListPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                     <FormField control={form.control} name="applicationNo" render={({ field }) => (
-                      <FormItem><FormLabel>आवेदन संख्या</FormLabel><FormControl><Input placeholder="जैसे, 251810200584" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>आवेदन संख्या</FormLabel><FormControl><Input placeholder="जैसे, 241810000001" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={form.control} name="candidateName" render={({ field }) => (
-                      <FormItem><FormLabel>उम्मीदवार का नाम</FormLabel><FormControl><Input placeholder="जैसे, MR. MOHIT" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>उम्मीदवार का नाम</FormLabel><FormControl><Input placeholder="जैसे, ARUN KUMAR" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                 </div>
                  <div className="grid md:grid-cols-2 gap-4">
                     <FormField control={form.control} name="fatherName" render={({ field }) => (
-                      <FormItem><FormLabel>पिता का नाम</FormLabel><FormControl><Input placeholder="जैसे, RAM AKHETYAR" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>पिता का नाम</FormLabel><FormControl><Input placeholder="जैसे, SURESH KUMAR" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={form.control} name="category" render={({ field }) => (
                       <FormItem><FormLabel>श्रेणी</FormLabel><FormControl><Input placeholder="जैसे, OBC-NCL" {...field} /></FormControl><FormMessage /></FormItem>
