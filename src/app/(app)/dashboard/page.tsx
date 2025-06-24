@@ -36,13 +36,13 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6 p-4 pb-24">
       <h1 className="text-2xl font-bold text-center font-headline">मुख्य विशेषताएं</h1>
       
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-3 gap-1 sm:gap-2">
         {menuItems.map((item) => (
           <Link href={item.href} key={item.href}>
             <Card className="bg-card text-card-foreground hover:bg-primary/20 transition-all aspect-square flex items-center justify-center shadow-lg border-border">
-              <CardContent className="p-2 flex flex-col items-center text-center gap-1">
-                <item.icon className="w-7 h-7 text-primary" />
-                <span className="text-[11px] sm:text-xs font-semibold leading-tight">{item.label}</span>
+              <CardContent className="p-1 flex flex-col items-center text-center gap-1">
+                <item.icon className="w-6 h-6 text-primary" />
+                <span className="text-[10px] sm:text-xs font-semibold leading-tight">{item.label}</span>
               </CardContent>
             </Card>
           </Link>
