@@ -18,30 +18,28 @@ export function BottomNav() {
   const { setProfileDialogOpen } = useUser();
 
   return (
-    <div className="fixed bottom-0 left-0 w-full p-2 md:hidden z-30">
-      <div className="w-full mx-auto bg-card/90 backdrop-blur-sm border rounded-full shadow-lg">
-        <div className="flex items-center justify-around">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex flex-col items-center justify-center h-14 w-16 rounded-full text-muted-foreground hover:bg-accent/50 transition-colors',
-                pathname === item.href ? 'text-primary' : ''
-              )}
-            >
-              <item.icon className="w-6 h-6 mb-1" />
-              <span className="text-xs font-medium">{item.label}</span>
-            </Link>
-          ))}
-          <button
-            onClick={() => setProfileDialogOpen(true)}
-            className="flex flex-col items-center justify-center h-14 w-16 rounded-full text-muted-foreground hover:bg-accent/50 transition-colors"
+    <div className="fixed bottom-0 left-0 w-full bg-card/95 backdrop-blur-sm border-t md:hidden z-30">
+      <div className="flex items-center justify-around h-16">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              'flex flex-col items-center justify-center h-full w-16 text-muted-foreground hover:bg-accent/50 transition-colors',
+              pathname === item.href ? 'text-primary' : ''
+            )}
           >
-            <User className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">Account</span>
-          </button>
-        </div>
+            <item.icon className="w-6 h-6 mb-1" />
+            <span className="text-xs font-medium">{item.label}</span>
+          </Link>
+        ))}
+        <button
+          onClick={() => setProfileDialogOpen(true)}
+          className="flex flex-col items-center justify-center h-full w-16 text-muted-foreground hover:bg-accent/50 transition-colors"
+        >
+          <User className="w-6 h-6 mb-1" />
+          <span className="text-xs font-medium">Account</span>
+        </button>
       </div>
     </div>
   );
