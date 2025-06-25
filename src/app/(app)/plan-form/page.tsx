@@ -8,11 +8,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
-import { Loader2, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
 import { Progress } from '@/components/ui/progress';
-import { addNotification } from '@/lib/notifications';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
@@ -32,7 +31,6 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function ScholarshipFormPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<{ applicationNo: string; name: string } | null>(null);
   const [step, setStep] = useState(1);
   const { toast } = useToast();
   const { user } = useUser();
@@ -90,73 +88,52 @@ export default function ScholarshipFormPage() {
 
   function onSubmit(values: FormValues) {
     setIsLoading(true);
-    const applicationNo = (Math.floor(Math.random() * 99900) + 100).toString();
-    try {
-        localStorage.setItem(`scholarship-application-${applicationNo}`, JSON.stringify(values));
-        setSubmissionResult({ applicationNo, name: values.name });
-        setStep(4);
-        
-        if(user) {
-          addNotification(user.email, {
-              id: `scholarship-${Date.now()}`,
-              icon: 'FilePen',
-              title: 'आवेदन जमा हो गया!',
-              description: `आपका आवेदन क्रमांक ${applicationNo} है। इसे भविष्य के लिए सहेजें।`,
-          });
-        }
-        toast({
-          title: 'आवेदन सफलतापूर्वक जमा हो गया!',
-          description: 'आपका आवेदन क्रमांक उत्पन्न हो गया है।',
-        });
-    } catch (error) {
-        toast({
-            variant: "destructive",
-            title: "त्रुटि",
-            description: "आपका आवेदन सहेजने में विफल रहा। कृपया पुनः प्रयास करें।",
-        });
-    } finally {
+
+    const applicationNo = (Math.floor(Math.random() * 90000) + 10000).toString();
+
+    const subject = `छात्रवृत्ति आवेदन: ${values.name} - #${applicationNo}`;
+    const body = `
+        नया छात्रवृत्ति आवेदन प्राप्त हुआ है।
+
+        आवेदन संख्या: ${applicationNo}
+
+        --- व्यक्तिगत विवरण ---
+        नाम: ${values.name}
+        पिता का नाम: ${values.fatherName}
+        मोबाइल: ${values.mobile}
+        ईमेल: ${values.email}
+
+        --- शैक्षणिक विवरण ---
+        आयु: ${values.age}
+        कक्षा: ${values.class}
+        स्कूल: ${values.school}
+
+        --- पते का विवरण ---
+        गाँव/शहर: ${values.village}
+        ज़िला: ${values.district}
+        पिनकोड: ${values.pincode}
+        राज्य: ${values.state}
+    `.trim().replace(/^\s+/gm, '');
+
+    const mailtoLink = `mailto:mohitkansana82@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = mailtoLink;
+
+    toast({
+        title: "ईमेल ऐप खोला जा रहा है...",
+        description: "कृपया अपना आवेदन भेजने के लिए अपने ईमेल क्लाइंट में 'Send' पर क्लिक करें।",
+    });
+
+    setTimeout(() => {
         setIsLoading(false);
-    }
+        form.reset();
+        setStep(1);
+    }, 1000);
   }
 
-  const resetForm = () => {
-    setSubmissionResult(null);
-    setStep(1);
-    form.reset();
-  }
-
-  if (step === 4 && submissionResult) {
-    return (
-      <div className="p-4">
-        <Card className="w-full max-w-2xl mx-auto bg-card text-center animate-in fade-in">
-            <CardHeader>
-                <div className="mx-auto bg-green-500/10 p-3 rounded-full w-fit">
-                  <CheckCircle className="h-12 w-12 text-green-500"/>
-                </div>
-                <CardTitle className="font-headline text-2xl pt-2">आवेदन सफलतापूर्वक जमा हुआ!</CardTitle>
-                <CardDescription>
-                  नमस्ते, {submissionResult.name}! आपका छात्रवृत्ति आवेदन सफलतापूर्वक जमा कर दिया गया है।
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <p className="text-muted-foreground">कृपया अपना आवेदन क्रमांक भविष्य के संदर्भ के लिए सहेज लें। आपको अपना एडमिट कार्ड **'एडमिट कार्ड'** सेक्शन से डाउनलोड करने के लिए इसकी आवश्यकता होगी।</p>
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                    <p className="text-sm text-primary font-semibold">आपका आवेदन क्रमांक</p>
-                    <p className="text-2xl font-bold tracking-widest text-primary-foreground">{submissionResult.applicationNo}</p>
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button variant="outline" onClick={resetForm} className="w-full">
-                  एक और आवेदन जमा करें
-                </Button>
-            </CardFooter>
-        </Card>
-      </div>
-    );
-  }
 
   return (
-    <div className="p-4">
+    <div className="flex flex-col items-center gap-8 p-4">
         <Card className="w-full max-w-2xl mx-auto bg-card">
         <CardHeader>
             <CardTitle className="font-headline text-2xl">छात्रवृत्ति आवेदन पत्र</CardTitle>
@@ -232,7 +209,7 @@ export default function ScholarshipFormPage() {
                     ) : (
                         <Button type="submit" disabled={isLoading}>
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        आवेदन जमा करें
+                        ईमेल द्वारा आवेदन जमा करें
                         </Button>
                     )}
                 </CardFooter>
