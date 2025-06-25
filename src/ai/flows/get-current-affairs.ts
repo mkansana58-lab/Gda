@@ -33,6 +33,7 @@ export async function getCurrentAffairs(input: GetCurrentAffairsInput): Promise<
 
 const prompt = ai.definePrompt({
   name: 'getCurrentAffairsPrompt',
+  model: 'gemini-1.5-flash-latest', // To mitigate potential overload on the default model
   input: {schema: GetCurrentAffairsInputSchema},
   output: {schema: GetCurrentAffairsOutputSchema},
   prompt: `आप एक विशेषज्ञ हैं जो भारत में सैनिक स्कूल, RMS, और JNV जैसी प्रतियोगी परीक्षाओं की तैयारी कर रहे छात्रों के लिए करेंट अफेयर्स तैयार करते हैं।

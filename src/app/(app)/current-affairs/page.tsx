@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getCurrentAffairs, GetCurrentAffairsOutput } from '@/ai/flows/get-current-affairs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Newspaper, BookText, Calendar, CalendarDays } from 'lucide-react';
@@ -11,33 +11,80 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Period = 'today' | 'week' | 'month';
 
+type CachedData = {
+  data: GetCurrentAffairsOutput;
+  timestamp: number;
+};
+
+const CACHE_DURATIONS: Record<Period, number> = {
+  today: 1 * 60 * 60 * 1000, // 1 hour
+  week: 6 * 60 * 60 * 1000, // 6 hours
+  month: 12 * 60 * 60 * 1000, // 12 hours
+};
+
 export default function CurrentAffairsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [result, setResult] = useState<GetCurrentAffairsOutput | null>(null);
   const [activeTab, setActiveTab] = useState<Period>('today');
   const { toast } = useToast();
 
-  const handleFetchAffairs = async (period: Period) => {
+  const handleFetchAffairs = useCallback(async (period: Period) => {
     setIsLoading(true);
     setResult(null);
+
+    const cacheKey = `current-affairs-${period}`;
+    
+    try {
+      // Check for cached data
+      const cachedRaw = localStorage.getItem(cacheKey);
+      if (cachedRaw) {
+        const cached: CachedData = JSON.parse(cachedRaw);
+        if (Date.now() - cached.timestamp < CACHE_DURATIONS[period]) {
+          setResult(cached.data);
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to read from cache", e);
+      localStorage.removeItem(cacheKey); // Clear corrupted cache
+    }
+
     try {
       const response = await getCurrentAffairs({ period });
       setResult(response);
+      const cacheData: CachedData = { data: response, timestamp: Date.now() };
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
     } catch (e: any) {
       console.error(e);
       toast({
         variant: 'destructive',
         title: 'त्रुटि',
-        description: e.message || 'करेंट अफेयर्स लोड करने में विफल। कृपया पुनः प्रयास करें।',
+        description: 'करेंट अफेयर्स लोड करने में विफल। सर्वर व्यस्त हो सकता है, कृपया पुनः प्रयास करें।',
       });
+      // Try to serve stale data if available
+      const cachedRaw = localStorage.getItem(cacheKey);
+      if (cachedRaw) {
+          try {
+              const cached: CachedData = JSON.parse(cachedRaw);
+              setResult(cached.data);
+              toast({
+                  variant: 'default',
+                  title: 'ऑफलाइन डेटा दिखाया जा रहा है',
+                  description: 'यह जानकारी पुरानी हो सकती है। हम नवीनतम डेटा लाने में असमर्थ थे।',
+              });
+          } catch (err) {
+              console.error("Failed to parse stale cache", err);
+          }
+      }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     handleFetchAffairs(activeTab);
-  }, [activeTab]);
+  }, [activeTab, handleFetchAffairs]);
 
   return (
     <div className="flex flex-col gap-8 p-4">
