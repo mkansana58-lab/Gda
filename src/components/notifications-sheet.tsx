@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
-import { Bell, FilePen, Sparkles, CheckCircle } from 'lucide-react';
+import { Bell, FilePen, Sparkles, CheckCircle, Newspaper } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useUser } from '@/context/user-context';
 import { Notification, getNotifications, markAllAsRead } from '@/lib/notifications';
@@ -12,6 +12,7 @@ const iconMap = {
   FilePen: FilePen,
   Sparkles: Sparkles,
   CheckCircle: CheckCircle,
+  Newspaper: Newspaper,
 };
 
 const motivationalQuotes = [
@@ -32,16 +33,19 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
   const { user } = useUser();
 
   const storageKey = `user-notifications-${user?.email || 'guest'}`;
-  const dateStorageKey = `last-motivational-date-${user?.email || 'guest'}`;
+  const motivationalDateKey = `last-motivational-date-${user?.email || 'guest'}`;
+  const affairsDateKey = `last-affairs-notif-date-${user?.email || 'guest'}`;
 
   useEffect(() => {
     if (open && user) {
       const storedNotifications = getNotifications(user.email);
-      let currentNotifications = [...storedNotifications];
-      
-      const today = new Date().toDateString();
-      const lastMotivationalDate = localStorage.getItem(dateStorageKey);
+      let notificationsToUpdate = [...storedNotifications];
+      let hasNewNotifications = false;
 
+      const today = new Date().toDateString();
+      
+      // Motivational Quote Notification
+      const lastMotivationalDate = localStorage.getItem(motivationalDateKey);
       if (lastMotivationalDate !== today) {
          const quote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
          const motivationalNotif: Notification = {
@@ -52,13 +56,32 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
             read: false,
             timestamp: new Date().toISOString()
          };
-         currentNotifications.unshift(motivationalNotif);
-         localStorage.setItem(dateStorageKey, today);
-         // Also save this new notification
-         localStorage.setItem(storageKey, JSON.stringify(currentNotifications.slice(0, 20)));
+         notificationsToUpdate.unshift(motivationalNotif);
+         localStorage.setItem(motivationalDateKey, today);
+         hasNewNotifications = true;
       }
       
-      setNotifications(currentNotifications.slice(0, 20).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+      // Current Affairs Notification
+      const lastAffairsDate = localStorage.getItem(affairsDateKey);
+      if(lastAffairsDate !== today) {
+        const affairsNotif: Notification = {
+          id: `affairs-${Date.now()}`,
+          icon: 'Newspaper',
+          title: 'नए करेंट अफेयर्स उपलब्ध हैं!',
+          description: 'आज की ताज़ा राष्ट्रीय और अंतर्राष्ट्रीय घटनाओं से अपडेट रहें।',
+          read: false,
+          timestamp: new Date().toISOString(),
+        };
+        notificationsToUpdate.unshift(affairsNotif);
+        localStorage.setItem(affairsDateKey, today);
+        hasNewNotifications = true;
+      }
+
+      if (hasNewNotifications) {
+        localStorage.setItem(storageKey, JSON.stringify(notificationsToUpdate.slice(0, 20)));
+      }
+      
+      setNotifications(notificationsToUpdate.slice(0, 20).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
       
       // Mark all as read after a short delay
       setTimeout(() => {
@@ -66,7 +89,7 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
         setNotifications(prev => prev.map(n => ({...n, read: true})));
       }, 2000);
     }
-  }, [open, storageKey, dateStorageKey, user]);
+  }, [open, user, storageKey, motivationalDateKey, affairsDateKey]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

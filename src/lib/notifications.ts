@@ -1,4 +1,4 @@
-export type NotificationIcon = 'Bell' | 'FilePen' | 'Sparkles' | 'CheckCircle';
+export type NotificationIcon = 'Bell' | 'FilePen' | 'Sparkles' | 'CheckCircle' | 'Newspaper';
 
 export interface Notification {
   id: string;

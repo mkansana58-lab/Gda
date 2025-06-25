@@ -14,6 +14,7 @@ type Period = 'today' | 'week' | 'month';
 export default function CurrentAffairsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [result, setResult] = useState<GetCurrentAffairsOutput | null>(null);
+  const [activeTab, setActiveTab] = useState<Period>('today');
   const { toast } = useToast();
 
   const handleFetchAffairs = async (period: Period) => {
@@ -35,8 +36,8 @@ export default function CurrentAffairsPage() {
   };
 
   useEffect(() => {
-    handleFetchAffairs('today');
-  }, []);
+    handleFetchAffairs(activeTab);
+  }, [activeTab]);
 
   return (
     <div className="flex flex-col gap-8 p-4">
@@ -53,7 +54,7 @@ export default function CurrentAffairsPage() {
           <CardDescription>आप किस अवधि के लिए करेंट अफेयर्स देखना चाहते हैं?</CardDescription>
         </CardHeader>
         <CardContent>
-           <Tabs defaultValue="today" onValueChange={(value) => handleFetchAffairs(value as Period)} className="w-full">
+           <Tabs defaultValue="today" onValueChange={(value) => setActiveTab(value as Period)} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="today">
                     <Calendar className="mr-2 h-4 w-4" /> आज
