@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -111,7 +112,7 @@ export default function ScholarshipFormPage() {
     try {
       const photoDataUrl = await readFileAsDataURL(values.photo[0]);
       const signatureDataUrl = await readFileAsDataURL(values.signature[0]);
-      const appNo = (Math.floor(Math.random() * 90000) + 10000).toString();
+      const appNo = Math.floor(10000 + Math.random() * 90000).toString();
       
       const finalData: ScholarshipData = { ...values, photoDataUrl, signatureDataUrl };
 
@@ -208,32 +209,78 @@ export default function ScholarshipFormPage() {
                 )}
                 {step === 3 && (
                    <div className="space-y-6 animate-in fade-in">
-                        <FormField control={form.control} name="photo" render={({ field: { onChange, ...rest } }) => (
-                          <FormItem>
-                            <FormLabel>पासपोर्ट आकार का फोटो</FormLabel>
-                            <FormControl>
-                                <Input type="file" accept="image/png, image/jpeg, image/webp" {...rest} onChange={e => {
-                                    onChange(e.target.files);
-                                    setPhotoPreview(e.target.files?.[0] ? URL.createObjectURL(e.target.files[0]) : null);
-                                }}/>
-                            </FormControl>
-                             {photoPreview && <Image src={photoPreview} alt="Photo Preview" width={100} height={125} className="mt-2 rounded-md border p-1 aspect-[4/5] object-cover" />}
-                            <FormMessage />
-                          </FormItem>
-                        )}/>
-                        <FormField control={form.control} name="signature" render={({ field: { onChange, ...rest } }) => (
-                          <FormItem>
-                            <FormLabel>हस्ताक्षर</FormLabel>
-                             <FormControl>
-                                <Input type="file" accept="image/png, image/jpeg, image/webp" {...rest} onChange={e => {
-                                    onChange(e.target.files);
-                                    setSignaturePreview(e.target.files?.[0] ? URL.createObjectURL(e.target.files[0]) : null);
-                                }}/>
-                            </FormControl>
-                            {signaturePreview && <Image src={signaturePreview} alt="Signature Preview" width={200} height={80} className="mt-2 rounded-md border p-1 bg-white" />}
-                            <FormMessage />
-                          </FormItem>
-                        )}/>
+                        <FormField
+                          control={form.control}
+                          name="photo"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>पासपोर्ट आकार का फोटो</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="file"
+                                  accept="image/png, image/jpeg, image/webp"
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  onChange={(e) => {
+                                    field.onChange(e.target.files);
+                                    setPhotoPreview(
+                                      e.target.files?.[0]
+                                        ? URL.createObjectURL(e.target.files[0])
+                                        : null
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              {photoPreview && (
+                                <Image
+                                  src={photoPreview}
+                                  alt="Photo Preview"
+                                  width={100}
+                                  height={125}
+                                  className="mt-2 rounded-md border p-1 aspect-[4/5] object-cover"
+                                />
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="signature"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>हस्ताक्षर</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="file"
+                                  accept="image/png, image/jpeg, image/webp"
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  onChange={(e) => {
+                                    field.onChange(e.target.files);
+                                    setSignaturePreview(
+                                      e.target.files?.[0]
+                                        ? URL.createObjectURL(e.target.files[0])
+                                        : null
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              {signaturePreview && (
+                                <Image
+                                  src={signaturePreview}
+                                  alt="Signature Preview"
+                                  width={200}
+                                  height={80}
+                                  className="mt-2 rounded-md border p-1 bg-white"
+                                />
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                    </div>
                 )}
                 {step === 4 && (
