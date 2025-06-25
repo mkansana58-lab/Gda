@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -32,10 +31,26 @@ export default function AdminLoginPage() {
             const isPasswordCorrect = password === ADMIN_PASSWORD;
 
             if (isUserAllowed && isPasswordCorrect) {
-                localStorage.removeItem('user'); // Clear student session
+                localStorage.removeItem('user'); // Clear any existing student session
                 localStorage.setItem('adminUser', username.trim());
+                
+                // Create a mock user object for the admin to browse the app
+                const adminAsUser = {
+                    name: username.trim(),
+                    email: 'admin@goswami.com',
+                    mobile: '0000000000',
+                    village: 'Admin',
+                    district: 'Admin',
+                    pincode: '000000',
+                    state: 'Admin',
+                    class: 'Admin',
+                    exam: 'Admin',
+                    profilePhotoUrl: ''
+                };
+                localStorage.setItem('user', JSON.stringify(adminAsUser));
+
                 toast({ title: 'लॉगिन सफल!', description: `एडमिन ${username.trim()} के रूप में आपका स्वागत है।` });
-                router.push('/admin/dashboard');
+                router.push('/dashboard'); // Redirect to main app dashboard
             } else {
                 setError('आपने गलत डिटेल डालिए। कृपया पुनः प्रयास करें।');
                 toast({ variant: 'destructive', title: 'लॉगिन विफल', description: 'उपयोगकर्ता नाम या पासवर्ड गलत है।' });

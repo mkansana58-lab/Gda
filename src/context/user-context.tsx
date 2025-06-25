@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -51,6 +50,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   
   const logout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('adminUser'); // Also clear admin session
     setUser(null);
     router.push('/login');
   };

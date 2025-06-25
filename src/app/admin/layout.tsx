@@ -1,4 +1,3 @@
-
 'use client';
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -30,6 +29,7 @@ export default function AdminLayout({
 
   const handleLogout = () => {
       localStorage.removeItem('adminUser');
+      localStorage.removeItem('user'); // Also clear the user session
       router.replace('/admin/login');
   }
 
