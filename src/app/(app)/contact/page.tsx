@@ -17,7 +17,6 @@ const contactFormSchema = z.object({
   email: z.string().email({ message: 'कृपया एक वैध ईमेल पता दर्ज करें।' }),
   mobile: z.string().regex(/^\d{10}$/, { message: 'कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।' }),
   message: z.string().min(10, { message: 'संदेश कम से कम 10 अक्षरों का होना चाहिए।' }),
-  address: z.string().min(5, { message: 'पता आवश्यक है।' }),
 });
 
 export default function ContactPage() {
@@ -25,7 +24,7 @@ export default function ContactPage() {
 
   const form = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
-    defaultValues: { name: '', email: '', mobile: '', message: '', address: '' },
+    defaultValues: { name: '', email: '', mobile: '', message: '' },
   });
 
   const handleEmailSubmit = (values: z.infer<typeof contactFormSchema>) => {
@@ -34,7 +33,6 @@ export default function ContactPage() {
       Name: ${values.name}
       Email: ${values.email}
       Mobile: ${values.mobile}
-      Address: ${values.address}
 
       Message:
       ${values.message}
@@ -49,7 +47,6 @@ export default function ContactPage() {
     const body = `
       Inquiry from ${values.name}
       Mobile: ${values.mobile}
-      Address: ${values.address}
       Message: ${values.message}
     `.trim().replace(/^\s+/gm, '');
     
@@ -105,9 +102,6 @@ export default function ContactPage() {
               </div>
                <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem><FormLabel>ईमेल</FormLabel><FormControl><Input type="email" placeholder="आपका ईमेल पता" {...field} /></FormControl><FormMessage /></FormItem>
-                )}/>
-                <FormField control={form.control} name="address" render={({ field }) => (
-                  <FormItem><FormLabel>पता</FormLabel><FormControl><Input placeholder="आपका पूरा पता" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                <FormField control={form.control} name="message" render={({ field }) => (
                   <FormItem><FormLabel>संदेश</FormLabel><FormControl><Textarea placeholder="आप क्या पूछना चाहते हैं?" {...field} /></FormControl><FormMessage /></FormItem>

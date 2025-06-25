@@ -17,7 +17,6 @@ import { ScholarshipCertificate } from '@/components/scholarship-certificate';
 import html2canvas from 'html2canvas';
 import { addNotification } from '@/lib/notifications';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -67,7 +66,6 @@ export default function ScholarshipFormPage() {
   const { toast } = useToast();
   const { user } = useUser();
   const certificateRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
