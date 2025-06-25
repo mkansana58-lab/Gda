@@ -182,7 +182,7 @@ export default function AiTestPage() {
                     class: selectedClass, 
                     percentage: percentage, 
                     date: new Date().toISOString(), 
-                    photo: user.profilePhotoUrl || '', 
+                    photo: '', 
                     hint: 'student portrait', 
                     testMode: testMode 
                 };
@@ -193,7 +193,8 @@ export default function AiTestPage() {
                 const otherToppers = overallToppers.filter((t: any) => !(t.name === user.name && t.class === selectedClass && t.testMode === testMode));
                 const updatedToppers = [...otherToppers, newOverallTopper];
                 updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
-                localStorage.setItem(storageKey, JSON.stringify(updatedToppers.slice(0, 20)));
+                const toppersToSave = updatedToppers.slice(0, 20).map(t => ({...t, photo: ''}));
+                localStorage.setItem(storageKey, JSON.stringify(toppersToSave));
             }
             return newProgress;
         });
@@ -239,7 +240,7 @@ export default function AiTestPage() {
 
         const topper = {
             name: user.name, class: subjectTest.config.classLevel, percentage: percentage,
-            date: new Date().toISOString(), photo: user.profilePhotoUrl || '', hint: 'student portrait',
+            date: new Date().toISOString(), photo: '', hint: 'student portrait',
             testMode: testMode, subject: subjectTest.subject,
         };
         const storageKey = `practice-test-toppers`;
@@ -248,7 +249,8 @@ export default function AiTestPage() {
         const otherToppers = toppers.filter((t: any) => !(t.name === user.name && t.testMode === testMode && t.subject === topper.subject && t.class === topper.class));
         const updatedToppers = [...otherToppers, topper];
         updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
-        localStorage.setItem(storageKey, JSON.stringify(updatedToppers.slice(0, 20)));
+        const toppersToSave = updatedToppers.slice(0, 20).map(t => ({...t, photo: ''}));
+        localStorage.setItem(storageKey, JSON.stringify(toppersToSave));
 
         setPageState('certificate');
         setSubjectTest(null);
