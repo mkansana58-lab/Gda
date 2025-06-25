@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -6,23 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Download, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/context/user-context';
 import html2canvas from 'html2canvas';
 import { AdmitCard } from '@/components/admit-card';
+import type { ScholarshipData } from '../plan-form/page';
 
-interface ScholarshipData {
-  name: string;
-  fatherName: string;
-  mobile: string;
-  email: string;
-  age: number;
-  class: string;
-  school: string;
-  village: string;
-  district: string;
-  pincode: string;
-  state: string;
-}
 
 export default function AdmitCardPage() {
   const [applicationNo, setApplicationNo] = useState('');
@@ -30,7 +18,6 @@ export default function AdmitCardPage() {
   const [error, setError] = useState<string | null>(null);
   const [admitCardData, setAdmitCardData] = useState<ScholarshipData | null>(null);
   
-  const { user } = useUser();
   const { toast } = useToast();
   const admitCardRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +101,7 @@ export default function AdmitCardPage() {
       {admitCardData && (
         <div className="w-full max-w-4xl space-y-6 animate-in fade-in">
           <div ref={admitCardRef} className="bg-white text-black p-4">
-            <AdmitCard data={admitCardData} applicationNo={applicationNo} user={user} />
+            <AdmitCard data={admitCardData} applicationNo={applicationNo} />
           </div>
           <Card className="bg-card">
             <CardContent className="pt-6 flex flex-col sm:flex-row gap-4 justify-center">

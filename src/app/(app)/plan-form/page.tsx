@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,11 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { useState, useEffect } from 'react';
-import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Loader2, ArrowLeft, ArrowRight, Download, CheckCircle, Upload, User, Signature } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
 import { Progress } from '@/components/ui/progress';
+import { ScholarshipCertificate } from '@/components/scholarship-certificate';
+import html2canvas from 'html2canvas';
+import { addNotification } from '@/lib/notifications';
+import Image from 'next/image';
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
@@ -21,6 +29,14 @@ const formSchema = z.object({
   age: z.coerce.number().min(5, { message: 'आयु कम से कम 5 वर्ष होनी चाहिए।' }).max(25, { message: 'आयु अधिकतम 25 वर्ष हो सकती है।' }),
   class: z.string().min(1, { message: 'कक्षा आवश्यक है।' }),
   school: z.string().min(3, { message: 'स्कूल का नाम आवश्यक है।' }),
+  photo: z.any()
+    .refine((files) => files?.length === 1, 'फोटो आवश्यक है।')
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 2MB है।`)
+    .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), '.jpg, .png और .webp फ़ाइलें ही स्वीकार की जाती हैं।'),
+  signature: z.any()
+    .refine((files) => files?.length === 1, 'हस्ताक्षर आवश्यक है।')
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 2MB है।`)
+    .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), '.jpg, .png और .webp फ़ाइलें ही स्वीकार की जाती हैं।'),
   village: z.string().min(3, { message: 'गाँव/शहर का नाम आवश्यक है।' }),
   district: z.string().min(3, { message: 'ज़िले का नाम आवश्यक है।' }),
   pincode: z.string().regex(/^\d{6}$/, { message: 'कृपया एक वैध 6-अंकीय पिनकोड दर्ज करें।' }),
@@ -28,109 +44,121 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+export type ScholarshipData = FormValues & { photoDataUrl: string; signatureDataUrl: string };
+
+const readFileAsDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
 
 export default function ScholarshipFormPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [submittedData, setSubmittedData] = useState<ScholarshipData | null>(null);
+  const [applicationNo, setApplicationNo] = useState('');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [signaturePreview, setSignaturePreview] =useState<string | null>(null);
+
   const { toast } = useToast();
   const { user } = useUser();
-
+  const certificateRef = useRef<HTMLDivElement>(null);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      fatherName: '',
-      mobile: '',
-      email: '',
-      age: undefined,
-      class: '',
-      school: '',
-      village: '',
-      district: '',
-      pincode: '',
-      state: '',
-    },
+    defaultValues: { name: '', fatherName: '', mobile: '', email: '', age: undefined, class: '', school: '', village: '', district: '', pincode: '', state: '' },
   });
-
+  
   useEffect(() => {
     if (user) {
       form.reset({
-        name: user.name,
-        fatherName: '',
-        mobile: user.mobile,
-        email: user.email,
-        age: undefined,
-        class: user.class,
-        school: '',
-        village: user.village,
-        district: user.district,
-        pincode: user.pincode,
-        state: user.state,
+        name: user.name, mobile: user.mobile, email: user.email, class: user.class,
+        village: user.village, district: user.district, pincode: user.pincode, state: user.state,
+        fatherName: '', age: undefined, school: '',
       });
     }
   }, [user, form]);
-
 
   const handleNext = async () => {
     let fieldsToValidate: (keyof FormValues)[] = [];
     if (step === 1) fieldsToValidate = ['name', 'fatherName', 'mobile', 'email'];
     else if (step === 2) fieldsToValidate = ['age', 'class', 'school'];
-    
+    else if (step === 3) fieldsToValidate = ['photo', 'signature'];
+
     const isValid = await form.trigger(fieldsToValidate);
-    if (isValid) {
-      setStep(prev => prev + 1);
+    if (isValid) setStep(prev => prev + 1);
+  };
+  
+  const handleBack = () => setStep(prev => prev - 1);
+
+  const handleDownloadCertificate = () => {
+    if (certificateRef.current) {
+        toast({ title: 'प्रमाणपत्र डाउनलोड हो रहा है...', description: 'कृपया प्रतीक्षा करें।' });
+        html2canvas(certificateRef.current, { scale: 2.5, backgroundColor: '#ffffff' }).then((canvas) => {
+            const link = document.createElement('a');
+            link.download = `scholarship-certificate-${applicationNo}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            toast({ title: 'प्रमाणपत्र डाउनलोड किया गया', description: 'अपना डाउनलोड फ़ोल्डर देखें।' });
+        });
     }
   };
 
-  const handleBack = () => {
-    setStep(prev => prev - 1);
-  };
-
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: FormValues) {
     setIsLoading(true);
+    try {
+      const photoDataUrl = await readFileAsDataURL(values.photo[0]);
+      const signatureDataUrl = await readFileAsDataURL(values.signature[0]);
+      const appNo = (Math.floor(Math.random() * 90000) + 10000).toString();
+      
+      const finalData: ScholarshipData = { ...values, photoDataUrl, signatureDataUrl };
 
-    const applicationNo = (Math.floor(Math.random() * 90000) + 10000).toString();
+      localStorage.setItem(`scholarship-application-${appNo}`, JSON.stringify(finalData));
 
-    const subject = `छात्रवृत्ति आवेदन: ${values.name} - #${applicationNo}`;
-    const body = `
-        नया छात्रवृत्ति आवेदन प्राप्त हुआ है।
+      addNotification(user?.email, {
+        id: `app-${appNo}`,
+        icon: 'FilePen',
+        title: 'आवेदन सफलतापूर्वक जमा हुआ!',
+        description: `आपका आवेदन क्रमांक ${appNo} है। इसे भविष्य के लिए सहेजें।`,
+      });
 
-        आवेदन संख्या: ${applicationNo}
+      setApplicationNo(appNo);
+      setSubmittedData(finalData);
 
-        --- व्यक्तिगत विवरण ---
-        नाम: ${values.name}
-        पिता का नाम: ${values.fatherName}
-        मोबाइल: ${values.mobile}
-        ईमेल: ${values.email}
+      toast({ title: "आवेदन सफलतापूर्वक जमा हुआ!", description: "आपका आवेदन क्रमांक जेनरेट हो गया है।" });
 
-        --- शैक्षणिक विवरण ---
-        आयु: ${values.age}
-        कक्षा: ${values.class}
-        स्कूल: ${values.school}
-
-        --- पते का विवरण ---
-        गाँव/शहर: ${values.village}
-        ज़िला: ${values.district}
-        पिनकोड: ${values.pincode}
-        राज्य: ${values.state}
-    `.trim().replace(/^\s+/gm, '');
-
-    const mailtoLink = `mailto:mohitkansana82@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    window.location.href = mailtoLink;
-
-    toast({
-        title: "ईमेल ऐप खोला जा रहा है...",
-        description: "कृपया अपना आवेदन भेजने के लिए अपने ईमेल क्लाइंट में 'Send' पर क्लिक करें।",
-    });
-
-    setTimeout(() => {
-        setIsLoading(false);
-        form.reset();
-        setStep(1);
-    }, 1000);
+    } catch (error) {
+      toast({ variant: 'destructive', title: "एक त्रुटि हुई", description: "फ़ाइल अपलोड करने में विफल। कृपया पुनः प्रयास करें।" });
+    } finally {
+      setIsLoading(false);
+    }
   }
-
+  
+  if (submittedData) {
+    return (
+        <div className="flex flex-col items-center gap-6 p-4">
+            <div className="text-center">
+                <CheckCircle className="mx-auto h-16 w-16 text-green-500"/>
+                <h1 className="font-headline text-3xl font-bold mt-4">आवेदन सफलतापूर्वक जमा हुआ!</h1>
+                <p className="text-muted-foreground">आपका आवेदन क्रमांक है:</p>
+                <p className="text-2xl font-bold font-mono tracking-widest bg-secondary text-secondary-foreground rounded-md px-4 py-2 my-2 inline-block">{applicationNo}</p>
+                <p className="max-w-md mx-auto text-muted-foreground">कृपया इस नंबर को भविष्य के संदर्भ के लिए सहेज लें। आप नीचे दिए गए बटन से अपने आवेदन का प्रमाण पत्र डाउनलोड कर सकते हैं।</p>
+            </div>
+            <div ref={certificateRef} className="p-4 bg-white text-black w-full max-w-4xl">
+              <ScholarshipCertificate data={submittedData} applicationNo={applicationNo} />
+            </div>
+             <Card className="w-full max-w-2xl bg-card">
+                <CardContent className="pt-6 flex flex-wrap justify-center gap-4">
+                    <Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />प्रमाण पत्र डाउनलोड करें</Button>
+                    <Button variant="outline" onClick={() => { setSubmittedData(null); setStep(1); form.reset(); }}><ArrowLeft className="mr-2 h-4 w-4" />नया फॉर्म भरें</Button>
+                </CardContent>
+            </Card>
+        </div>
+    )
+  }
 
   return (
     <div className="flex flex-col items-center gap-8 p-4">
@@ -141,8 +169,8 @@ export default function ScholarshipFormPage() {
             आवेदन शुल्क ₹50 है। टेस्ट में अच्छे अंक लाने पर आपको एक माह की ट्यूशन फीस फ्री रहेगी।
             </CardDescription>
             <div className="pt-2">
-                <Progress value={(step / 3) * 100} className="w-full" />
-                <p className="text-xs text-muted-foreground text-center mt-1">चरण {step} / 3</p>
+                <Progress value={(step / 4) * 100} className="w-full" />
+                <p className="text-xs text-muted-foreground text-center mt-1">चरण {step} / 4</p>
             </div>
         </CardHeader>
         <CardContent>
@@ -180,6 +208,36 @@ export default function ScholarshipFormPage() {
                     </div>
                 )}
                 {step === 3 && (
+                   <div className="space-y-6 animate-in fade-in">
+                        <FormField control={form.control} name="photo" render={({ field: { onChange, ...rest } }) => (
+                          <FormItem>
+                            <FormLabel>पासपोर्ट आकार का फोटो</FormLabel>
+                            <FormControl>
+                                <Input type="file" accept="image/png, image/jpeg, image/webp" {...rest} onChange={e => {
+                                    onChange(e.target.files);
+                                    setPhotoPreview(e.target.files?.[0] ? URL.createObjectURL(e.target.files[0]) : null);
+                                }}/>
+                            </FormControl>
+                             {photoPreview && <Image src={photoPreview} alt="Photo Preview" width={100} height={125} className="mt-2 rounded-md border p-1 aspect-[4/5] object-cover" />}
+                            <FormMessage />
+                          </FormItem>
+                        )}/>
+                        <FormField control={form.control} name="signature" render={({ field: { onChange, ...rest } }) => (
+                          <FormItem>
+                            <FormLabel>हस्ताक्षर</FormLabel>
+                             <FormControl>
+                                <Input type="file" accept="image/png, image/jpeg, image/webp" {...rest} onChange={e => {
+                                    onChange(e.target.files);
+                                    setSignaturePreview(e.target.files?.[0] ? URL.createObjectURL(e.target.files[0]) : null);
+                                }}/>
+                            </FormControl>
+                            {signaturePreview && <Image src={signaturePreview} alt="Signature Preview" width={200} height={80} className="mt-2 rounded-md border p-1 bg-white" />}
+                            <FormMessage />
+                          </FormItem>
+                        )}/>
+                   </div>
+                )}
+                {step === 4 && (
                     <div className="space-y-6 animate-in fade-in">
                         <FormField control={form.control} name="village" render={({ field }) => (
                             <FormItem><FormLabel>गाँव / कस्बा</FormLabel><FormControl><Input placeholder="आपके गाँव/कस्बे का नाम" {...field} /></FormControl><FormMessage /></FormItem>
@@ -202,14 +260,14 @@ export default function ScholarshipFormPage() {
                         <ArrowLeft className="mr-2 h-4 w-4"/> वापस
                     </Button>
 
-                    {step < 3 ? (
+                    {step < 4 ? (
                         <Button type="button" onClick={handleNext}>
-                        आगे <ArrowRight className="ml-2 h-4 w-4"/>
+                          आगे <ArrowRight className="ml-2 h-4 w-4"/>
                         </Button>
                     ) : (
                         <Button type="submit" disabled={isLoading}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        ईमेल द्वारा आवेदन जमा करें
+                          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          आवेदन जमा करें
                         </Button>
                     )}
                 </CardFooter>

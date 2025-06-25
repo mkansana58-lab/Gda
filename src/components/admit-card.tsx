@@ -1,22 +1,18 @@
+
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Separator } from './ui/separator';
-import type { User } from '@/context/user-context';
 import { Logo } from './logo';
 import { Camera } from 'lucide-react';
+import type { ScholarshipData } from '@/app/(app)/plan-form/page';
+import Image from 'next/image';
 
 interface AdmitCardProps {
-  data: {
-    name: string;
-    fatherName: string;
-    class: string;
-  };
+  data: ScholarshipData;
   applicationNo: string;
-  user: User | null;
 }
 
-export function AdmitCard({ data, applicationNo, user }: AdmitCardProps) {
+export function AdmitCard({ data, applicationNo }: AdmitCardProps) {
     const examDate = new Date();
     examDate.setDate(examDate.getDate() + 10);
     const formattedExamDate = examDate.toLocaleDateString('hi-IN', {
@@ -26,8 +22,8 @@ export function AdmitCard({ data, applicationNo, user }: AdmitCardProps) {
     const reportingTime = "सुबह 09:30 बजे";
     const examCenter = "गो स्वामी डिफेंस एकेडमी, खड़गपुर, धौलपुर (राज.)";
 
-    // Generate a deterministic, numeric-only roll number different from application number
-    const rollNo = (parseInt(applicationNo.split('').reverse().join('')) + 1).toString();
+    const rollNoBase = parseInt(applicationNo, 10);
+    const rollNo = (rollNoBase * 3 + 12345).toString().slice(0, 5);
 
   return (
     <div className="border-2 border-black p-4 font-sans space-y-3">
@@ -76,20 +72,19 @@ export function AdmitCard({ data, applicationNo, user }: AdmitCardProps) {
                 </div>
             </div>
             <div className="col-span-3 flex flex-col items-center">
-                 <div className="w-full h-auto aspect-[3/4] border-2 border-black flex items-center justify-center bg-gray-100">
-                    {user?.profilePhotoUrl ? (
-                        <Avatar className="w-full h-full rounded-none">
-                            <AvatarImage src={user.profilePhotoUrl} alt={data.name} className="object-cover" />
-                            <AvatarFallback>{data.name[0]}</AvatarFallback>
-                        </Avatar>
+                 <div className="w-full h-auto aspect-[3/4] border-2 border-black flex items-center justify-center bg-gray-100 relative overflow-hidden">
+                    {data.photoDataUrl ? (
+                        <Image src={data.photoDataUrl} alt={data.name} fill className="object-cover" />
                     ) : (
                         <div className="text-center text-gray-500 p-1">
                             <Camera className="mx-auto h-6 w-6"/>
-                            <p className="text-[10px] mt-1 leading-tight">फोटो चिपकाएं</p>
+                            <p className="text-[10px] mt-1 leading-tight">फोटो उपलब्ध नहीं</p>
                         </div>
                     )}
                 </div>
-                <div className="w-full mt-2 h-10 border-2 border-black"></div>
+                <div className="w-full mt-2 h-10 border-2 border-black relative overflow-hidden bg-white flex items-center justify-center">
+                   {data.signatureDataUrl && <Image src={data.signatureDataUrl} alt="Signature" fill className="object-contain" />}
+                </div>
                 <p className="text-[8px] text-center mt-1">अभ्यर्थी के हस्ताक्षर</p>
             </div>
         </main>
