@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Shield } from 'lucide-react';
 
-const ALLOWED_USERS = ['लोकेश गोस्वामी', 'मोहित', 'दिनेश त्यागी'];
+const ALLOWED_USERS = ['लोकेश गोस्वामी', 'मोहित', 'दिनेश त्यागी', 'Lokesh Goswami', 'Mohit', 'Dinesh Tyagi'];
 const ADMIN_PASSWORD = '12345';
 
 export default function AdminLoginPage() {

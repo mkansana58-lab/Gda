@@ -3,7 +3,7 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut } from "lucide-react";
+import { Loader2, LogOut, LayoutDashboard } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -59,6 +59,10 @@ export default function AdminLayout({
             </div>
             <div className="flex items-center gap-4">
                 <span className="text-sm hidden sm:inline">नमस्ते, {adminUser}</span>
+                <Button variant="outline" onClick={() => router.push('/dashboard')}>
+                    <LayoutDashboard className="h-4 w-4 mr-2"/>
+                    छात्र डैशबोर्ड
+                </Button>
                 <Button variant="ghost" onClick={handleLogout}>
                     <LogOut className="h-4 w-4 mr-2"/>
                     लॉग आउट
