@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -10,9 +11,9 @@ const learningSections = [
         title: "लाइव कक्षाएं",
         description: "विशेषज्ञ प्रशिक्षकों के साथ हमारे इंटरैक्टिव लाइव सत्रों में शामिल हों।",
         icon: Video,
-        actionText: "जल्द आ रहा है",
-        href: "#",
-        disabled: true
+        actionText: "क्लासेस देखें",
+        href: "/live-classes",
+        disabled: false
     },
     {
         title: "रिकॉर्डेड वीडियो",

@@ -257,6 +257,27 @@ export default function ScholarshipFormPage() {
                                   ref={ref}
                                   onBlur={onBlur}
                                   onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      if (file.size > MAX_FILE_SIZE) {
+                                        toast({
+                                          variant: 'destructive',
+                                          title: 'फ़ाइल बहुत बड़ी है',
+                                          description: `फोटो का आकार 2MB से अधिक नहीं होना चाहिए।`,
+                                        });
+                                        e.target.value = '';
+                                        return;
+                                      }
+                                      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+                                        toast({
+                                          variant: 'destructive',
+                                          title: 'अमान्य फ़ाइल प्रकार',
+                                          description: 'फोटो के लिए केवल .jpg, .png और .webp फ़ाइलें स्वीकार की जाती हैं।',
+                                        });
+                                        e.target.value = '';
+                                        return;
+                                      }
+                                    }
                                     onChange(e.target.files);
                                     setPhotoPreview(
                                       e.target.files?.[0]
@@ -293,6 +314,27 @@ export default function ScholarshipFormPage() {
                                   ref={ref}
                                   onBlur={onBlur}
                                   onChange={(e) => {
+                                     const file = e.target.files?.[0];
+                                    if (file) {
+                                      if (file.size > MAX_FILE_SIZE) {
+                                        toast({
+                                          variant: 'destructive',
+                                          title: 'फ़ाइल बहुत बड़ी है',
+                                          description: `हस्ताक्षर का आकार 2MB से अधिक नहीं होना चाहिए।`,
+                                        });
+                                        e.target.value = '';
+                                        return;
+                                      }
+                                      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+                                        toast({
+                                          variant: 'destructive',
+                                          title: 'अमान्य फ़ाइल प्रकार',
+                                          description: 'हस्ताक्षर के लिए केवल .jpg, .png और .webp फ़ाइलें स्वीकार की जाती हैं।',
+                                        });
+                                        e.target.value = '';
+                                        return;
+                                      }
+                                    }
                                     onChange(e.target.files);
                                     setSignaturePreview(
                                       e.target.files?.[0]
