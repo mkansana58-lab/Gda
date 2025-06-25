@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, ArrowLeft, ArrowRight, Download, CheckCircle, Mail } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, Download, CheckCircle, Mail, FilePen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
 import { Progress } from '@/components/ui/progress';
@@ -69,6 +69,7 @@ export default function ScholarshipFormPage() {
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    mode: 'onTouched',
     defaultValues: { name: '', fatherName: '', mobile: '', email: '', age: undefined, class: '', school: '', village: '', district: '', pincode: '', state: '' },
   });
   
@@ -107,37 +108,34 @@ export default function ScholarshipFormPage() {
     }
   };
 
-  const handleEmailSubmit = () => {
-    if (!submittedData || !applicationNo) return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'photo' | 'signature') => {
+    const file = e.target.files?.[0];
+    const setPreview = fieldName === 'photo' ? setPhotoPreview : setSignaturePreview;
 
-    const subject = `Scholarship Application: ${submittedData.name} - #${applicationNo}`;
-    const body = `
-        New Scholarship Application Received
-        -----------------------------------
-        Application No: ${applicationNo}
-
-        Student Details:
-        Name: ${submittedData.name}
-        Father's Name: ${submittedData.fatherName}
-        Mobile: ${submittedData.mobile}
-        Email: ${submittedData.email}
-        Age: ${submittedData.age}
-        Class: ${submittedData.class}
-        School: ${submittedData.school}
-
-        Address:
-        Village/Town: ${submittedData.village}
-        District: ${submittedData.district}
-        Pincode: ${submittedData.pincode}
-        State: ${submittedData.state}
-        -----------------------------------
-        This application was submitted via the app.
-        Photo and Signature were uploaded by the student.
-    `.trim().replace(/^\s+/gm, '');
-
-    const mailtoLink = `mailto:mohitkansana82@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-    toast({ title: "ईमेल ऐप खोला जा रहा है...", description: "अपना आवेदन भेजने के लिए 'Send' पर क्लिक करें।" });
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          variant: 'destructive',
+          title: 'फ़ाइल बहुत बड़ी है',
+          description: `फ़ाइल का आकार 1MB से अधिक नहीं होना चाहिए।`,
+        });
+        form.setValue(fieldName, null);
+        setPreview(null);
+        return;
+      }
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        toast({
+          variant: 'destructive',
+          title: 'अमान्य फ़ाइल प्रकार',
+          description: 'केवल .jpg, .png और .webp फ़ाइलें स्वीकार की जाती हैं।',
+        });
+        form.setValue(fieldName, null);
+        setPreview(null);
+        return;
+      }
+      form.setValue(fieldName, e.target.files);
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
 
@@ -161,7 +159,7 @@ export default function ScholarshipFormPage() {
                 duration: 5000,
              });
              setIsLoading(false);
-             return; // Stop execution
+             return;
         }
         throw e;
       }
@@ -201,7 +199,7 @@ export default function ScholarshipFormPage() {
              <Card className="w-full max-w-2xl bg-card">
                 <CardContent className="pt-6 flex flex-wrap justify-center gap-4">
                     <Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />प्रमाण पत्र डाउनलोड करें</Button>
-                    <Button variant="outline" onClick={handleEmailSubmit}><Mail className="mr-2 h-4 w-4" />ईमेल से सबमिट करें</Button>
+                    <Button variant="outline" onClick={() => { setSubmittedData(null); setStep(1); form.reset(); }}><FilePen className="mr-2 h-4 w-4" />नया फॉर्म भरें</Button>
                 </CardContent>
             </Card>
         </div>
@@ -214,7 +212,7 @@ export default function ScholarshipFormPage() {
         <CardHeader>
             <CardTitle className="font-headline text-2xl">छात्रवृत्ति आवेदन पत्र</CardTitle>
             <CardDescription>
-            आवेदन शुल्क ₹50 है। टेस्ट में अच्छे अंक लाने पर आपको एक माह की ट्यूशन फीस फ्री रहेगी।
+            आवेदन शुल्क ₹50 है। भुगतान के बाद आपको एक यूनिक ID मिलेगी जिसका उपयोग एडमिट कार्ड डाउनलोड करने के लिए किया जाएगा। कक्षा 5 से 9 के छात्र ही आवेदन कर सकते हैं।
             </CardDescription>
             <div className="pt-2">
                 <Progress value={(step / 4) * 100} className="w-full" />
@@ -247,7 +245,7 @@ export default function ScholarshipFormPage() {
                             <FormItem><FormLabel>आयु</FormLabel><FormControl><Input type="number" placeholder="आपकी आयु" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                             )}/>
                             <FormField control={form.control} name="class" render={({ field }) => (
-                            <FormItem><FormLabel>कक्षा</FormLabel><FormControl><Input placeholder="जैसे, 10वीं" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>कक्षा (5-9)</FormLabel><FormControl><Input placeholder="जैसे, 9" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </div>
                         <FormField control={form.control} name="school" render={({ field }) => (
@@ -260,45 +258,14 @@ export default function ScholarshipFormPage() {
                         <FormField
                           control={form.control}
                           name="photo"
-                          render={({ field: { onChange, onBlur, name, ref } }) => (
+                          render={({ field }) => (
                             <FormItem>
-                              <FormLabel>पासपोर्ट आकार का फोटो</FormLabel>
+                              <FormLabel>पासपोर्ट आकार का फोटो (1MB तक)</FormLabel>
                               <FormControl>
                                 <Input
                                   type="file"
                                   accept="image/png, image/jpeg, image/webp"
-                                  name={name}
-                                  ref={ref}
-                                  onBlur={onBlur}
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      if (file.size > MAX_FILE_SIZE) {
-                                        toast({
-                                          variant: 'destructive',
-                                          title: 'फ़ाइल बहुत बड़ी है',
-                                          description: `फोटो का आकार 1MB से अधिक नहीं होना चाहिए।`,
-                                        });
-                                        e.target.value = '';
-                                        return;
-                                      }
-                                      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-                                        toast({
-                                          variant: 'destructive',
-                                          title: 'अमान्य फ़ाइल प्रकार',
-                                          description: 'फोटो के लिए केवल .jpg, .png और .webp फ़ाइलें स्वीकार की जाती हैं।',
-                                        });
-                                        e.target.value = '';
-                                        return;
-                                      }
-                                    }
-                                    onChange(e.target.files);
-                                    setPhotoPreview(
-                                      e.target.files?.[0]
-                                        ? URL.createObjectURL(e.target.files[0])
-                                        : null
-                                    );
-                                  }}
+                                  onChange={(e) => handleFileChange(e, 'photo')}
                                 />
                               </FormControl>
                               {photoPreview && (
@@ -317,45 +284,14 @@ export default function ScholarshipFormPage() {
                         <FormField
                           control={form.control}
                           name="signature"
-                          render={({ field: { onChange, onBlur, name, ref } }) => (
+                          render={({ field }) => (
                             <FormItem>
-                              <FormLabel>हस्ताक्षर</FormLabel>
+                              <FormLabel>हस्ताक्षर (1MB तक)</FormLabel>
                               <FormControl>
                                 <Input
                                   type="file"
                                   accept="image/png, image/jpeg, image/webp"
-                                  name={name}
-                                  ref={ref}
-                                  onBlur={onBlur}
-                                  onChange={(e) => {
-                                     const file = e.target.files?.[0];
-                                    if (file) {
-                                      if (file.size > MAX_FILE_SIZE) {
-                                        toast({
-                                          variant: 'destructive',
-                                          title: 'फ़ाइल बहुत बड़ी है',
-                                          description: `हस्ताक्षर का आकार 1MB से अधिक नहीं होना चाहिए।`,
-                                        });
-                                        e.target.value = '';
-                                        return;
-                                      }
-                                      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-                                        toast({
-                                          variant: 'destructive',
-                                          title: 'अमान्य फ़ाइल प्रकार',
-                                          description: 'हस्ताक्षर के लिए केवल .jpg, .png और .webp फ़ाइलें स्वीकार की जाती हैं।',
-                                        });
-                                        e.target.value = '';
-                                        return;
-                                      }
-                                    }
-                                    onChange(e.target.files);
-                                    setSignaturePreview(
-                                      e.target.files?.[0]
-                                        ? URL.createObjectURL(e.target.files[0])
-                                        : null
-                                    );
-                                  }}
+                                  onChange={(e) => handleFileChange(e, 'signature')}
                                 />
                               </FormControl>
                               {signaturePreview && (

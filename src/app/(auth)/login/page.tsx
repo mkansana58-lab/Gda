@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 export default function LoginPage() {
   return (
       <div className="w-full max-w-md">
-        <Card className="shadow-2xl">
+        <Card className="shadow-2xl bg-card">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
               <Logo />

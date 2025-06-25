@@ -3,6 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export interface User {
   name: string;
@@ -35,7 +36,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // This effect runs only on the client
     try {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
@@ -43,7 +43,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Failed to parse user from localStorage', error);
-      // If parsing fails, treat as logged out
       localStorage.removeItem('user');
     } finally {
       setIsLoading(false);
@@ -57,19 +56,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateUser = (newUser: Partial<User>) => {
-    if (user) {
-        const updatedUser = { ...user, ...newUser };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-    }
+    setUser(prevUser => {
+      const updatedUser = { ...prevUser, ...newUser } as User;
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
   }
 
   if (isLoading) {
-    // While loading, we can show a global loader or nothing, 
-    // but we shouldn't render children that depend on the user state yet.
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-xl font-semibold">Loading...</div>
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -88,5 +85,3 @@ export const useUser = () => {
   }
   return context;
 };
-
-    

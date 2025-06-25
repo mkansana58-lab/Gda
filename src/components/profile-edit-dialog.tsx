@@ -70,7 +70,7 @@ export function ProfileEditDialog() {
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
     const { profilePhoto, ...userData } = values;
-    let updatedUserData = { ...userData };
+    let updatedUserData = { ...user, ...userData };
 
     if (photoPreview && photoPreview !== user?.profilePhotoUrl) {
        Object.assign(updatedUserData, { profilePhotoUrl: photoPreview });

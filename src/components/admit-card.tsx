@@ -26,7 +26,7 @@ export function AdmitCard({ data, applicationNo }: AdmitCardProps) {
     const rollNo = (rollNoBase * 3 + 12345).toString().slice(0, 5);
 
   return (
-    <div className="border-2 border-black p-4 font-sans space-y-3">
+    <div className="border-2 border-black p-4 font-sans space-y-3 bg-white text-black">
         <header className="flex items-center justify-between border-b-2 border-black pb-2">
             <div className="flex items-center gap-2">
                 <Logo className="h-16 w-16 bg-white border-primary text-primary" />
@@ -83,7 +83,7 @@ export function AdmitCard({ data, applicationNo }: AdmitCardProps) {
                     )}
                 </div>
                 <div className="w-full mt-2 h-10 border-2 border-black relative overflow-hidden bg-white flex items-center justify-center">
-                   {data.signatureDataUrl && <Image src={data.signatureDataUrl} alt="Signature" fill className="object-contain" />}
+                   {data.signatureDataUrl ? <Image src={data.signatureDataUrl} alt="Signature" fill className="object-contain" /> : <p className='text-gray-400 text-xs'>No Signature</p>}
                 </div>
                 <p className="text-[8px] text-center mt-1">अभ्यर्थी के हस्ताक्षर</p>
             </div>

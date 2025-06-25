@@ -7,6 +7,7 @@ import { Bell, FilePen, Sparkles, CheckCircle, Newspaper } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useUser } from '@/context/user-context';
 import { Notification, getNotifications, markAllAsRead } from '@/lib/notifications';
+import { ScrollArea } from './ui/scroll-area';
 
 const iconMap = {
   Bell: Bell,
@@ -40,11 +41,9 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
 
   useEffect(() => {
     if (open && user) {
-        // Start with the user's existing personal notifications
         let currentNotifications = getNotifications(user.email);
         let notificationsChanged = false;
 
-        // 1. Inject new global notifications
         const globalNotifsRaw = localStorage.getItem('global-notifications');
         const allGlobalNotifs = globalNotifsRaw ? JSON.parse(globalNotifsRaw) : [];
         const readGlobalIdsRaw = localStorage.getItem(readGlobalIdsKey);
@@ -59,7 +58,6 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
             notificationsChanged = true;
         }
 
-        // 2. Inject daily motivational quote
         const today = new Date().toDateString();
         const lastMotivationalDate = localStorage.getItem(motivationalDateKey);
         if (lastMotivationalDate !== today) {
@@ -73,7 +71,6 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
             notificationsChanged = true;
         }
       
-        // 3. Inject daily current affairs reminder
         const lastAffairsDate = localStorage.getItem(affairsDateKey);
         if(lastAffairsDate !== today) {
             const affairsNotif: Notification = {
@@ -86,7 +83,6 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
             notificationsChanged = true;
         }
 
-        // 4. Sort all notifications and update state
         const sortedNotifications = currentNotifications
             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
             .slice(0, 20);
@@ -97,7 +93,6 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
         
         setNotifications(sortedNotifications);
       
-        // Mark all as read after a short delay
         setTimeout(() => {
             markAllAsRead(user.email);
             setNotifications(prev => prev.map(n => ({...n, read: true})));
@@ -107,36 +102,38 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
+      <SheetContent className='flex flex-col'>
         <SheetHeader>
           <SheetTitle>सूचनाएं</SheetTitle>
           <SheetDescription>आपकी हाल की गतिविधियाँ और अपडेट।</SheetDescription>
         </SheetHeader>
-        <div className="mt-4 space-y-1">
-            {notifications.length > 0 ? (
-                notifications.map((notification, index) => {
-                    const IconComponent = iconMap[notification.icon] || Bell;
-                    return (
-                        <React.Fragment key={notification.id}>
-                            <div className="flex items-start gap-4 p-3 relative rounded-lg hover:bg-secondary">
-                               <IconComponent className={`mt-1 h-5 w-5 flex-shrink-0 ${!notification.read ? 'text-primary' : 'text-muted-foreground'}`} />
-                               <div className="flex-grow">
-                                   <p className={`font-semibold ${!notification.read ? '' : 'text-muted-foreground'}`}>{notification.title}</p>
-                                   <p className="text-sm text-muted-foreground">{notification.description}</p>
-                               </div>
-                               {!notification.read && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-primary animate-ping"></div>}
-                            </div>
-                            {index < notifications.length - 1 && <Separator />}
-                        </React.Fragment>
-                    );
-                })
-            ) : (
-                <div className="text-center text-muted-foreground pt-10">
-                    <Bell className="mx-auto h-12 w-12 text-gray-400" />
-                    <p className="mt-4">अभी कोई सूचनाएं नहीं हैं।</p>
-                </div>
-            )}
-        </div>
+        <ScrollArea className="flex-1 -mx-6">
+            <div className="space-y-1 px-6">
+                {notifications.length > 0 ? (
+                    notifications.map((notification, index) => {
+                        const IconComponent = iconMap[notification.icon] || Bell;
+                        return (
+                            <React.Fragment key={notification.id}>
+                                <div className="flex items-start gap-4 p-3 relative rounded-lg hover:bg-secondary">
+                                   <IconComponent className={`mt-1 h-5 w-5 flex-shrink-0 ${!notification.read ? 'text-primary' : 'text-muted-foreground'}`} />
+                                   <div className="flex-grow">
+                                       <p className={`font-semibold ${!notification.read ? '' : 'text-muted-foreground'}`}>{notification.title}</p>
+                                       <p className="text-sm text-muted-foreground">{notification.description}</p>
+                                   </div>
+                                   {!notification.read && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-primary animate-ping"></div>}
+                                </div>
+                                {index < notifications.length - 1 && <Separator />}
+                            </React.Fragment>
+                        );
+                    })
+                ) : (
+                    <div className="text-center text-muted-foreground pt-10">
+                        <Bell className="mx-auto h-12 w-12 text-gray-400" />
+                        <p className="mt-4">अभी कोई सूचनाएं नहीं हैं।</p>
+                    </div>
+                )}
+            </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

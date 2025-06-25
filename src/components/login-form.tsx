@@ -12,6 +12,9 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 const formSchema = z.object({
   name: z.string().min(2, { message: 'नाम कम से कम 2 अक्षरों का होना चाहिए।' }),
   mobile: z.string().regex(/^\d{10}$/, { message: 'कृपया एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें।' }),
@@ -22,7 +25,10 @@ const formSchema = z.object({
   state: z.string().min(2, { message: 'राज्य का नाम आवश्यक है।' }),
   class: z.string().min(1, { message: 'कृपया अपनी कक्षा दर्ज करें।' }),
   exam: z.string().min(1, { message: 'कृपया एक परीक्षा चुनें।' }),
-  profilePhoto: z.any().optional(),
+  profilePhoto: z.any()
+    .optional()
+    .refine((files) => !files || files.length === 0 || files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 1MB है।`)
+    .refine((files) => !files || files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), '.jpg, .png और .webp फ़ाइलें ही स्वीकार की जाती हैं।'),
 });
 
 export function LoginForm() {
@@ -33,15 +39,7 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      mobile: '',
-      email: '',
-      village: '',
-      district: '',
-      pincode: '',
-      state: '',
-      class: '',
-      exam: '',
+      name: '', mobile: '', email: '', village: '', district: '', pincode: '', state: '', class: '', exam: '',
     },
   });
 
@@ -64,7 +62,6 @@ export function LoginForm() {
           title: 'लॉगिन विफल',
           description: 'एक त्रुटि हुई। कृपया पुनः प्रयास करें।',
         });
-      } finally {
         setIsLoading(false);
       }
     };
@@ -80,14 +77,14 @@ export function LoginForm() {
         toast({
           variant: 'destructive',
           title: 'फोटो अपलोड विफल',
-          description: 'चयनित फोटो को पढ़ा नहीं जा सका। कृपया पुनः प्रयास करें या बिना फोटो के जारी रखें।',
+          description: 'चयनित फोटो को पढ़ा नहीं जा सका। कृपया बिना फोटो के जारी रखें।',
         });
         handleLogin('https://placehold.co/100x100.png');
       };
       reader.readAsDataURL(photoFile);
     } else {
       setTimeout(() => {
-        handleLogin('https://placehold.co/100x100.png');
+        handleLogin('');
       }, 500);
     }
   }

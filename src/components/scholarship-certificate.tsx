@@ -17,7 +17,7 @@ export function ScholarshipCertificate({ data, applicationNo }: CertificateProps
   });
 
   return (
-    <div className="border-2 border-black p-4 font-sans space-y-3">
+    <div className="border-2 border-black p-4 font-sans space-y-3 bg-white text-black">
         <header className="flex items-center justify-between border-b-2 border-black pb-2">
             <div className="flex items-center gap-3">
                 <Logo className="h-16 w-16 bg-white border-primary text-primary" />
@@ -72,8 +72,9 @@ export function ScholarshipCertificate({ data, applicationNo }: CertificateProps
                 <p className="text-sm font-bold underline">आगे क्या करें:</p>
                 <ul className="list-disc list-inside text-xs space-y-1 pl-4">
                     <li>अपना आवेदन क्रमांक <strong>({applicationNo})</strong> सुरक्षित रखें।</li>
+                    <li>₹50 के आवेदन शुल्क का भुगतान करने के बाद आपको एक यूनिक ID प्रदान की जाएगी।</li>
                     <li>आपके एडमिट कार्ड परीक्षा से कुछ दिन पहले ऐप पर उपलब्ध होंगे।</li>
-                    <li>आप 'एडमिट कार्ड' सेक्शन में जाकर अपना आवेदन क्रमांक डालकर एडमिट कार्ड डाउनलोड कर सकते हैं।</li>
+                    <li>आप 'एडमिट कार्ड' सेक्शन में जाकर अपना आवेदन क्रमांक और यूनिक ID डालकर एडमिट कार्ड डाउनलोड कर सकते हैं।</li>
                 </ul>
             </div>
         </div>

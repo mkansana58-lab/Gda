@@ -11,9 +11,17 @@ import html2canvas from 'html2canvas';
 import { AdmitCard } from '@/components/admit-card';
 import type { ScholarshipData } from '../plan-form/page';
 
+const validUniqueIds: Record<string, string> = {
+  '5': '0978',
+  '6': '7059',
+  '7': '123092',
+  '8': '143789',
+  '9': '0088',
+};
 
 export default function AdmitCardPage() {
   const [applicationNo, setApplicationNo] = useState('');
+  const [uniqueId, setUniqueId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [admitCardData, setAdmitCardData] = useState<ScholarshipData | null>(null);
@@ -23,8 +31,8 @@ export default function AdmitCardPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!applicationNo) {
-      setError('कृपया अपना आवेदन क्रमांक दर्ज करें।');
+    if (!applicationNo || !uniqueId) {
+      setError('कृपया आवेदन क्रमांक और यूनिक ID दोनों दर्ज करें।');
       return;
     }
     
@@ -34,10 +42,18 @@ export default function AdmitCardPage() {
     
     setTimeout(() => {
       try {
-        const storedData = localStorage.getItem(`scholarship-application-${applicationNo}`);
-        if (storedData) {
-          setAdmitCardData(JSON.parse(storedData));
-          toast({ title: 'एडमिट कार्ड मिल गया!', description: 'आपका एडमिट कार्ड नीचे प्रदर्शित है।' });
+        const storedDataRaw = localStorage.getItem(`scholarship-application-${applicationNo}`);
+        if (storedDataRaw) {
+          const storedData: ScholarshipData = JSON.parse(storedDataRaw);
+          const expectedUniqueId = validUniqueIds[storedData.class];
+
+          if (expectedUniqueId && expectedUniqueId === uniqueId) {
+            setAdmitCardData(storedData);
+            toast({ title: 'एडमिट कार्ड मिल गया!', description: 'आपका एडमिट कार्ड नीचे प्रदर्शित है।' });
+          } else {
+             setError('यह यूनिक ID इस कक्षा के लिए अमान्य है।');
+             toast({ variant: 'destructive', title: 'त्रुटि', description: 'अमान्य यूनिक ID।' });
+          }
         } else {
           setError('यह आवेदन क्रमांक मौजूद नहीं है। कृपया दोबारा जांचें।');
           toast({ variant: 'destructive', title: 'त्रुटि', description: 'दिया गया आवेदन क्रमांक अमान्य है।' });
@@ -76,14 +92,21 @@ export default function AdmitCardPage() {
           <form onSubmit={handleSearch}>
             <CardHeader>
               <CardTitle>अपना एडमिट कार्ड खोजें</CardTitle>
-              <CardDescription>अपना आवेदन क्रमांक दर्ज करें जो आपको फॉर्म भरने के बाद मिला था।</CardDescription>
+              <CardDescription>अपना आवेदन क्रमांक और भुगतान के बाद प्राप्त यूनिक ID दर्ज करें।</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className='space-y-4'>
               <Input
                 type="text"
                 placeholder="आवेदन क्रमांक दर्ज करें"
                 value={applicationNo}
                 onChange={(e) => setApplicationNo(e.target.value.replace(/\D/g, ''))}
+                required
+              />
+              <Input
+                type="text"
+                placeholder="यूनिक ID दर्ज करें"
+                value={uniqueId}
+                onChange={(e) => setUniqueId(e.target.value)}
                 required
               />
               {error && <p className="text-destructive text-sm mt-2">{error}</p>}
@@ -109,7 +132,7 @@ export default function AdmitCardPage() {
                 <Download className="mr-2 h-4 w-4" />
                 एडमिट कार्ड डाउनलोड करें
               </Button>
-              <Button variant="outline" onClick={() => { setAdmitCardData(null); setApplicationNo(''); }} className="w-full sm:w-auto">
+              <Button variant="outline" onClick={() => { setAdmitCardData(null); setApplicationNo(''); setUniqueId(''); }} className="w-full sm:w-auto">
                 एक और खोजें
               </Button>
             </CardContent>
