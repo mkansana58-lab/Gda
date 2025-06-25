@@ -6,10 +6,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Bell, FilePen, Sparkles, CheckCircle, Newspaper } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useUser } from '@/context/user-context';
-import { Notification, getNotifications, markAllAsRead } from '@/lib/notifications';
+import { Notification as UserNotification, getNotifications, markAllAsRead } from '@/lib/notifications';
 import { ScrollArea } from './ui/scroll-area';
+import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-const iconMap = {
+const iconMap: { [key: string]: React.ElementType } = {
   Bell: Bell,
   FilePen: FilePen,
   Sparkles: Sparkles,
@@ -17,88 +19,77 @@ const iconMap = {
   Newspaper: Newspaper,
 };
 
-const motivationalQuotes = [
-  "सपनों को हकीकत बनाना है, तो आज से मेहनत शुरू करो।",
-  "सफलता का कोई रहस्य नहीं है, यह तैयारी, कड़ी मेहनत और असफलता से सीखने का परिणाम है।",
-  "कल के लिए सबसे अच्छी तैयारी यही है कि आज अपना सर्वश्रेष्ठ करो।",
-  "जो छात्र प्रश्न पूछता है, वह पाँच मिनट के लिए मूर्ख रहता है, लेकिन जो नहीं पूछता, वह हमेशा के लिए मूर्ख रहता है।",
-  "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।"
-];
-
 interface NotificationsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const { user } = useUser();
 
-  const userNotifsKey = `user-notifications-${user?.email || 'guest'}`;
-  const motivationalDateKey = `last-motivational-date-${user?.email || 'guest'}`;
-  const affairsDateKey = `last-affairs-notif-date-${user?.email || 'guest'}`;
-  const readGlobalIdsKey = `read-global-ids-${user?.email || 'guest'}`;
-
   useEffect(() => {
-    if (open && user) {
-        let currentNotifications = getNotifications(user.email);
-        let notificationsChanged = false;
+    if (!open || !user?.email) return;
 
-        const globalNotifsRaw = localStorage.getItem('global-notifications');
-        const allGlobalNotifs = globalNotifsRaw ? JSON.parse(globalNotifsRaw) : [];
+    // Listener for GLOBAL notifications from Firestore
+    const q = query(collection(db, "notifications"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const globalNotifications: UserNotification[] = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            globalNotifications.push({
+                id: doc.id,
+                icon: data.icon || 'Bell',
+                title: data.title,
+                description: data.description,
+                read: false, // will be checked against localstorage
+                timestamp: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+            });
+        });
+        
+        const userNotifications = getNotifications(user.email);
+        const combined = [...globalNotifications, ...userNotifications];
+        combined.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        
+        const readGlobalIdsKey = `read-global-ids-${user.email}`;
         const readGlobalIdsRaw = localStorage.getItem(readGlobalIdsKey);
         const readGlobalIds = readGlobalIdsRaw ? new Set(JSON.parse(readGlobalIdsRaw)) : new Set();
         
-        const newGlobalNotifs = allGlobalNotifs.filter((n: Notification) => !readGlobalIds.has(n.id));
+        const finalNotifications = combined.map(n => ({
+            ...n,
+            read: n.read || readGlobalIds.has(n.id),
+        }));
 
-        if (newGlobalNotifs.length > 0) {
-            currentNotifications = [...newGlobalNotifs, ...currentNotifications];
-            newGlobalNotifs.forEach((n: Notification) => readGlobalIds.add(n.id));
-            localStorage.setItem(readGlobalIdsKey, JSON.stringify(Array.from(readGlobalIds)));
-            notificationsChanged = true;
-        }
+        setNotifications(finalNotifications.slice(0, 40));
+    }, (error) => {
+      console.error("Error fetching global notifications: ", error);
+      const userNotifications = getNotifications(user.email ?? '');
+      setNotifications(userNotifications);
+    });
 
-        const today = new Date().toDateString();
-        const lastMotivationalDate = localStorage.getItem(motivationalDateKey);
-        if (lastMotivationalDate !== today) {
-            const quote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-            const motivationalNotif: Notification = {
-                id: `motiv-${Date.now()}`, icon: 'Sparkles', title: "आज का विचार",
-                description: quote, read: false, timestamp: new Date().toISOString()
-            };
-            currentNotifications.unshift(motivationalNotif);
-            localStorage.setItem(motivationalDateKey, today);
-            notificationsChanged = true;
-        }
-      
-        const lastAffairsDate = localStorage.getItem(affairsDateKey);
-        if(lastAffairsDate !== today) {
-            const affairsNotif: Notification = {
-                id: `affairs-${Date.now()}`, icon: 'Newspaper', title: 'नए करेंट अफेयर्स उपलब्ध हैं!',
-                description: 'आज की ताज़ा राष्ट्रीय और अंतर्राष्ट्रीय घटनाओं से अपडेट रहें।', read: false,
-                timestamp: new Date().toISOString(),
-            };
-            currentNotifications.unshift(affairsNotif);
-            localStorage.setItem(affairsDateKey, today);
-            notificationsChanged = true;
-        }
-
-        const sortedNotifications = currentNotifications
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-            .slice(0, 20);
-      
-        if (notificationsChanged) {
-            localStorage.setItem(userNotifsKey, JSON.stringify(sortedNotifications));
-        }
+    const timeout = setTimeout(() => {
+        if (!user?.email) return;
+        markAllAsRead(user.email);
         
-        setNotifications(sortedNotifications);
-      
-        setTimeout(() => {
-            markAllAsRead(user.email);
-            setNotifications(prev => prev.map(n => ({...n, read: true})));
-        }, 2000);
-    }
-  }, [open, user, userNotifsKey, motivationalDateKey, affairsDateKey, readGlobalIdsKey]);
+        const readGlobalIdsKey = `read-global-ids-${user.email}`;
+        const readGlobalIdsRaw = localStorage.getItem(readGlobalIdsKey);
+        const readGlobalIds = readGlobalIdsRaw ? new Set<string>(JSON.parse(readGlobalIdsRaw)) : new Set<string>();
+        
+        notifications.forEach(n => {
+            if (n.id.length > 15) { // Simple check to only add firestore IDs
+                 readGlobalIds.add(n.id);
+            }
+        });
+        localStorage.setItem(readGlobalIdsKey, JSON.stringify(Array.from(readGlobalIds)));
+
+        setNotifications(prev => prev.map(n => ({...n, read: true})));
+    }, 3000);
+
+    return () => {
+        unsubscribe();
+        clearTimeout(timeout);
+    };
+  }, [open, user, notifications]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -116,9 +107,9 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
                             <React.Fragment key={notification.id}>
                                 <div className="flex items-start gap-4 p-3 relative rounded-lg hover:bg-secondary">
                                    <IconComponent className={`mt-1 h-5 w-5 flex-shrink-0 ${!notification.read ? 'text-primary' : 'text-muted-foreground'}`} />
-                                   <div className="flex-grow">
-                                       <p className={`font-semibold ${!notification.read ? '' : 'text-muted-foreground'}`}>{notification.title}</p>
-                                       <p className="text-sm text-muted-foreground">{notification.description}</p>
+                                   <div className="flex-grow overflow-hidden">
+                                       <p className={`font-semibold truncate ${!notification.read ? '' : 'text-muted-foreground'}`}>{notification.title}</p>
+                                       <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{notification.description}</p>
                                    </div>
                                    {!notification.read && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-primary animate-ping"></div>}
                                 </div>
