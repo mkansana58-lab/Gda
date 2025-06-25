@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, ArrowLeft, ArrowRight, Download, CheckCircle, Upload, User, Signature } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, Download, CheckCircle, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
 import { Progress } from '@/components/ui/progress';
@@ -107,6 +107,40 @@ export default function ScholarshipFormPage() {
     }
   };
 
+  const handleEmailSubmit = () => {
+    if (!submittedData || !applicationNo) return;
+
+    const subject = `Scholarship Application: ${submittedData.name} - #${applicationNo}`;
+    const body = `
+        New Scholarship Application Received
+        -----------------------------------
+        Application No: ${applicationNo}
+
+        Student Details:
+        Name: ${submittedData.name}
+        Father's Name: ${submittedData.fatherName}
+        Mobile: ${submittedData.mobile}
+        Email: ${submittedData.email}
+        Age: ${submittedData.age}
+        Class: ${submittedData.class}
+        School: ${submittedData.school}
+
+        Address:
+        Village/Town: ${submittedData.village}
+        District: ${submittedData.district}
+        Pincode: ${submittedData.pincode}
+        State: ${submittedData.state}
+        -----------------------------------
+        This application was submitted via the app.
+        Photo and Signature were uploaded by the student.
+    `.trim().replace(/^\s+/gm, '');
+
+    const mailtoLink = `mailto:mohitkansana82@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+    toast({ title: "ईमेल ऐप खोला जा रहा है...", description: "अपना आवेदन भेजने के लिए 'Send' पर क्लिक करें।" });
+  };
+
+
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
     try {
@@ -153,7 +187,7 @@ export default function ScholarshipFormPage() {
              <Card className="w-full max-w-2xl bg-card">
                 <CardContent className="pt-6 flex flex-wrap justify-center gap-4">
                     <Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />प्रमाण पत्र डाउनलोड करें</Button>
-                    <Button variant="outline" onClick={() => { setSubmittedData(null); setStep(1); form.reset(); }}><ArrowLeft className="mr-2 h-4 w-4" />नया फॉर्म भरें</Button>
+                    <Button variant="outline" onClick={handleEmailSubmit}><Mail className="mr-2 h-4 w-4" />ईमेल से सबमिट करें</Button>
                 </CardContent>
             </Card>
         </div>
@@ -212,18 +246,18 @@ export default function ScholarshipFormPage() {
                         <FormField
                           control={form.control}
                           name="photo"
-                          render={({ field }) => (
+                          render={({ field: { onChange, onBlur, name, ref } }) => (
                             <FormItem>
                               <FormLabel>पासपोर्ट आकार का फोटो</FormLabel>
                               <FormControl>
                                 <Input
                                   type="file"
                                   accept="image/png, image/jpeg, image/webp"
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
+                                  name={name}
+                                  ref={ref}
+                                  onBlur={onBlur}
                                   onChange={(e) => {
-                                    field.onChange(e.target.files);
+                                    onChange(e.target.files);
                                     setPhotoPreview(
                                       e.target.files?.[0]
                                         ? URL.createObjectURL(e.target.files[0])
@@ -248,18 +282,18 @@ export default function ScholarshipFormPage() {
                         <FormField
                           control={form.control}
                           name="signature"
-                          render={({ field }) => (
+                          render={({ field: { onChange, onBlur, name, ref } }) => (
                             <FormItem>
                               <FormLabel>हस्ताक्षर</FormLabel>
                               <FormControl>
                                 <Input
                                   type="file"
                                   accept="image/png, image/jpeg, image/webp"
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
+                                  name={name}
+                                  ref={ref}
+                                  onBlur={onBlur}
                                   onChange={(e) => {
-                                    field.onChange(e.target.files);
+                                    onChange(e.target.files);
                                     setSignaturePreview(
                                       e.target.files?.[0]
                                         ? URL.createObjectURL(e.target.files[0])
