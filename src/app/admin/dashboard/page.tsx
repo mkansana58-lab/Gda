@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -89,7 +88,7 @@ export default function AdminDashboardPage() {
                 title: notifTitle,
                 description: notifDesc,
                 icon: 'Bell',
-                createdAt: new Date(),
+                createdAt: serverTimestamp(),
             });
             
             toast({ title: 'सूचना भेजी गई!', description: 'सभी उपयोगकर्ताओं को नई सूचना प्राप्त होगी।' });
@@ -124,7 +123,7 @@ export default function AdminDashboardPage() {
                 description: classDesc,
                 platform: classPlatform,
                 link: classLink,
-                createdAt: new Date(),
+                createdAt: serverTimestamp(),
             });
             
             toast({ title: 'लाइव क्लास जोड़ी गई!', description: 'नई क्लास अब सभी को दिखेगी।' });
@@ -152,7 +151,7 @@ export default function AdminDashboardPage() {
         <div className="p-4 sm:p-6 space-y-6">
             <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">एडमिन डैशबोर्ड</h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Manage Notifications */}
                 <Card>
                     <CardHeader>
@@ -217,18 +216,18 @@ export default function AdminDashboardPage() {
                 </Card>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Display Notifications List */}
                 <Card>
                     <CardHeader><CardTitle>वर्तमान सूचनाएं</CardTitle></CardHeader>
                     <CardContent className="space-y-2">
                         {notifications.length > 0 ? notifications.map(n => (
-                            <div key={n.id} className="flex items-center justify-between p-2 rounded-md bg-secondary">
-                                <div className='flex-1 overflow-hidden'>
-                                    <p className="font-semibold truncate">{n.title}</p>
-                                    <p className="text-xs text-muted-foreground truncate">{n.description}</p>
+                            <div key={n.id} className="flex items-center justify-between p-2 rounded-md bg-secondary gap-2">
+                                <div className='flex-1 min-w-0'>
+                                    <p className="font-semibold break-words">{n.title}</p>
+                                    <p className="text-xs text-muted-foreground break-words">{n.description}</p>
                                 </div>
-                                <Button variant="ghost" size="icon" onClick={() => handleDeleteNotification(n.id)}>
+                                <Button variant="ghost" size="icon" onClick={() => handleDeleteNotification(n.id)} className="flex-shrink-0">
                                     <Trash2 className="w-4 h-4 text-destructive"/>
                                 </Button>
                             </div>
@@ -241,12 +240,12 @@ export default function AdminDashboardPage() {
                     <CardHeader><CardTitle>वर्तमान लाइव कक्षाएं</CardTitle></CardHeader>
                     <CardContent className="space-y-2">
                         {liveClasses.length > 0 ? liveClasses.map(c => (
-                            <div key={c.id} className="flex items-center justify-between p-2 rounded-md bg-secondary">
-                                <div className='flex-1 overflow-hidden'>
-                                    <p className="font-semibold truncate">{c.title} <span className="text-xs text-muted-foreground">({c.platform})</span></p>
-                                    <a href={c.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate">{c.link}</a>
+                            <div key={c.id} className="flex items-center justify-between p-2 rounded-md bg-secondary gap-2">
+                                <div className='flex-1 min-w-0'>
+                                    <p className="font-semibold break-words">{c.title} <span className="text-xs text-muted-foreground">({c.platform})</span></p>
+                                    <a href={c.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all">{c.link}</a>
                                 </div>
-                                <Button variant="ghost" size="icon" onClick={() => handleDeleteLiveClass(c.id)}>
+                                <Button variant="ghost" size="icon" onClick={() => handleDeleteLiveClass(c.id)} className="flex-shrink-0">
                                     <Trash2 className="w-4 h-4 text-destructive"/>
                                 </Button>
                             </div>
