@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -6,6 +7,7 @@ import {
   Sun,
   User as UserIcon,
   Settings,
+  Shield,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,10 +26,22 @@ import {
   DropdownMenuSubContent
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/context/user-context';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export function UserNav() {
   const { user, logout, setProfileDialogOpen } = useUser();
   const { setTheme } = useTheme();
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+      // Check for admin status on the client side
+      const adminUser = localStorage.getItem('adminUser');
+      if (adminUser) {
+          setIsAdmin(true);
+      }
+  }, []);
 
   return (
     <DropdownMenu>
@@ -59,6 +73,15 @@ export function UserNav() {
             <span>सेटिंग्स</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
+        {isAdmin && (
+            <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => router.push('/admin/dashboard')}>
+                    <Shield className="mr-2 h-4 w-4 text-primary" />
+                    <span>एडमिन पैनल</span>
+                </DropdownMenuItem>
+            </>
+        )}
         <DropdownMenuSeparator />
          <DropdownMenuGroup>
           <DropdownMenuLabel>उपस्थिति</DropdownMenuLabel>

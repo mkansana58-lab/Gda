@@ -1,12 +1,28 @@
 
 'use client';
 
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Youtube, Send, Globe } from "lucide-react";
+import { Youtube, Send, Globe, MessageSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 
-const liveClassLinks = [
+interface LiveClass {
+    id: number;
+    title: string;
+    description: string;
+    platform: string;
+    link: string;
+}
+
+const staticLiveClassLinks = [
+    {
+        platform: "WhatsApp",
+        description: "लाइव क्लास अपडेट और लिंक के लिए हमारा व्हाट्सएप ग्रुप ज्वाइन करें।",
+        icon: MessageSquare,
+        href: "#", // Placeholder
+        actionText: "WhatsApp पर शामिल हों"
+    },
     {
         platform: "YouTube",
         description: "हमारे आधिकारिक यूट्यूब चैनल पर लाइव स्ट्रीमिंग देखें।",
@@ -32,6 +48,25 @@ const liveClassLinks = [
 
 
 export default function LiveClassesPage() {
+    const [adminClasses, setAdminClasses] = useState<LiveClass[]>([]);
+
+    useEffect(() => {
+        const storedClasses = localStorage.getItem('live-classes-list');
+        if (storedClasses) {
+            setAdminClasses(JSON.parse(storedClasses));
+        }
+    }, []);
+
+    const getPlatformIcon = (platform: string) => {
+        switch (platform.toLowerCase()) {
+            case 'youtube': return <Youtube className="w-8 h-8 text-primary"/>;
+            case 'telegram': return <Send className="w-8 h-8 text-primary"/>;
+            case 'whatsapp': return <MessageSquare className="w-8 h-8 text-primary"/>;
+            case 'google site': return <Globe className="w-8 h-8 text-primary"/>;
+            default: return <BookOpen className="w-8 h-8 text-primary"/>;
+        }
+    }
+
     return (
         <div className="flex flex-col gap-8 p-4">
             <div>
@@ -40,7 +75,7 @@ export default function LiveClassesPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {liveClassLinks.map(link => (
+                {staticLiveClassLinks.map(link => (
                      <Card key={link.platform} className="flex flex-col hover:shadow-lg hover:border-primary/50 transition-all duration-200 bg-card">
                         <CardHeader className="flex-row items-start gap-4">
                            <div className="p-3 bg-primary/10 rounded-lg">
@@ -61,7 +96,34 @@ export default function LiveClassesPage() {
                     </Card>
                 ))}
             </div>
+
+            {adminClasses.length > 0 && (
+                 <div className="space-y-4">
+                    <h2 className="font-headline text-xl sm:text-2xl font-bold tracking-tight border-b pb-2">एडमिन द्वारा जोड़ी गई कक्षाएं</h2>
+                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {adminClasses.map(link => (
+                             <Card key={link.id} className="flex flex-col hover:shadow-lg hover:border-primary/50 transition-all duration-200 bg-card">
+                                <CardHeader className="flex-row items-start gap-4">
+                                   <div className="p-3 bg-primary/10 rounded-lg">
+                                       {getPlatformIcon(link.platform)}
+                                   </div>
+                                   <div className="flex-1">
+                                        <CardTitle className="font-headline">{link.title}</CardTitle>
+                                        <CardDescription>{link.description}</CardDescription>
+                                   </div>
+                                </CardHeader>
+                                <CardContent className="flex-grow">
+                                </CardContent>
+                                <CardFooter>
+                                   <Button className="w-full" asChild disabled={!link.link || link.link === "#"}>
+                                        <Link href={link.link} target="_blank" rel="noopener noreferrer">अभी जुड़ें</Link>
+                                   </Button>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
+                 </div>
+            )}
         </div>
     );
 }
-

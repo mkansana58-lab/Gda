@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -32,64 +33,77 @@ export function NotificationsSheet({ open, onOpenChange }: NotificationsSheetPro
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { user } = useUser();
 
-  const storageKey = `user-notifications-${user?.email || 'guest'}`;
+  const userNotifsKey = `user-notifications-${user?.email || 'guest'}`;
   const motivationalDateKey = `last-motivational-date-${user?.email || 'guest'}`;
   const affairsDateKey = `last-affairs-notif-date-${user?.email || 'guest'}`;
+  const readGlobalIdsKey = `read-global-ids-${user?.email || 'guest'}`;
 
   useEffect(() => {
     if (open && user) {
-      const storedNotifications = getNotifications(user.email);
-      let notificationsToUpdate = [...storedNotifications];
-      let hasNewNotifications = false;
+        // Start with the user's existing personal notifications
+        let currentNotifications = getNotifications(user.email);
+        let notificationsChanged = false;
 
-      const today = new Date().toDateString();
-      
-      // Motivational Quote Notification
-      const lastMotivationalDate = localStorage.getItem(motivationalDateKey);
-      if (lastMotivationalDate !== today) {
-         const quote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-         const motivationalNotif: Notification = {
-            id: `motiv-${Date.now()}`,
-            icon: 'Sparkles',
-            title: "आज का विचार",
-            description: quote,
-            read: false,
-            timestamp: new Date().toISOString()
-         };
-         notificationsToUpdate.unshift(motivationalNotif);
-         localStorage.setItem(motivationalDateKey, today);
-         hasNewNotifications = true;
-      }
-      
-      // Current Affairs Notification
-      const lastAffairsDate = localStorage.getItem(affairsDateKey);
-      if(lastAffairsDate !== today) {
-        const affairsNotif: Notification = {
-          id: `affairs-${Date.now()}`,
-          icon: 'Newspaper',
-          title: 'नए करेंट अफेयर्स उपलब्ध हैं!',
-          description: 'आज की ताज़ा राष्ट्रीय और अंतर्राष्ट्रीय घटनाओं से अपडेट रहें।',
-          read: false,
-          timestamp: new Date().toISOString(),
-        };
-        notificationsToUpdate.unshift(affairsNotif);
-        localStorage.setItem(affairsDateKey, today);
-        hasNewNotifications = true;
-      }
+        // 1. Inject new global notifications
+        const globalNotifsRaw = localStorage.getItem('global-notifications');
+        const allGlobalNotifs = globalNotifsRaw ? JSON.parse(globalNotifsRaw) : [];
+        const readGlobalIdsRaw = localStorage.getItem(readGlobalIdsKey);
+        const readGlobalIds = readGlobalIdsRaw ? new Set(JSON.parse(readGlobalIdsRaw)) : new Set();
+        
+        const newGlobalNotifs = allGlobalNotifs.filter((n: Notification) => !readGlobalIds.has(n.id));
 
-      if (hasNewNotifications) {
-        localStorage.setItem(storageKey, JSON.stringify(notificationsToUpdate.slice(0, 20)));
-      }
+        if (newGlobalNotifs.length > 0) {
+            currentNotifications = [...newGlobalNotifs, ...currentNotifications];
+            newGlobalNotifs.forEach((n: Notification) => readGlobalIds.add(n.id));
+            localStorage.setItem(readGlobalIdsKey, JSON.stringify(Array.from(readGlobalIds)));
+            notificationsChanged = true;
+        }
+
+        // 2. Inject daily motivational quote
+        const today = new Date().toDateString();
+        const lastMotivationalDate = localStorage.getItem(motivationalDateKey);
+        if (lastMotivationalDate !== today) {
+            const quote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+            const motivationalNotif: Notification = {
+                id: `motiv-${Date.now()}`, icon: 'Sparkles', title: "आज का विचार",
+                description: quote, read: false, timestamp: new Date().toISOString()
+            };
+            currentNotifications.unshift(motivationalNotif);
+            localStorage.setItem(motivationalDateKey, today);
+            notificationsChanged = true;
+        }
       
-      setNotifications(notificationsToUpdate.slice(0, 20).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+        // 3. Inject daily current affairs reminder
+        const lastAffairsDate = localStorage.getItem(affairsDateKey);
+        if(lastAffairsDate !== today) {
+            const affairsNotif: Notification = {
+                id: `affairs-${Date.now()}`, icon: 'Newspaper', title: 'नए करेंट अफेयर्स उपलब्ध हैं!',
+                description: 'आज की ताज़ा राष्ट्रीय और अंतर्राष्ट्रीय घटनाओं से अपडेट रहें।', read: false,
+                timestamp: new Date().toISOString(),
+            };
+            currentNotifications.unshift(affairsNotif);
+            localStorage.setItem(affairsDateKey, today);
+            notificationsChanged = true;
+        }
+
+        // 4. Sort all notifications and update state
+        const sortedNotifications = currentNotifications
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, 20);
       
-      // Mark all as read after a short delay
-      setTimeout(() => {
-        markAllAsRead(user.email);
-        setNotifications(prev => prev.map(n => ({...n, read: true})));
-      }, 2000);
+        if (notificationsChanged) {
+            localStorage.setItem(userNotifsKey, JSON.stringify(sortedNotifications));
+        }
+        
+        setNotifications(sortedNotifications);
+      
+        // Mark all as read after a short delay
+        setTimeout(() => {
+            markAllAsRead(user.email);
+            setNotifications(prev => prev.map(n => ({...n, read: true})));
+        }, 2000);
     }
-  }, [open, user, storageKey, motivationalDateKey, affairsDateKey]);
+  }, [open, user, userNotifsKey, motivationalDateKey, affairsDateKey, readGlobalIdsKey]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
