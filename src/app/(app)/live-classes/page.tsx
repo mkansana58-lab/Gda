@@ -20,21 +20,21 @@ const staticLiveClassLinks = [
         platform: "WhatsApp",
         description: "लाइव क्लास अपडेट और लिंक के लिए हमारा व्हाट्सएप ग्रुप ज्वाइन करें।",
         icon: MessageSquare,
-        href: "#", // Placeholder
+        href: "https://whatsapp.com/channel/0029Vb5rFygInlqTaS2GLK2W",
         actionText: "WhatsApp पर शामिल हों"
     },
     {
         platform: "YouTube",
         description: "हमारे आधिकारिक यूट्यूब चैनल पर लाइव स्ट्रीमिंग देखें।",
         icon: Youtube,
-        href: "https://youtube.com/@mohitkansana-s1h?si=vXGmKt03HwtcG55s",
+        href: "https://youtube.com/@mohitkansana-s1h?si=QMGo6pzOAIjREffW",
         actionText: "YouTube पर शामिल हों"
     },
     {
         platform: "Telegram",
         description: "लाइव क्लास अपडेट और लिंक के लिए हमारा टेलीग्राम चैनल ज्वाइन करें।",
         icon: Send,
-        href: "#", // Placeholder
+        href: "https://t.me/MohitKansana82",
         actionText: "Telegram पर शामिल हों"
     },
     {
