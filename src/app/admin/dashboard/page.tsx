@@ -7,11 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { addNotification } from '@/lib/notifications';
 import { Bell, BookOpen, Trash2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { useUser } from '@/context/user-context'; // Although admin, we need the context for notifications
 
 interface LiveClass {
     id: number;
@@ -23,7 +21,6 @@ interface LiveClass {
 
 export default function AdminDashboardPage() {
     const { toast } = useToast();
-    const { user } = useUser(); // Used for notification context
 
     // Notification State
     const [notifTitle, setNotifTitle] = useState('');
