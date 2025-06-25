@@ -133,7 +133,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <div className="flex-1 flex flex-col min-h-screen bg-background">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-border/20 bg-background/80 backdrop-blur-sm px-4 sm:px-6">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 sm:px-6">
           <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-foreground hover:bg-white/20">
             <PanelLeft className="h-6 w-6" />
             <span className="sr-only">Toggle Sidebar</span>

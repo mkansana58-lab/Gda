@@ -2,7 +2,7 @@
 'use client';
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2, LogOut } from "lucide-react";
 
@@ -12,6 +12,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [adminUser, setAdminUser] = useState('');
@@ -21,15 +22,20 @@ export default function AdminLayout({
     if (storedAdmin) {
         setIsAdminAuthenticated(true);
         setAdminUser(storedAdmin);
-    } else {
+    } else if (pathname !== '/admin/login') {
         router.replace('/admin/login');
     }
     setIsLoading(false);
-  }, [router]);
+  }, [router, pathname]);
 
   const handleLogout = () => {
       localStorage.removeItem('adminUser');
       router.replace('/admin/login');
+  }
+
+  // If on the login page, don't show the main admin layout to avoid redirect loops
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
   }
   
   if (isLoading) {
@@ -41,7 +47,7 @@ export default function AdminLayout({
   }
 
   if (!isAdminAuthenticated) {
-      return null;
+      return null; // Return null or a loader while redirecting
   }
 
   return (
