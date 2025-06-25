@@ -29,22 +29,33 @@ const profileSchema = z.object({
   profilePhoto: z.any().optional(),
 });
 
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
+const defaultFormValues: ProfileFormValues = {
+  name: '', mobile: '', email: '', village: '', district: '', pincode: '', state: '', class: '', exam: '',
+};
+
 export function ProfileEditDialog() {
   const { user, updateUser, isProfileDialogOpen, setProfileDialogOpen } = useUser();
   const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof profileSchema>>({
+  const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: user || {},
+    defaultValues: user || defaultFormValues,
   });
 
   useEffect(() => {
-    if (user) {
-      form.reset({ ...user, profilePhoto: undefined });
-      setPhotoPreview(user.profilePhotoUrl || null);
+    if (isProfileDialogOpen) {
+        if (user) {
+          form.reset({ ...user, profilePhoto: undefined });
+          setPhotoPreview(user.profilePhotoUrl || null);
+        } else {
+          form.reset(defaultFormValues);
+          setPhotoPreview(null);
+        }
     }
-  }, [user, form, isProfileDialogOpen]);
+  }, [user, isProfileDialogOpen, form]);
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -163,5 +174,3 @@ export function ProfileEditDialog() {
     </Dialog>
   );
 }
-
-    
