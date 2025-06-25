@@ -18,7 +18,7 @@ import html2canvas from 'html2canvas';
 import { addNotification } from '@/lib/notifications';
 import Image from 'next/image';
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const formSchema = z.object({
@@ -31,11 +31,11 @@ const formSchema = z.object({
   school: z.string().min(3, { message: 'स्कूल का नाम आवश्यक है।' }),
   photo: z.any()
     .refine((files) => files?.length === 1, 'फोटो आवश्यक है।')
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 2MB है।`)
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 1MB है।`)
     .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), '.jpg, .png और .webp फ़ाइलें ही स्वीकार की जाती हैं।'),
   signature: z.any()
     .refine((files) => files?.length === 1, 'हस्ताक्षर आवश्यक है।')
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 2MB है।`)
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 1MB है।`)
     .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), '.jpg, .png और .webp फ़ाइलें ही स्वीकार की जाती हैं।'),
   village: z.string().min(3, { message: 'गाँव/शहर का नाम आवश्यक है।' }),
   district: z.string().min(3, { message: 'ज़िले का नाम आवश्यक है।' }),
@@ -150,8 +150,22 @@ export default function ScholarshipFormPage() {
       
       const finalData: ScholarshipData = { ...values, photoDataUrl, signatureDataUrl };
 
-      localStorage.setItem(`scholarship-application-${appNo}`, JSON.stringify(finalData));
-
+      try {
+        localStorage.setItem(`scholarship-application-${appNo}`, JSON.stringify(finalData));
+      } catch (e: any) {
+        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+             toast({
+                variant: 'destructive',
+                title: 'ब्राउज़र स्टोरेज भर गया है',
+                description: 'आपका आवेदन सहेजा नहीं जा सका। कृपया छोटी फ़ाइलों का उपयोग करें या ब्राउज़र डेटा साफ़ करें।',
+                duration: 5000,
+             });
+             setIsLoading(false);
+             return; // Stop execution
+        }
+        throw e;
+      }
+      
       addNotification(user?.email, {
         id: `app-${appNo}`,
         icon: 'FilePen',
@@ -263,7 +277,7 @@ export default function ScholarshipFormPage() {
                                         toast({
                                           variant: 'destructive',
                                           title: 'फ़ाइल बहुत बड़ी है',
-                                          description: `फोटो का आकार 2MB से अधिक नहीं होना चाहिए।`,
+                                          description: `फोटो का आकार 1MB से अधिक नहीं होना चाहिए।`,
                                         });
                                         e.target.value = '';
                                         return;
@@ -320,7 +334,7 @@ export default function ScholarshipFormPage() {
                                         toast({
                                           variant: 'destructive',
                                           title: 'फ़ाइल बहुत बड़ी है',
-                                          description: `हस्ताक्षर का आकार 2MB से अधिक नहीं होना चाहिए।`,
+                                          description: `हस्ताक्षर का आकार 1MB से अधिक नहीं होना चाहिए।`,
                                         });
                                         e.target.value = '';
                                         return;
