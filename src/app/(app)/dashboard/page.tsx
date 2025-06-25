@@ -10,6 +10,7 @@ import {
   Trophy,
   Users,
   Contact,
+  Newspaper,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
@@ -23,6 +24,7 @@ const menuItems = [
   { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
+  { href: '/current-affairs', icon: Newspaper, label: 'करेंट अफेयर्स' },
   { href: '/contact', icon: Contact, label: 'संपर्क करें' },
 ];
 

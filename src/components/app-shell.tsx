@@ -17,6 +17,7 @@ import {
   Bell,
   PanelLeft,
   Ticket,
+  Newspaper,
 } from 'lucide-react';
 
 import {
@@ -48,6 +49,7 @@ const navItems = [
   { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
   { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
+  { href: '/current-affairs', icon: Newspaper, label: 'करेंट अफेयर्स' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
   { href: '/school-priority-list', icon: ListChecks, label: 'स्कूल सूची' },
