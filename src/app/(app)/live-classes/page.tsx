@@ -4,11 +4,13 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Youtube, Send, Globe, MessageSquare, BookOpen } from "lucide-react";
+import { Youtube, Send, Globe, MessageSquare, BookOpen, Loader2 } from "lucide-react";
 import Link from 'next/link';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface LiveClass {
-    id: number;
+    id: string;
     title: string;
     description: string;
     platform: string;
@@ -49,12 +51,24 @@ const staticLiveClassLinks = [
 
 export default function LiveClassesPage() {
     const [adminClasses, setAdminClasses] = useState<LiveClass[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedClasses = localStorage.getItem('live-classes-list');
-        if (storedClasses) {
-            setAdminClasses(JSON.parse(storedClasses));
-        }
+        setIsLoading(true);
+        const q = query(collection(db, "liveClasses"), orderBy("createdAt", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const classes: LiveClass[] = [];
+            querySnapshot.forEach((doc) => {
+                classes.push({ id: doc.id, ...doc.data() } as LiveClass);
+            });
+            setAdminClasses(classes);
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Error fetching live classes: ", error);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const getPlatformIcon = (platform: string) => {
@@ -97,9 +111,14 @@ export default function LiveClassesPage() {
                 ))}
             </div>
 
-            {adminClasses.length > 0 && (
-                 <div className="space-y-4">
-                    <h2 className="font-headline text-xl sm:text-2xl font-bold tracking-tight border-b pb-2">एडमिन द्वारा जोड़ी गई कक्षाएं</h2>
+            <div className="space-y-4">
+                <h2 className="font-headline text-xl sm:text-2xl font-bold tracking-tight border-b pb-2">नवीनतम लाइव कक्षाएं</h2>
+                {isLoading ? (
+                     <div className="flex items-center justify-center py-8">
+                        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                        <span>लाइव कक्षाएं लोड हो रही हैं...</span>
+                    </div>
+                ) : adminClasses.length > 0 ? (
                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {adminClasses.map(link => (
                              <Card key={link.id} className="flex flex-col hover:shadow-lg hover:border-primary/50 transition-all duration-200 bg-card">
@@ -122,8 +141,14 @@ export default function LiveClassesPage() {
                             </Card>
                         ))}
                     </div>
-                 </div>
-            )}
+                 ) : (
+                    <Card>
+                        <CardContent className="pt-6 text-center text-muted-foreground">
+                            अभी कोई लाइव क्लास उपलब्ध नहीं है।
+                        </CardContent>
+                    </Card>
+                 )}
+            </div>
         </div>
     );
 }

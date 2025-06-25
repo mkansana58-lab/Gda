@@ -10,13 +10,16 @@ import { useToast } from '@/hooks/use-toast';
 import { Bell, BookOpen, Trash2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface LiveClass {
-    id: number;
+    id: string; // Firestore document ID
     title: string;
     description: string;
     platform: string;
     link: string;
+    createdAt?: any;
 }
 
 export default function AdminDashboardPage() {
@@ -34,10 +37,16 @@ export default function AdminDashboardPage() {
     const [classLink, setClassLink] = useState('');
 
     useEffect(() => {
-        const storedClasses = localStorage.getItem('live-classes-list');
-        if (storedClasses) {
-            setLiveClasses(JSON.parse(storedClasses));
-        }
+        const q = query(collection(db, "liveClasses"), orderBy("createdAt", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const classesData: LiveClass[] = [];
+            querySnapshot.forEach((doc) => {
+                classesData.push({ id: doc.id, ...doc.data() } as LiveClass);
+            });
+            setLiveClasses(classesData);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const handleSendNotification = (e: React.FormEvent) => {
@@ -67,37 +76,41 @@ export default function AdminDashboardPage() {
         setNotifDesc('');
     };
 
-    const handleAddLiveClass = (e: React.FormEvent) => {
+    const handleAddLiveClass = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!classTitle || !classPlatform || !classLink) {
             toast({ variant: 'destructive', title: 'त्रुटि', description: 'शीर्षक, प्लेटफॉर्म और लिंक आवश्यक हैं।' });
             return;
         }
 
-        const newClass: LiveClass = {
-            id: Date.now(),
-            title: classTitle,
-            description: classDesc,
-            platform: classPlatform,
-            link: classLink,
-        };
-
-        const updatedClasses = [...liveClasses, newClass];
-        setLiveClasses(updatedClasses);
-        localStorage.setItem('live-classes-list', JSON.stringify(updatedClasses));
-        
-        toast({ title: 'लाइव क्लास जोड़ी गई!', description: 'नई क्लास सूची में जोड़ दी गई है।' });
-        setClassTitle('');
-        setClassDesc('');
-        setClassPlatform('');
-        setClassLink('');
+        try {
+            await addDoc(collection(db, 'liveClasses'), {
+                title: classTitle,
+                description: classDesc,
+                platform: classPlatform,
+                link: classLink,
+                createdAt: new Date(),
+            });
+            
+            toast({ title: 'लाइव क्लास जोड़ी गई!', description: 'नई क्लास अब सभी को दिखेगी।' });
+            setClassTitle('');
+            setClassDesc('');
+            setClassPlatform('');
+            setClassLink('');
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            toast({ variant: 'destructive', title: 'त्रुटि', description: 'क्लास जोड़ने में विफल। कृपया पुनः प्रयास करें।' });
+        }
     };
 
-    const handleDeleteLiveClass = (id: number) => {
-        const updatedClasses = liveClasses.filter(c => c.id !== id);
-        setLiveClasses(updatedClasses);
-        localStorage.setItem('live-classes-list', JSON.stringify(updatedClasses));
-        toast({ title: 'लाइव क्लास हटाई गई!', variant: 'destructive' });
+    const handleDeleteLiveClass = async (id: string) => {
+        try {
+            await deleteDoc(doc(db, 'liveClasses', id));
+            toast({ title: 'लाइव क्लास हटाई गई!', variant: 'destructive' });
+        } catch (error) {
+            console.error("Error deleting document: ", error);
+            toast({ variant: 'destructive', title: 'त्रुटि', description: 'क्लास हटाने में विफल। कृपया पुनः प्रयास करें।' });
+        }
     };
 
     return (
