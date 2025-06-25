@@ -20,6 +20,7 @@ import {
   Ticket,
   Newspaper,
   Radio,
+  Shield,
 } from 'lucide-react';
 
 import {
@@ -32,6 +33,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   useSidebar,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { UserNav } from './user-nav';
 import { useUser } from '@/context/user-context';
@@ -102,6 +104,19 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+            <SidebarSeparator className="my-2" />
+             <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  onClick={handleLinkClick}
+                  tooltip="यह केवल एडमिन के लिए है।"
+                >
+                  <Link href="/admin/login">
+                    <Shield />
+                    <span>एडमिन लॉगिन</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>

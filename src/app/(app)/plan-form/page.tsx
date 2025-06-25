@@ -18,7 +18,7 @@ import html2canvas from 'html2canvas';
 import { addNotification } from '@/lib/notifications';
 import Image from 'next/image';
 
-const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const formSchema = z.object({
@@ -31,11 +31,11 @@ const formSchema = z.object({
   school: z.string().min(3, { message: 'स्कूल का नाम आवश्यक है।' }),
   photo: z.any()
     .refine((files) => files?.length === 1, 'फोटो आवश्यक है।')
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 1MB है।`)
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 2MB है।`)
     .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), '.jpg, .png और .webp फ़ाइलें ही स्वीकार की जाती हैं।'),
   signature: z.any()
     .refine((files) => files?.length === 1, 'हस्ताक्षर आवश्यक है।')
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 1MB है।`)
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `अधिकतम फ़ाइल आकार 2MB है।`)
     .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), '.jpg, .png और .webp फ़ाइलें ही स्वीकार की जाती हैं।'),
   village: z.string().min(3, { message: 'गाँव/शहर का नाम आवश्यक है।' }),
   district: z.string().min(3, { message: 'ज़िले का नाम आवश्यक है।' }),
@@ -108,6 +108,25 @@ export default function ScholarshipFormPage() {
     }
   };
 
+  const handleEmailSubmit = () => {
+    if (!submittedData) return;
+    const { name, class: studentClass, mobile } = submittedData;
+    const subject = `Scholarship Application: ${name} - App No: ${applicationNo}`;
+    const body = `
+      Student Details:
+      ----------------
+      Application No: ${applicationNo}
+      Name: ${name}
+      Class: ${studentClass}
+      Mobile: ${mobile}
+
+      Please contact the student to provide the Unique ID after payment of ₹50.
+    `.trim().replace(/^\s+/gm, '');
+
+    const mailtoLink = `mailto:mohitkansana82@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'photo' | 'signature') => {
     const file = e.target.files?.[0];
     const setPreview = fieldName === 'photo' ? setPhotoPreview : setSignaturePreview;
@@ -117,8 +136,9 @@ export default function ScholarshipFormPage() {
         toast({
           variant: 'destructive',
           title: 'फ़ाइल बहुत बड़ी है',
-          description: `फ़ाइल का आकार 1MB से अधिक नहीं होना चाहिए।`,
+          description: `फ़ाइल का आकार 2MB से अधिक नहीं होना चाहिए।`,
         });
+        e.target.value = '';
         form.setValue(fieldName, null);
         setPreview(null);
         return;
@@ -129,6 +149,7 @@ export default function ScholarshipFormPage() {
           title: 'अमान्य फ़ाइल प्रकार',
           description: 'केवल .jpg, .png और .webp फ़ाइलें स्वीकार की जाती हैं।',
         });
+        e.target.value = '';
         form.setValue(fieldName, null);
         setPreview(null);
         return;
@@ -164,12 +185,14 @@ export default function ScholarshipFormPage() {
         throw e;
       }
       
-      addNotification(user?.email, {
-        id: `app-${appNo}`,
-        icon: 'FilePen',
-        title: 'आवेदन सफलतापूर्वक जमा हुआ!',
-        description: `आपका आवेदन क्रमांक ${appNo} है। इसे भविष्य के लिए सहेजें।`,
-      });
+      if(user?.email){
+          addNotification(user.email, {
+            id: `app-${appNo}`,
+            icon: 'FilePen',
+            title: 'आवेदन सफलतापूर्वक जमा हुआ!',
+            description: `आपका आवेदन क्रमांक ${appNo} है। इसे भविष्य के लिए सहेजें।`,
+          });
+      }
 
       setApplicationNo(appNo);
       setSubmittedData(finalData);
@@ -199,7 +222,7 @@ export default function ScholarshipFormPage() {
              <Card className="w-full max-w-2xl bg-card">
                 <CardContent className="pt-6 flex flex-wrap justify-center gap-4">
                     <Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />प्रमाण पत्र डाउनलोड करें</Button>
-                    <Button variant="outline" onClick={() => { setSubmittedData(null); setStep(1); form.reset(); }}><FilePen className="mr-2 h-4 w-4" />नया फॉर्म भरें</Button>
+                    <Button onClick={handleEmailSubmit}><Mail className="mr-2 h-4 w-4" />ईमेल से सबमिट करें</Button>
                 </CardContent>
             </Card>
         </div>
@@ -258,9 +281,9 @@ export default function ScholarshipFormPage() {
                         <FormField
                           control={form.control}
                           name="photo"
-                          render={({ field }) => (
+                          render={() => (
                             <FormItem>
-                              <FormLabel>पासपोर्ट आकार का फोटो (1MB तक)</FormLabel>
+                              <FormLabel>पासपोर्ट आकार का फोटो (2MB तक)</FormLabel>
                               <FormControl>
                                 <Input
                                   type="file"
@@ -284,9 +307,9 @@ export default function ScholarshipFormPage() {
                         <FormField
                           control={form.control}
                           name="signature"
-                          render={({ field }) => (
+                          render={() => (
                             <FormItem>
-                              <FormLabel>हस्ताक्षर (1MB तक)</FormLabel>
+                              <FormLabel>हस्ताक्षर (2MB तक)</FormLabel>
                               <FormControl>
                                 <Input
                                   type="file"

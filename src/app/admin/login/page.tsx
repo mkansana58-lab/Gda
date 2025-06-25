@@ -32,6 +32,7 @@ export default function AdminLoginPage() {
             const isPasswordCorrect = password === ADMIN_PASSWORD;
 
             if (isUserAllowed && isPasswordCorrect) {
+                localStorage.removeItem('user'); // Clear student session
                 localStorage.setItem('adminUser', username.trim());
                 toast({ title: 'लॉगिन सफल!', description: `एडमिन ${username.trim()} के रूप में आपका स्वागत है।` });
                 router.push('/admin/dashboard');
