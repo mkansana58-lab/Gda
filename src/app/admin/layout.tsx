@@ -55,17 +55,17 @@ export default function AdminLayout({
        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 sm:px-6">
             <div className="flex items-center gap-2">
                 <Logo className="h-10 w-10"/>
-                <h1 className="text-lg font-bold font-headline">एडमिन पैनल</h1>
+                <h1 className="text-lg font-bold font-headline shrink-0">एडमिन पैनल</h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
                 <span className="text-sm hidden sm:inline">नमस्ते, {adminUser}</span>
                 <Button variant="outline" onClick={() => router.push('/dashboard')}>
-                    <LayoutDashboard className="h-4 w-4 mr-2"/>
-                    छात्र डैशबोर्ड
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-2">छात्र डैशबोर्ड</span>
                 </Button>
                 <Button variant="ghost" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2"/>
-                    लॉग आउट
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-2">लॉग आउट</span>
                 </Button>
             </div>
        </header>
