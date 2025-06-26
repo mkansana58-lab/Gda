@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, ArrowLeft, ArrowRight, Download, CheckCircle, Mail, FilePen } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, Download, CheckCircle, FilePen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/context/user-context';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +17,8 @@ import { ScholarshipCertificate } from '@/components/scholarship-certificate';
 import html2canvas from 'html2canvas';
 import { addNotification } from '@/lib/notifications';
 import Image from 'next/image';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -108,25 +110,6 @@ export default function ScholarshipFormPage() {
     }
   };
 
-  const handleEmailSubmit = () => {
-    if (!submittedData) return;
-    const { name, class: studentClass, mobile } = submittedData;
-    const subject = `Scholarship Application: ${name} - App No: ${applicationNo}`;
-    const body = `
-      Student Details:
-      ----------------
-      Application No: ${applicationNo}
-      Name: ${name}
-      Class: ${studentClass}
-      Mobile: ${mobile}
-
-      Please contact the student to provide the Unique ID after payment of ₹50.
-    `.trim().replace(/^\s+/gm, '');
-
-    const mailtoLink = `mailto:mohitkansana82@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'photo' | 'signature') => {
     const file = e.target.files?.[0];
     const setPreview = fieldName === 'photo' ? setPhotoPreview : setSignaturePreview;
@@ -165,24 +148,29 @@ export default function ScholarshipFormPage() {
     try {
       const photoDataUrl = await readFileAsDataURL(values.photo[0]);
       const signatureDataUrl = await readFileAsDataURL(values.signature[0]);
-      const appNo = Math.floor(10000 + Math.random() * 90000).toString();
+      const appNo = Math.floor(100000 + Math.random() * 900000).toString();
       
       const finalData: ScholarshipData = { ...values, photoDataUrl, signatureDataUrl };
 
+      // Save to Firebase
+      await addDoc(collection(db, 'scholarshipApplications'), {
+          ...finalData,
+          applicationNo: appNo,
+          createdAt: serverTimestamp(),
+      });
+      
+      // Save to localStorage for admit card generation
       try {
         localStorage.setItem(`scholarship-application-${appNo}`, JSON.stringify(finalData));
       } catch (e: any) {
-        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+         if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
              toast({
                 variant: 'destructive',
                 title: 'ब्राउज़र स्टोरेज भर गया है',
                 description: 'आपका आवेदन सहेजा नहीं जा सका। कृपया छोटी फ़ाइलों का उपयोग करें या ब्राउज़र डेटा साफ़ करें।',
-                duration: 5000,
+                duration: 7000,
              });
-             setIsLoading(false);
-             return;
-        }
-        throw e;
+         }
       }
       
       if(user?.email){
@@ -190,7 +178,7 @@ export default function ScholarshipFormPage() {
             id: `app-${appNo}`,
             icon: 'FilePen',
             title: 'आवेदन सफलतापूर्वक जमा हुआ!',
-            description: `आपका आवेदन क्रमांक ${appNo} है। इसे भविष्य के लिए सहेजें।`,
+            description: `आपका छात्रवृत्ति आवेदन क्रमांक ${appNo} है।`,
           });
       }
 
@@ -200,7 +188,8 @@ export default function ScholarshipFormPage() {
       toast({ title: "आवेदन सफलतापूर्वक जमा हुआ!", description: "आपका आवेदन क्रमांक जेनरेट हो गया है।" });
 
     } catch (error) {
-      toast({ variant: 'destructive', title: "एक त्रुटि हुई", description: "फ़ाइल अपलोड करने में विफल। कृपया पुनः प्रयास करें।" });
+      console.error("Error submitting application: ", error);
+      toast({ variant: 'destructive', title: "एक त्रुटि हुई", description: "आपका आवेदन जमा करने में विफल रहा। कृपया पुनः प्रयास करें।" });
     } finally {
       setIsLoading(false);
     }
@@ -222,7 +211,6 @@ export default function ScholarshipFormPage() {
              <Card className="w-full max-w-2xl bg-card">
                 <CardContent className="pt-6 flex flex-wrap justify-center gap-4">
                     <Button onClick={handleDownloadCertificate}><Download className="mr-2 h-4 w-4" />प्रमाण पत्र डाउनलोड करें</Button>
-                    <Button onClick={handleEmailSubmit}><Mail className="mr-2 h-4 w-4" />ईमेल से सबमिट करें</Button>
                 </CardContent>
             </Card>
         </div>

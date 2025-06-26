@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { ScholarshipRegistrations } from '../components/ScholarshipRegistrations';
 
 interface LiveClass {
     id: string;
@@ -96,10 +97,10 @@ export default function AdminDashboardPage() {
         <div className="p-4 sm:p-6 space-y-6">
             <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">एडमिन डैशबोर्ड</h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 
-                {/* Column 1: Notifications */}
-                <div className="space-y-6">
+                {/* Column 1: Notifications & Live Classes */}
+                <div className="space-y-6 xl:col-span-1">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><Bell/> सूचनाएं मैनेज करें</CardTitle>
@@ -114,8 +115,39 @@ export default function AdminDashboardPage() {
                         </form>
                     </Card>
                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><BookOpen/> लाइव क्लास मैनेज करें</CardTitle>
+                        </CardHeader>
+                        <form onSubmit={(e) => { e.preventDefault(); handleAddItem('liveClasses', { title: classTitle, description: classDesc, platform: classPlatform, link: classLink }, 'लाइव क्लास जोड़ी गई!', 'क्लास जोड़ने में विफल।', () => { setClassTitle(''); setClassDesc(''); setClassPlatform(''); setClassLink(''); }); }}>
+                            <CardContent className="space-y-4">
+                                <div><Label htmlFor="class-title">शीर्षक</Label><Input id="class-title" value={classTitle} onChange={e => setClassTitle(e.target.value)} required /></div>
+                                <div><Label htmlFor="class-desc">विवरण</Label><Input id="class-desc" value={classDesc} onChange={e => setClassDesc(e.target.value)} /></div>
+                                <div><Label htmlFor="class-platform">प्लेटफॉर्म</Label><Select onValueChange={setClassPlatform} value={classPlatform} required><SelectTrigger id="class-platform"><SelectValue placeholder="एक प्लेटफॉर्म चुनें" /></SelectTrigger><SelectContent><SelectItem value="YouTube">YouTube</SelectItem><SelectItem value="WhatsApp">WhatsApp</SelectItem><SelectItem value="Telegram">Telegram</SelectItem><SelectItem value="Google Site">Google Site</SelectItem><SelectItem value="Other">अन्य</SelectItem></SelectContent></Select></div>
+                                <div><Label htmlFor="class-link">लिंक</Label><Input id="class-link" type="url" value={classLink} onChange={e => setClassLink(e.target.value)} required /></div>
+                            </CardContent>
+                            <CardFooter><Button type="submit">क्लास जोड़ें</Button></CardFooter>
+                        </form>
+                    </Card>
+                </div>
+
+                {/* Column 2: Downloads & Lists */}
+                <div className="space-y-6 xl:col-span-1">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Download/> स्टडी मटेरियल मैनेज करें</CardTitle>
+                        </CardHeader>
+                        <form onSubmit={(e) => { e.preventDefault(); handleAddItem('downloads', { title: downloadTitle, description: downloadDesc, fileUrl: downloadUrl }, 'फाइल जोड़ी गई!', 'फाइल जोड़ने में विफल।', () => { setDownloadTitle(''); setDownloadDesc(''); setDownloadUrl(''); }); }}>
+                            <CardContent className="space-y-4">
+                                <div><Label htmlFor="download-title">फाइल का शीर्षक</Label><Input id="download-title" value={downloadTitle} onChange={e => setDownloadTitle(e.target.value)} required/></div>
+                                <div><Label htmlFor="download-desc">विवरण</Label><Input id="download-desc" value={downloadDesc} onChange={e => setDownloadDesc(e.target.value)}/></div>
+                                <div><Label htmlFor="download-url">फाइल का URL</Label><Input id="download-url" type="url" value={downloadUrl} onChange={e => setDownloadUrl(e.target.value)} placeholder="https://..." required/></div>
+                            </CardContent>
+                            <CardFooter><Button type="submit">फाइल जोड़ें</Button></CardFooter>
+                        </form>
+                    </Card>
+                    <Card>
                         <CardHeader><CardTitle>वर्तमान सूचनाएं</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+                        <CardContent className="space-y-2 max-h-60 overflow-y-auto">
                             {notifications.map(n => (
                                 <div key={n.id} className="flex items-start justify-between p-2 rounded-md bg-secondary gap-2">
                                     <div className='flex-1 min-w-0'><p className="font-semibold break-words">{n.title}</p><p className="text-xs text-muted-foreground break-words">{n.description}</p></div>
@@ -125,27 +157,12 @@ export default function AdminDashboardPage() {
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* Column 2: Live Classes */}
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><BookOpen/> लाइव क्लास मैनेज करें</CardTitle>
-                            <CardDescription>लाइव क्लास पेज पर एक नया लिंक जोड़ें।</CardDescription>
-                        </CardHeader>
-                        <form onSubmit={(e) => { e.preventDefault(); handleAddItem('liveClasses', { title: classTitle, description: classDesc, platform: classPlatform, link: classLink }, 'लाइव क्लास जोड़ी गई!', 'क्लास जोड़ने में विफल।', () => { setClassTitle(''); setClassDesc(''); setClassPlatform(''); setClassLink(''); }); }}>
-                            <CardContent className="space-y-4">
-                                <div><Label htmlFor="class-title">शीर्षक</Label><Input id="class-title" value={classTitle} onChange={e => setClassTitle(e.target.value)} required /></div>
-                                <div><Label htmlFor="class-desc">विवरण (वैकल्पिक)</Label><Input id="class-desc" value={classDesc} onChange={e => setClassDesc(e.target.value)} /></div>
-                                <div><Label htmlFor="class-platform">प्लेटफॉर्म</Label><Select onValueChange={setClassPlatform} value={classPlatform} required><SelectTrigger id="class-platform"><SelectValue placeholder="एक प्लेटफॉर्म चुनें" /></SelectTrigger><SelectContent><SelectItem value="YouTube">YouTube</SelectItem><SelectItem value="WhatsApp">WhatsApp</SelectItem><SelectItem value="Telegram">Telegram</SelectItem><SelectItem value="Google Site">Google Site</SelectItem><SelectItem value="Other">अन्य</SelectItem></SelectContent></Select></div>
-                                <div><Label htmlFor="class-link">लिंक</Label><Input id="class-link" type="url" value={classLink} onChange={e => setClassLink(e.target.value)} required /></div>
-                            </CardContent>
-                            <CardFooter><Button type="submit">क्लास जोड़ें</Button></CardFooter>
-                        </form>
-                    </Card>
+                
+                 {/* Column 3: Lists */}
+                <div className="space-y-6 xl:col-span-1">
                     <Card>
                         <CardHeader><CardTitle>वर्तमान लाइव कक्षाएं</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+                        <CardContent className="space-y-2 max-h-60 overflow-y-auto">
                             {liveClasses.map(c => (
                                 <div key={c.id} className="flex items-start justify-between p-2 rounded-md bg-secondary gap-2">
                                     <div className='flex-1 min-w-0'><p className="font-semibold break-words">{c.title} <span className="text-xs text-muted-foreground">({c.platform})</span></p><a href={c.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all">{c.link}</a></div>
@@ -154,27 +171,9 @@ export default function AdminDashboardPage() {
                             ))}
                         </CardContent>
                     </Card>
-                </div>
-                
-                 {/* Column 3: Downloads */}
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Download/> स्टडी मटेरियल मैनेज करें</CardTitle>
-                            <CardDescription>डाउनलोड पेज के लिए फाइलें (PDF, ई-बुक्स) जोड़ें।</CardDescription>
-                        </CardHeader>
-                        <form onSubmit={(e) => { e.preventDefault(); handleAddItem('downloads', { title: downloadTitle, description: downloadDesc, fileUrl: downloadUrl }, 'फाइल जोड़ी गई!', 'फाइल जोड़ने में विफल।', () => { setDownloadTitle(''); setDownloadDesc(''); setDownloadUrl(''); }); }}>
-                            <CardContent className="space-y-4">
-                                <div><Label htmlFor="download-title">फाइल का शीर्षक</Label><Input id="download-title" value={downloadTitle} onChange={e => setDownloadTitle(e.target.value)} required/></div>
-                                <div><Label htmlFor="download-desc">विवरण (वैकल्पिक)</Label><Input id="download-desc" value={downloadDesc} onChange={e => setDownloadDesc(e.target.value)}/></div>
-                                <div><Label htmlFor="download-url">फाइल का URL</Label><Input id="download-url" type="url" value={downloadUrl} onChange={e => setDownloadUrl(e.target.value)} placeholder="https://..." required/></div>
-                            </CardContent>
-                            <CardFooter><Button type="submit">फाइल जोड़ें</Button></CardFooter>
-                        </form>
-                    </Card>
                      <Card>
                         <CardHeader><CardTitle>वर्तमान फाइलें</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+                        <CardContent className="space-y-2 max-h-60 overflow-y-auto">
                             {downloads.map(d => (
                                 <div key={d.id} className="flex items-start justify-between p-2 rounded-md bg-secondary gap-2">
                                     <div className='flex-1 min-w-0'><p className="font-semibold break-words">{d.title}</p><a href={d.fileUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all">{d.fileUrl}</a></div>
@@ -185,6 +184,9 @@ export default function AdminDashboardPage() {
                     </Card>
                 </div>
 
+                <div className="xl:col-span-3">
+                    <ScholarshipRegistrations />
+                </div>
             </div>
         </div>
     );
