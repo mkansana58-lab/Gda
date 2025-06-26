@@ -65,8 +65,8 @@ export default function CoursesPage() {
             {courses.map((course) => (
                 <Card key={course.id} className="flex flex-col bg-card overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all">
                     {course.imageUrl && (
-                        <div className="relative w-full h-48">
-                            <Image src={course.imageUrl} alt={course.title} fill className="object-cover" />
+                        <div className="relative w-full h-48 bg-secondary/20">
+                            <Image src={course.imageUrl} alt={course.title} fill className="object-contain p-2" />
                         </div>
                     )}
                     <CardHeader>
