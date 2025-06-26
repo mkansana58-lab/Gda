@@ -74,8 +74,14 @@ export default function CurrentAffairsPage() {
                         </AccordionTrigger>
                         <AccordionContent className="p-4 pt-0">
                              {item.imageUrl && (
-                                <div className="relative w-full h-48 mb-4 rounded-md overflow-hidden">
-                                    <Image src={item.imageUrl} alt={item.title} fill className="object-cover" />
+                                <div className="relative w-full mb-4 rounded-md overflow-hidden bg-secondary/20">
+                                    <Image
+                                        src={item.imageUrl}
+                                        alt={item.title}
+                                        width={800}
+                                        height={600}
+                                        className="object-contain w-full h-auto max-h-[50vh]"
+                                    />
                                 </div>
                             )}
                             <div className="flex justify-between items-center mb-2">
