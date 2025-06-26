@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -222,7 +223,7 @@ export default function AdminDashboardPage() {
                     <CardHeader><CardTitle>वर्तमान सूचनाएं</CardTitle></CardHeader>
                     <CardContent className="space-y-2">
                         {notifications.length > 0 ? notifications.map(n => (
-                            <div key={n.id} className="flex items-center justify-between p-2 rounded-md bg-secondary gap-2">
+                            <div key={n.id} className="flex items-start justify-between p-2 rounded-md bg-secondary gap-2">
                                 <div className='flex-1 min-w-0'>
                                     <p className="font-semibold break-words">{n.title}</p>
                                     <p className="text-xs text-muted-foreground break-words">{n.description}</p>
@@ -240,7 +241,7 @@ export default function AdminDashboardPage() {
                     <CardHeader><CardTitle>वर्तमान लाइव कक्षाएं</CardTitle></CardHeader>
                     <CardContent className="space-y-2">
                         {liveClasses.length > 0 ? liveClasses.map(c => (
-                            <div key={c.id} className="flex items-center justify-between p-2 rounded-md bg-secondary gap-2">
+                            <div key={c.id} className="flex items-start justify-between p-2 rounded-md bg-secondary gap-2">
                                 <div className='flex-1 min-w-0'>
                                     <p className="font-semibold break-words">{c.title} <span className="text-xs text-muted-foreground">({c.platform})</span></p>
                                     <a href={c.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all">{c.link}</a>
