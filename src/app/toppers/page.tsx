@@ -1,11 +1,14 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown, User } from 'lucide-react';
+import { Crown, User, ArrowLeft, Home } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface MockTopper {
   name: string;
@@ -31,6 +34,7 @@ interface PracticeTopper {
 export default function ToppersPage() {
   const [mockToppers, setMockToppers] = useState<MockTopper[]>([]);
   const [practiceToppers, setPracticeToppers] = useState<PracticeTopper[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   useEffect(() => {
     const storedMock = localStorage.getItem('mock-test-toppers');
@@ -38,6 +42,9 @@ export default function ToppersPage() {
     
     const storedPractice = localStorage.getItem('practice-test-toppers');
     if (storedPractice) setPracticeToppers(JSON.parse(storedPractice));
+
+    const user = localStorage.getItem('user');
+    setIsLoggedIn(!!user);
   }, []);
   
   const renderMockTopperList = (toppers: MockTopper[]) => (
@@ -93,32 +100,41 @@ export default function ToppersPage() {
   );
 
   return (
-    <div className="flex flex-col gap-6 p-4">
-      <div>
-        <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">हॉल ऑफ फेम / टॉपर्स</h1>
-        <p className="text-muted-foreground">हमारे मॉक टेस्ट और प्रैक्टिस टेस्ट के शीर्ष प्रदर्शन करने वालों का जश्न।</p>
-      </div>
-
-       <Alert className="bg-card">
-        <Crown className="h-4 w-4" />
-        <AlertTitle>टेस्ट टॉपर्स!</AlertTitle>
-        <AlertDescription>
-          यह सूची हमारे विभिन्न टेस्ट में शीर्ष प्रदर्शन करने वालों को दिखाती है।
-        </AlertDescription>
-      </Alert>
-      
-      <Tabs defaultValue="mock-test" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-card">
-          <TabsTrigger value="mock-test">मॉक टेस्ट टॉपर्स</TabsTrigger>
-          <TabsTrigger value="practice-test">प्रैक्टिस टेस्ट टॉपर्स</TabsTrigger>
-        </TabsList>
-        <TabsContent value="mock-test" className="mt-6">
-             {renderMockTopperList(mockToppers)}
-        </TabsContent>
-        <TabsContent value="practice-test" className="mt-6">
-             {renderPracticeToppers(practiceToppers)}
-        </TabsContent>
-      </Tabs>
+    <div className="min-h-screen bg-background text-foreground">
+        <header className="p-4 border-b border-border flex justify-between items-center">
+            <h1 className="font-headline text-xl sm:text-2xl font-bold tracking-tight">हॉल ऑफ फेम / टॉपर्स</h1>
+            <Button asChild variant="outline">
+                <Link href={isLoggedIn ? "/dashboard" : "/login"}>
+                    {isLoggedIn ? <Home className="mr-2 h-4 w-4" /> : <ArrowLeft className="mr-2 h-4 w-4" />}
+                    {isLoggedIn ? "डैशबोर्ड" : "लॉगिन पर वापस"}
+                </Link>
+            </Button>
+        </header>
+        <main className="p-4 sm:p-6">
+            <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+                <p className="text-muted-foreground text-center">हमारे मॉक टेस्ट और प्रैक्टिस टेस्ट के शीर्ष प्रदर्शन करने वालों का जश्न।</p>
+                <Alert className="bg-card">
+                    <Crown className="h-4 w-4" />
+                    <AlertTitle>टेस्ट टॉपर्स!</AlertTitle>
+                    <AlertDescription>
+                    यह सूची हमारे विभिन्न टेस्ट में शीर्ष प्रदर्शन करने वालों को दिखाती है।
+                    </AlertDescription>
+                </Alert>
+                
+                <Tabs defaultValue="mock-test" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 bg-card">
+                    <TabsTrigger value="mock-test">मॉक टेस्ट टॉपर्स</TabsTrigger>
+                    <TabsTrigger value="practice-test">प्रैक्टिस टेस्ट टॉपर्स</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="mock-test" className="mt-6">
+                        {renderMockTopperList(mockToppers)}
+                    </TabsContent>
+                    <TabsContent value="practice-test" className="mt-6">
+                        {renderPracticeToppers(practiceToppers)}
+                    </TabsContent>
+                </Tabs>
+            </div>
+        </main>
     </div>
   );
 }

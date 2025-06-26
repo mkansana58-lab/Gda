@@ -1,15 +1,16 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Youtube, GraduationCap, FilePen, User } from 'lucide-react';
+import { Home, FilePen, User, Video, ClipboardCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/user-context';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
-  { href: '/learning-hub', icon: Youtube, label: 'Learn' },
-  { href: '/ai-tutor', icon: GraduationCap, label: 'Tutor' },
+  { href: '/video-lectures', icon: Video, label: 'Lectures' },
+  { href: '/ai-test', icon: ClipboardCheck, label: 'Test' },
   { href: '/plan-form', icon: FilePen, label: 'Apply' },
 ];
 

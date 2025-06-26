@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { generateAiTest, AiQuestion } from '@/ai/flows/generate-ai-test';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Timer, CheckCircle, XCircle, Download, ArrowLeft, Shield, BookCopy, ChevronRight, RefreshCw, Trophy, BrainCircuit, Book, Award, Star, Sun } from 'lucide-react';
+import { Loader2, Timer, CheckCircle, XCircle, Download, ArrowLeft, Shield, BookCopy, ChevronRight, RefreshCw, Trophy, BrainCircuit, Book, Award, Star, Sun, UserPlus } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -16,8 +17,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUser } from '@/context/user-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { addNotification } from '@/lib/notifications';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-type PageState = 'mode-selection' | 'class-selection' | 'subject-test-setup' | 'test-dashboard' | 'test-in-progress' | 'certificate';
+type PageState = 'enrollment' | 'mode-selection' | 'class-selection' | 'subject-test-setup' | 'test-dashboard' | 'test-in-progress' | 'certificate';
 type TestMode = 'sainik' | 'rms' | 'jnv' | 'olympiad' | 'rtse' | 'devnarayan';
 type TestId = string;
 
@@ -60,7 +63,8 @@ const getInitialProgress = (mode: TestMode, classId: string): ClassProgress => {
 };
 
 export default function AiTestPage() {
-    const [pageState, setPageState] = useState<PageState>('mode-selection');
+    const [pageState, setPageState] = useState<PageState>('enrollment');
+    const [isEnrolled, setIsEnrolled] = useState(false);
     const [testMode, setTestMode] = useState<TestMode | null>(null);
     const [selectedClass, setSelectedClass] = useState<string | null>(null);
     const [progress, setProgress] = useState<ClassProgress | null>(null);
@@ -77,13 +81,24 @@ export default function AiTestPage() {
     const certificateRef = useRef<HTMLDivElement>(null);
     const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
 
-    // Subject-wise test state
     const [subjectTest, setSubjectTest] = useState<{ subject: string; questions: AiQuestion[]; config: any } | null>(null);
     const [subjectTestAnswers, setSubjectTestAnswers] = useState<string[]>([]);
     const [subjectTestConfig, setSubjectTestConfig] = useState<any>(null);
+    
+    useEffect(() => {
+      if (user?.email) {
+        const enrollmentStatus = localStorage.getItem(`ai-test-enrolled-${user.email}`);
+        if (enrollmentStatus === 'true') {
+          setIsEnrolled(true);
+          setPageState('mode-selection');
+        } else {
+          setPageState('enrollment');
+        }
+      }
+    }, [user?.email]);
 
     useEffect(() => {
-        if (testMode && selectedClass && user?.email) {
+        if (isEnrolled && testMode && selectedClass && user?.email) {
             const savedProgressRaw = localStorage.getItem(`${testMode}-progress-${selectedClass}-${user.email}`);
             if (savedProgressRaw) {
                 try {
@@ -96,13 +111,36 @@ export default function AiTestPage() {
                 setProgress(getInitialProgress(testMode, selectedClass));
             }
         }
-    }, [testMode, selectedClass, user?.email]);
+    }, [isEnrolled, testMode, selectedClass, user?.email]);
 
     useEffect(() => {
         if (progress && testMode && selectedClass && user?.email) {
             localStorage.setItem(`${testMode}-progress-${selectedClass}-${user.email}`, JSON.stringify(progress));
         }
     }, [progress, testMode, selectedClass, user?.email]);
+
+    const handleEnroll = async () => {
+      if (!user) {
+        toast({ variant: 'destructive', title: 'त्रुटि', description: 'कृपया पहले लॉगिन करें।' });
+        return;
+      }
+      setIsLoading(true);
+      try {
+        await addDoc(collection(db, 'aiTestEnrollees'), {
+          ...user,
+          enrolledAt: serverTimestamp(),
+        });
+        localStorage.setItem(`ai-test-enrolled-${user.email}`, 'true');
+        setIsEnrolled(true);
+        setPageState('mode-selection');
+        toast({ title: 'पंजीकरण सफल!', description: 'अब आप AI टेस्ट दे सकते हैं।' });
+      } catch (error) {
+        console.error("Enrollment error:", error);
+        toast({ variant: 'destructive', title: 'पंजीकरण विफल', description: 'कृपया पुनः प्रयास करें।' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     const handleSelectMode = (mode: TestMode) => {
         setTestMode(mode);
@@ -393,6 +431,29 @@ export default function AiTestPage() {
         setPageState('certificate');
     };
 
+    const renderEnrollment = () => (
+      <div className="flex flex-col items-center justify-center gap-6 p-4 text-center">
+        <Card className="w-full max-w-md bg-card">
+          <CardHeader>
+            <CardTitle className="font-headline text-2xl">AI टेस्ट में नामांकन करें</CardTitle>
+            <CardDescription>AI द्वारा उत्पन्न टेस्ट तक पहुँचने के लिए, कृपया पहले नामांकन करें। यह एक बार की प्रक्रिया है।</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UserPlus className="w-16 h-16 text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground mb-4">
+                आप AI टेस्ट श्रृंखला में नामांकन करने वाले हैं। क्या आप आगे बढ़ना चाहते हैं?
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" onClick={handleEnroll} disabled={isLoading}>
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              अभी नामांकन करें
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+
     const renderModeSelection = () => (
         <div className="flex flex-col gap-6 p-4">
             <div>
@@ -584,17 +645,18 @@ export default function AiTestPage() {
         );
     }
     
-    if (isLoading) return <div className="flex flex-col items-center justify-center gap-4 h-full"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="text-muted-foreground">आपकी परीक्षा तैयार हो रही है, कृपया प्रतीक्षा करें...</p></div>;
+    if (isLoading && !currentTest && !subjectTest) return <div className="flex flex-col items-center justify-center gap-4 h-full"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="text-muted-foreground">आपकी परीक्षा तैयार हो रही है, कृपया प्रतीक्षा करें...</p></div>;
     
     const renderPageContent = () => {
         switch (pageState) {
+            case 'enrollment': return renderEnrollment();
             case 'mode-selection': return renderModeSelection();
             case 'class-selection': return renderClassSelection();
             case 'test-dashboard': return renderTestDashboard();
             case 'test-in-progress': return renderTestInProgress();
             case 'certificate': return <CertificateRenderer />;
             case 'subject-test-setup': return renderSubjectTestSetup();
-            default: return renderModeSelection();
+            default: return renderEnrollment();
         }
     }
 

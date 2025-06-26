@@ -4,12 +4,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BookOpen,
   FilePen,
   GraduationCap,
   Home,
   Phone,
-  Scaling,
   ClipboardCheck,
   Trophy,
   Users,
@@ -23,6 +21,7 @@ import {
   Shield,
   Download,
   LayoutDashboard,
+  Video,
 } from 'lucide-react';
 
 import {
@@ -51,11 +50,11 @@ const navItems = [
   { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
   { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
   { href: '/live-classes', icon: Radio, label: 'लाइव कक्षाएं' },
+  { href: '/video-lectures', icon: Video, label: 'वीडियो लेक्चर' },
   { href: '/learning-hub', icon: Download, label: 'डाउनलोड्स' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
   { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
-  { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
   { href: '/current-affairs', icon: Newspaper, label: 'करेंट अफेयर्स' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
@@ -71,10 +70,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // This runs on the client after hydration, so it's safe to access localStorage
     const adminUser = localStorage.getItem('adminUser');
     setIsAdmin(!!adminUser);
-  }, [user]); // Re-check when user changes
+  }, [user]);
 
   const handleLinkClick = () => {
     if (isMobile) {

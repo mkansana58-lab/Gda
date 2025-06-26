@@ -9,8 +9,8 @@ import {
   ClipboardCheck,
   Ticket,
   Trophy,
-  Users,
   Contact,
+  Video,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
@@ -23,7 +23,7 @@ const menuItems = [
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
   { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
-  { href: '/teachers', icon: Users, label: 'शिक्षक' },
+  { href: '/video-lectures', icon: Video, label: 'वीडियो लेक्चर' },
   { href: '/contact', icon: Contact, label: 'संपर्क करें' },
 ];
 

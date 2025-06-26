@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +12,8 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -43,25 +46,36 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    const handleLogin = (profilePhotoUrl: string) => {
+    const handleLogin = async (profilePhotoUrl: string) => {
       try {
         const { profilePhoto, ...userData } = values;
         const user = { ...userData, profilePhotoUrl };
+        
+        // Save user to localStorage for session management
         localStorage.setItem('user', JSON.stringify(user));
+        
+        // Save user details to Firestore
+        await addDoc(collection(db, 'students'), {
+            ...user,
+            createdAt: serverTimestamp(),
+        });
+
         toast({
           title: 'लॉगिन सफल',
           description: `स्वागत है, ${values.name}!`,
         });
         router.push('/dashboard');
       } catch (error) {
+        console.error("Error during login or saving data: ", error);
         toast({
           variant: 'destructive',
           title: 'लॉगिन विफल',
           description: 'एक त्रुटि हुई। कृपया पुनः प्रयास करें।',
         });
+      } finally {
         setIsLoading(false);
       }
     };
@@ -79,12 +93,12 @@ export function LoginForm() {
           title: 'फोटो अपलोड विफल',
           description: 'चयनित फोटो को पढ़ा नहीं जा सका। कृपया बिना फोटो के जारी रखें।',
         });
-        handleLogin('https://placehold.co/100x100.png');
+        handleLogin(''); // Provide empty string for URL
       };
       reader.readAsDataURL(photoFile);
     } else {
       setTimeout(() => {
-        handleLogin('');
+        handleLogin(''); // Provide empty string for URL
       }, 500);
     }
   }
