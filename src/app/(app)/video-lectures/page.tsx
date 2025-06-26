@@ -7,6 +7,7 @@ import { Loader2, Video } from "lucide-react";
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useToast } from "@/hooks/use-toast";
 
 interface VideoLecture {
     id: string;
@@ -31,6 +32,7 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 export default function VideoLecturesPage() {
     const [videos, setVideos] = useState<VideoLecture[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
 
     useEffect(() => {
         setIsLoading(true);
@@ -44,11 +46,17 @@ export default function VideoLecturesPage() {
             setIsLoading(false);
         }, (error) => {
             console.error("Error fetching videos: ", error);
+            toast({
+                variant: 'destructive',
+                title: 'वीडियो लोड करने में त्रुटि',
+                description: 'डेटाबेस से वीडियो लोड करने की अनुमति नहीं है। कृपया अपने फायरबेस सुरक्षा नियमों की जांच करें।',
+                duration: 7000,
+            });
             setIsLoading(false);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [toast]);
 
     return (
         <div className="flex flex-col gap-8 p-4">

@@ -9,7 +9,7 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 interface Course {
     id: string;
@@ -22,6 +22,7 @@ interface Course {
 export default function CoursesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsLoading(true);
@@ -33,11 +34,17 @@ export default function CoursesPage() {
         setIsLoading(false);
     }, (error) => {
         console.error("Error fetching courses:", error);
+        toast({
+            variant: 'destructive',
+            title: 'कोर्स लोड करने में त्रुटि',
+            description: 'डेटाबेस से कोर्स लोड करने की अनुमति नहीं है। कृपया अपने फायरबेस सुरक्षा नियमों की जांच करें।',
+            duration: 7000,
+        });
         setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   return (
     <div className="flex flex-col gap-8 p-4">

@@ -35,7 +35,12 @@ export default function CurrentAffairsPage() {
         setIsLoading(false);
     }, (error) => {
         console.error("Error fetching current affairs:", error);
-        toast({ variant: 'destructive', title: 'त्रुटि', description: 'करेंट अफेयर्स लोड करने में विफल।' });
+        toast({
+            variant: 'destructive',
+            title: 'करेंट अफेयर्स लोड करने में त्रुटि',
+            description: 'डेटाबेस से करेंट अफेयर्स लोड करने की अनुमति नहीं है। कृपया अपने फायरबेस सुरक्षा नियमों की जांच करें।',
+            duration: 7000,
+        });
         setIsLoading(false);
     });
 

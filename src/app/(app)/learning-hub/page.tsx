@@ -8,6 +8,7 @@ import { Download, Loader2, FileText } from "lucide-react";
 import Link from 'next/link';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useToast } from "@/hooks/use-toast";
 
 interface DownloadableFile {
     id: string;
@@ -19,6 +20,7 @@ interface DownloadableFile {
 export default function LearningHubPage() {
     const [files, setFiles] = useState<DownloadableFile[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
 
     useEffect(() => {
         setIsLoading(true);
@@ -32,11 +34,17 @@ export default function LearningHubPage() {
             setIsLoading(false);
         }, (error) => {
             console.error("Error fetching downloads: ", error);
+            toast({
+                variant: 'destructive',
+                title: 'डाउनलोड्स लोड करने में त्रुटि',
+                description: 'डेटाबेस से स्टडी मटेरियल लोड करने की अनुमति नहीं है। कृपया अपने फायरबेस सुरक्षा नियमों की जांच करें।',
+                duration: 7000,
+            });
             setIsLoading(false);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [toast]);
 
     return (
         <div className="flex flex-col gap-8 p-4">

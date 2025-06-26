@@ -8,6 +8,7 @@ import { Youtube, Send, Globe, MessageSquare, BookOpen, Loader2 } from "lucide-r
 import Link from 'next/link';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useToast } from "@/hooks/use-toast";
 
 interface LiveClass {
     id: string;
@@ -20,6 +21,7 @@ interface LiveClass {
 export default function LiveClassesPage() {
     const [adminClasses, setAdminClasses] = useState<LiveClass[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
 
     useEffect(() => {
         setIsLoading(true);
@@ -33,11 +35,17 @@ export default function LiveClassesPage() {
             setIsLoading(false);
         }, (error) => {
             console.error("Error fetching live classes: ", error);
+            toast({
+                variant: 'destructive',
+                title: 'लाइव क्लास लोड करने में त्रुटि',
+                description: 'डेटाबेस से लाइव क्लास लोड करने की अनुमति नहीं है। कृपया अपने फायरबेस सुरक्षा नियमों की जांच करें।',
+                duration: 7000,
+            });
             setIsLoading(false);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [toast]);
 
     const getPlatformIcon = (platform: string) => {
         switch (platform.toLowerCase()) {
