@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -268,14 +268,19 @@ export default function AdminDashboardPage() {
                     </Card>
 
                     <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><Download /> स्टडी मटेरियल प्रबंधन</CardTitle></CardHeader>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Download /> स्टडी मटेरियल प्रबंधन</CardTitle>
+                            <CardDescription>
+                                फ़ाइल को Google Drive जैसी सेवा पर अपलोड करें, एक शेयर करने योग्य लिंक बनाएं, और उसे यहां पेस्ट करें।
+                            </CardDescription>
+                        </CardHeader>
                         <CardContent>
                             <form onSubmit={(e) => { e.preventDefault(); handleGenericSubmit('downloads', 'downloads', { title: downloadTitle, description: downloadDesc, fileUrl: downloadUrl }, 'फ़ाइल जोड़ी गई!', () => { setDownloadTitle(''); setDownloadDesc(''); setDownloadUrl(''); }); }}>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-4 min-w-0">
                                         <div><Label htmlFor="download-title">फ़ाइल का शीर्षक</Label><Input id="download-title" value={downloadTitle} onChange={e => setDownloadTitle(e.target.value)} required/></div>
                                         <div><Label htmlFor="download-desc">विवरण</Label><Textarea id="download-desc" value={downloadDesc} onChange={e => setDownloadDesc(e.target.value)} required/></div>
-                                        <div><Label htmlFor="download-url">फ़ाइल URL</Label><Input id="download-url" type="url" value={downloadUrl} onChange={e => setDownloadUrl(e.target.value)} placeholder="https://..." required/></div>
+                                        <div><Label htmlFor="download-url">शेयर करने योग्य फ़ाइल का URL</Label><Input id="download-url" type="url" value={downloadUrl} onChange={e => setDownloadUrl(e.target.value)} placeholder="https://drive.google.com/..." required/></div>
                                         <Button type="submit" disabled={isSubmitting === 'downloads'}>{isSubmitting === 'downloads' && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>} फ़ाइल जोड़ें</Button>
                                     </div>
                                     <div className="min-w-0"><h4 className="font-semibold mb-2">अपलोड की गई फ़ाइलें</h4>{renderList(downloads, 'downloads')}</div>
@@ -312,3 +317,5 @@ export default function AdminDashboardPage() {
         </div>
     );
 }
+
+    
