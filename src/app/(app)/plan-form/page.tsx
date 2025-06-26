@@ -150,18 +150,26 @@ export default function ScholarshipFormPage() {
       const signatureDataUrl = await readFileAsDataURL(values.signature[0]);
       const appNo = Math.floor(100000 + Math.random() * 900000).toString();
       
-      const finalData: ScholarshipData = { ...values, photoDataUrl, signatureDataUrl };
+      const dataForUI: ScholarshipData = { ...values, photoDataUrl, signatureDataUrl };
+
+      // Create a clean object for Firestore and localStorage, excluding FileList objects
+      const { photo, signature, ...restOfValues } = values;
+      const dataForStorage = {
+        ...restOfValues,
+        photoDataUrl,
+        signatureDataUrl,
+      };
 
       // Save to Firebase
       await addDoc(collection(db, 'scholarshipApplications'), {
-          ...finalData,
+          ...dataForStorage,
           applicationNo: appNo,
           createdAt: serverTimestamp(),
       });
       
       // Save to localStorage for admit card generation
       try {
-        localStorage.setItem(`scholarship-application-${appNo}`, JSON.stringify(finalData));
+        localStorage.setItem(`scholarship-application-${appNo}`, JSON.stringify(dataForStorage));
       } catch (e: any) {
          if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
              toast({
@@ -183,7 +191,7 @@ export default function ScholarshipFormPage() {
       }
 
       setApplicationNo(appNo);
-      setSubmittedData(finalData);
+      setSubmittedData(dataForUI);
 
       toast({ title: "आवेदन सफलतापूर्वक जमा हुआ!", description: "आपका आवेदन क्रमांक जेनरेट हो गया है।" });
 
