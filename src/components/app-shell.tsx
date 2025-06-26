@@ -22,6 +22,7 @@ import {
   Radio,
   Shield,
   Download,
+  LayoutDashboard,
 } from 'lucide-react';
 
 import {
@@ -41,7 +42,7 @@ import { useUser } from '@/context/user-context';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { BottomNav } from './bottom-nav';
 import { Button } from './ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NotificationsSheet } from './notifications-sheet';
 import { Logo } from './logo';
 
@@ -67,6 +68,13 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   const { isMobile, setOpenMobile, toggleSidebar } = useSidebar();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // This runs on the client after hydration, so it's safe to access localStorage
+    const adminUser = localStorage.getItem('adminUser');
+    setIsAdmin(!!adminUser);
+  }, [user]); // Re-check when user changes
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -106,7 +114,22 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             ))}
             <SidebarSeparator className="my-2" />
-             <SidebarMenuItem>
+            {isAdmin ? (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  onClick={handleLinkClick}
+                  isActive={pathname.startsWith('/admin')}
+                  tooltip="एडमिन पैनल"
+                >
+                  <Link href="/admin/dashboard">
+                    <LayoutDashboard />
+                    <span>एडमिन पैनल</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ) : (
+              <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   onClick={handleLinkClick}
@@ -118,6 +141,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            )}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
