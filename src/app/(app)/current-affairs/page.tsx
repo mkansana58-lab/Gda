@@ -7,14 +7,17 @@ import { Loader2, Newspaper } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import Image from 'next/image';
 
 interface AffairItem {
     id: string;
     title: string;
     description: string;
     category: string;
+    imageUrl?: string;
+    createdAt: Timestamp;
 }
 
 export default function CurrentAffairsPage() {
@@ -65,8 +68,20 @@ export default function CurrentAffairsPage() {
                             </div>
                         </AccordionTrigger>
                         <AccordionContent className="p-4 pt-0">
-                            <Badge variant="secondary" className="mb-2">{item.category}</Badge>
-                            <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                             {item.imageUrl && (
+                                <div className="relative w-full h-48 mb-4 rounded-md overflow-hidden">
+                                    <Image src={item.imageUrl} alt={item.title} fill className="object-cover" />
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center mb-2">
+                                <Badge variant="secondary" className="mb-2">{item.category}</Badge>
+                                {item.createdAt && (
+                                    <p className="text-xs text-muted-foreground">
+                                        {item.createdAt.toDate().toLocaleDateString('hi-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                    </p>
+                                )}
+                            </div>
+                            <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{item.description}</p>
                         </AccordionContent>
                     </AccordionItem>
                 ))}

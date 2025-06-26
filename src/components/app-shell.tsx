@@ -22,6 +22,8 @@ import {
   Download,
   LayoutDashboard,
   Video,
+  BookMarked,
+  Scaling,
 } from 'lucide-react';
 
 import {
@@ -47,15 +49,17 @@ import { Logo } from './logo';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'डैशबोर्ड' },
+  { href: '/courses', icon: BookMarked, label: 'हमारे कोर्स' },
   { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
   { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
   { href: '/live-classes', icon: Radio, label: 'लाइव कक्षाएं' },
   { href: '/video-lectures', icon: Video, label: 'वीडियो लेक्चर' },
   { href: '/learning-hub', icon: Download, label: 'डाउनलोड्स' },
+  { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
   { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },
-  { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
   { href: '/current-affairs', icon: Newspaper, label: 'करेंट अफेयर्स' },
+  { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ देखें' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
   { href: '/school-priority-list', icon: ListChecks, label: 'स्कूल सूची' },

@@ -3,15 +3,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, FilePen, User, Video, ClipboardCheck } from 'lucide-react';
+import { Home, User, Video, ClipboardCheck, BookMarked } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/user-context';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
-  { href: '/video-lectures', icon: Video, label: 'Lectures' },
+  { href: '/courses', icon: BookMarked, label: 'Courses' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'Test' },
-  { href: '/plan-form', icon: FilePen, label: 'Apply' },
+  { href: '/video-lectures', icon: Video, label: 'Lectures' },
 ];
 
 export function BottomNav() {

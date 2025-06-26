@@ -11,19 +11,25 @@ import {
   Trophy,
   Contact,
   Video,
+  BookMarked,
+  Newspaper,
+  Scaling,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 
 const menuItems = [
   { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
+  { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
+  { href: '/courses', icon: BookMarked, label: 'हमारे कोर्स' },
   { href: '/live-classes', icon: Radio, label: 'लाइव कक्षाएं' },
+  { href: '/video-lectures', icon: Video, label: 'वीडियो लेक्चर' },
+  { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
   { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },
-  { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
-  { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
+  { href: '/current-affairs', icon: Newspaper, label: 'करेंट अफेयर्स' },
+  { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ देखें' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
-  { href: '/video-lectures', icon: Video, label: 'वीडियो लेक्चर' },
   { href: '/contact', icon: Contact, label: 'संपर्क करें' },
 ];
 
@@ -40,18 +46,18 @@ export default function DashboardPage() {
 
        <Card className="bg-card text-card-foreground shadow-lg rounded-2xl">
          <CardContent className="p-4 sm:p-6">
-           <p className="text-center font-headline text-xl sm:text-2xl font-semibold">
+           <p className="text-center font-signature text-xl sm:text-2xl font-semibold text-primary/90">
              "आपके संघर्ष की ताकत ही आपकी उपलब्धि की सफलता को निर्धारित करती है।"
            </p>
          </CardContent>
        </Card>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
         {menuItems.map((item) => (
-          <Link href={item.href} key={item.href} className="block">
-              <Card className="flex flex-col items-center justify-center bg-card text-card-foreground hover:bg-accent transition-colors shadow-lg aspect-square rounded-2xl">
+          <Link href={item.href} key={item.href} className="block group">
+              <Card className="flex flex-col items-center justify-center bg-card text-card-foreground group-hover:bg-accent group-hover:border-primary/50 transition-all shadow-lg aspect-square rounded-2xl">
                 <CardContent className="flex flex-col items-center justify-center p-2 text-center">
-                  <item.icon className="mb-2 h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+                  <item.icon className="mb-2 h-7 w-7 sm:h-8 sm:w-8 text-primary transition-transform group-hover:scale-110" />
                   <span className="text-xs sm:text-sm font-semibold leading-tight">{item.label}</span>
                 </CardContent>
               </Card>
