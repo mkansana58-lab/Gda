@@ -11,7 +11,7 @@ export default function LoginPage() {
         <Card className="shadow-2xl bg-card">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
-              <Logo />
+              <Logo className="h-24 w-24" />
             </div>
             <CardTitle className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-primary">
               गो स्वामी डिफेंस एकेडमी
