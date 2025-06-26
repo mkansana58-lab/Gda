@@ -3,11 +3,11 @@
 import { Card, CardContent } from '@/components/ui/card';
 import {
   FilePen,
-  BookOpen,
+  Radio,
   GraduationCap,
   MessageSquare,
   ClipboardCheck,
-  Scaling,
+  Ticket,
   Trophy,
   Users,
   Contact,
@@ -17,11 +17,11 @@ import { Logo } from '@/components/logo';
 
 const menuItems = [
   { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
-  { href: '/learning-hub', icon: BookOpen, label: 'लर्निंग हब' },
+  { href: '/live-classes', icon: Radio, label: 'लाइव कक्षाएं' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
   { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
-  { href: '/cutoff-checker', icon: Scaling, label: 'कट-ऑफ चेकर' },
+  { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
   { href: '/toppers', icon: Trophy, label: 'टॉपर्स' },
   { href: '/teachers', icon: Users, label: 'शिक्षक' },
   { href: '/contact', icon: Contact, label: 'संपर्क करें' },

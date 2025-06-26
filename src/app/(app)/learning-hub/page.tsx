@@ -1,85 +1,86 @@
 
 'use client';
 
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Youtube, Video, Download } from "lucide-react";
+import { Download, Loader2, FileText } from "lucide-react";
 import Link from 'next/link';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-const learningSections = [
-    {
-        title: "लाइव कक्षाएं",
-        description: "विशेषज्ञ प्रशिक्षकों के साथ हमारे इंटरैक्टिव लाइव सत्रों में शामिल हों।",
-        icon: Video,
-        actionText: "क्लासेस देखें",
-        href: "/live-classes",
-        disabled: false
-    },
-    {
-        title: "रिकॉर्डेड वीडियो",
-        description: "छूटी हुई कक्षाओं को पकड़ें या अपनी गति से विषयों को संशोधित करें।",
-        icon: Youtube,
-        actionText: "यूट्यूब पर देखें",
-        href: "https://youtube.com/@mohitkansana-s1h?si=vXGmKt03HwtcG55s",
-        disabled: false
-    },
-    {
-        title: "डाउनलोड",
-        description: "अध्ययन सामग्री, नोट्स और अभ्यास पत्रों तक पहुँच प्राप्त करें।",
-        icon: Download,
-        actionText: "जल्द आ रहा है",
-        href: "#",
-        disabled: true
-    },
-]
+interface DownloadableFile {
+    id: string;
+    title: string;
+    description: string;
+    fileUrl: string;
+}
 
 export default function LearningHubPage() {
+    const [files, setFiles] = useState<DownloadableFile[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        setIsLoading(true);
+        const q = query(collection(db, "downloads"), orderBy("createdAt", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const downloadableFiles: DownloadableFile[] = [];
+            querySnapshot.forEach((doc) => {
+                downloadableFiles.push({ id: doc.id, ...doc.data() } as DownloadableFile);
+            });
+            setFiles(downloadableFiles);
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Error fetching downloads: ", error);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     return (
         <div className="flex flex-col gap-8 p-4">
             <div>
-                <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">लर्निंग हब</h1>
-                <p className="text-muted-foreground">सभी शिक्षण संसाधनों के लिए आपका वन-स्टॉप डेस्टिनेशन।</p>
+                <h1 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">स्टडी मटेरियल डाउनलोड करें</h1>
+                <p className="text-muted-foreground">यहां से महत्वपूर्ण नोट्स, ई-बुक्स और अभ्यास पत्र डाउनलोड करें।</p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {learningSections.map(section => (
-                    <Card key={section.title} className="flex flex-col hover:shadow-lg hover:border-primary/50 transition-all duration-200 bg-card">
-                        <CardHeader className="flex-row items-start gap-4">
-                           <div className="p-3 bg-primary/10 rounded-lg">
-                                <section.icon className="w-8 h-8 text-primary"/>
-                           </div>
-                           <div className="flex-1">
-                                <CardTitle className="font-headline">{section.title}</CardTitle>
-                                <CardDescription>{section.description}</CardDescription>
-                           </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                        </CardContent>
-                        <CardFooter>
-                           <Button className="w-full" asChild disabled={section.disabled}>
-                                <Link href={section.href} target={section.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">{section.actionText}</Link>
-                           </Button>
-                        </CardFooter>
-                    </Card>
-                ))}
-            </div>
-
-            <Card className="mt-4 bg-card">
-                <CardHeader>
-                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                     <div>
-                        <CardTitle className="font-headline">यूट्यूब पर और अन्वेषण करें</CardTitle>
-                        <CardDescription>हमारे आधिकारिक चैनल पर हमारी वीडियो सामग्री की पूरी लाइब्रेरी देखें।</CardDescription>
-                    </div>
-                    <Button asChild className="w-full sm:w-auto">
-                        <a href="https://youtube.com/@mohitkansana-s1h?si=vXGmKt03HwtcG55s" target="_blank" rel="noopener noreferrer">
-                            <Youtube className="mr-2 h-4 w-4" />
-                            सभी कक्षाएं देखें
-                        </a>
-                    </Button>
-                   </div>
-                </CardHeader>
-            </Card>
+            {isLoading ? (
+                 <div className="flex items-center justify-center py-8">
+                    <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                    <span>स्टडी मटेरियल लोड हो रहा है...</span>
+                </div>
+            ) : files.length > 0 ? (
+                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {files.map(file => (
+                         <Card key={file.id} className="flex flex-col hover:shadow-lg hover:border-primary/50 transition-all duration-200 bg-card">
+                            <CardHeader className="flex-row items-start gap-4">
+                               <div className="p-3 bg-primary/10 rounded-lg">
+                                   <FileText className="w-8 h-8 text-primary"/>
+                               </div>
+                               <div className="flex-1">
+                                    <CardTitle className="font-headline">{file.title}</CardTitle>
+                                    <CardDescription>{file.description}</CardDescription>
+                               </div>
+                            </CardHeader>
+                            <CardContent className="flex-grow"></CardContent>
+                            <CardFooter>
+                               <Button className="w-full" asChild disabled={!file.fileUrl || file.fileUrl === "#"}>
+                                    <Link href={file.fileUrl} target="_blank" rel="noopener noreferrer">
+                                      <Download className="mr-2 h-4 w-4"/>  डाउनलोड करें
+                                    </Link>
+                               </Button>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
+             ) : (
+                <Card>
+                    <CardContent className="pt-6 text-center text-muted-foreground">
+                        अभी कोई स्टडी मटेरियल उपलब्ध नहीं है।
+                    </CardContent>
+                </Card>
+             )}
         </div>
     );
 }

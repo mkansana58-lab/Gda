@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -10,8 +11,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Shield } from 'lucide-react';
 
-const ALLOWED_USERS = ['लोकेश गोस्वामी', 'मोहित', 'दिनेश त्यागी', 'Lokesh Goswami', 'Mohit', 'Dinesh Tyagi'];
-const ADMIN_PASSWORD = '12345';
+const ALLOWED_USERS = ['AcademyDirector77'];
+const ADMIN_PASSWORD = 'Goswami@Admin#2024';
 
 export default function AdminLoginPage() {
     const router = useRouter();
@@ -27,7 +28,7 @@ export default function AdminLoginPage() {
         setError('');
 
         setTimeout(() => {
-            const isUserAllowed = ALLOWED_USERS.includes(username.trim());
+            const isUserAllowed = ALLOWED_USERS.map(u => u.toLowerCase()).includes(username.trim().toLowerCase());
             const isPasswordCorrect = password === ADMIN_PASSWORD;
 
             if (isUserAllowed && isPasswordCorrect) {

@@ -21,6 +21,7 @@ import {
   Newspaper,
   Radio,
   Shield,
+  Download,
 } from 'lucide-react';
 
 import {
@@ -49,7 +50,7 @@ const navItems = [
   { href: '/plan-form', icon: FilePen, label: 'छात्रवृत्ति फॉर्म' },
   { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
   { href: '/live-classes', icon: Radio, label: 'लाइव कक्षाएं' },
-  { href: '/learning-hub', icon: BookOpen, label: 'लर्निंग हब' },
+  { href: '/learning-hub', icon: Download, label: 'डाउनलोड्स' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
   { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
