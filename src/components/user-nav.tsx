@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -6,7 +5,6 @@ import {
   Moon,
   Sun,
   User as UserIcon,
-  Settings,
   Shield,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -36,12 +34,14 @@ export function UserNav() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-      // Check for admin status on the client side
+      // Check for admin status on the client side after hydration
       const adminUser = localStorage.getItem('adminUser');
       if (adminUser) {
           setIsAdmin(true);
+      } else {
+          setIsAdmin(false);
       }
-  }, []);
+  }, [user]); // Re-check when user logs in or out
 
   return (
     <DropdownMenu>
@@ -66,11 +66,7 @@ export function UserNav() {
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
             <UserIcon className="mr-2 h-4 w-4 text-primary" />
-            <span>प्रोफ़ाइल</span>
-          </DropdownMenuItem>
-           <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-            <Settings className="mr-2 h-4 w-4 text-primary" />
-            <span>सेटिंग्स</span>
+            <span>प्रोफ़ाइल और सेटिंग्स</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         {isAdmin && (
