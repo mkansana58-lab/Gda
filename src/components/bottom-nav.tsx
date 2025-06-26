@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, Video, ClipboardCheck, BookMarked } from 'lucide-react';
+import { Home, User, Newspaper, ClipboardCheck, BookMarked } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/context/user-context';
 
@@ -11,7 +11,7 @@ const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
   { href: '/courses', icon: BookMarked, label: 'Courses' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'Test' },
-  { href: '/video-lectures', icon: Video, label: 'Lectures' },
+  { href: '/posts', icon: Newspaper, label: 'Posts' },
 ];
 
 export function BottomNav() {

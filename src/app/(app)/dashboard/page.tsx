@@ -23,7 +23,7 @@ const menuItems = [
   { href: '/admit-card', icon: Ticket, label: 'एडमिट कार्ड' },
   { href: '/courses', icon: BookMarked, label: 'हमारे कोर्स' },
   { href: '/live-classes', icon: Radio, label: 'लाइव कक्षाएं' },
-  { href: '/video-lectures', icon: Video, label: 'वीडियो लेक्चर' },
+  { href: '/posts', icon: Newspaper, label: 'डेली पोस्ट्स' },
   { href: '/ai-test', icon: ClipboardCheck, label: 'AI टेस्ट' },
   { href: '/ai-tutor', icon: GraduationCap, label: 'AI ट्यूटर' },
   { href: '/ai-chat', icon: MessageSquare, label: 'AI चैट' },

@@ -35,7 +35,7 @@ type TestConfig = {
     examContext?: string;
 };
 
-type TestProgress = { completed: boolean; score: number; answers: string[]; questions: AiQuestion[]; timeTaken: number; };
+type TestProgress = { completed: boolean; score: number; answers: string[]; questions: AiQuestion[]; timeTaken: number; attempts: number; };
 type ClassProgress = Record<TestId, TestProgress>;
 type CertificateData = { studentName: string; studentClass: string; testTitle: string; totalScore: number; totalPossibleMarks: number; percentage: number; performanceStatus: 'पास' | 'औसत' | 'फेल' | 'योग्य नहीं'; subjectResults: any[] };
 
@@ -57,7 +57,7 @@ const getInitialProgress = (mode: TestMode, classId: string): ClassProgress => {
   const configs = getTestConfigs(mode) as any;
   if (!configs[classId]) return {};
   return configs[classId].tests.reduce((acc: any, test: any) => {
-    acc[test.id] = { completed: false, score: 0, answers: [], questions: [], timeTaken: 0 };
+    acc[test.id] = { completed: false, score: 0, answers: [], questions: [], timeTaken: 0, attempts: 0 };
     return acc;
   }, {} as ClassProgress);
 };
@@ -102,7 +102,15 @@ export default function AiTestPage() {
             const savedProgressRaw = localStorage.getItem(`${testMode}-progress-${selectedClass}-${user.email}`);
             if (savedProgressRaw) {
                 try {
-                    setProgress(JSON.parse(savedProgressRaw));
+                    const savedProgress = JSON.parse(savedProgressRaw);
+                    // Ensure attempts property exists
+                    const initialProgress = getInitialProgress(testMode, selectedClass);
+                    Object.keys(initialProgress).forEach(testId => {
+                        if (!savedProgress[testId] || typeof savedProgress[testId].attempts === 'undefined') {
+                            savedProgress[testId] = { ...initialProgress[testId], ...savedProgress[testId], attempts: savedProgress[testId]?.attempts || 0 };
+                        }
+                    });
+                    setProgress(savedProgress);
                 } catch (e) {
                     console.error("Failed to parse progress from localStorage", e);
                     setProgress(getInitialProgress(testMode, selectedClass));
@@ -157,10 +165,20 @@ export default function AiTestPage() {
     };
     
     const handleStartMockTest = async (testId: TestId) => {
-        if (!selectedClass || !testMode) return;
+        if (!selectedClass || !testMode || !progress) return;
         const config = (getTestConfigs(testMode) as any)[selectedClass];
         const testConfig = config.tests.find((t: any) => t.id === testId);
         if (!testConfig) return;
+
+        const currentAttempts = progress[testId]?.attempts || 0;
+        if (currentAttempts >= 2) {
+            toast({
+                variant: 'destructive',
+                title: 'प्रयास की सीमा समाप्त',
+                description: 'आप यह टेस्ट दो बार दे चुके हैं।',
+            });
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -202,7 +220,8 @@ export default function AiTestPage() {
 
         setProgress(prev => {
             if (!prev) return getInitialProgress(testMode, selectedClass);
-            const newProgress = { ...prev, [currentTest.id]: { completed: true, score: correctAnswers, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken } };
+            const currentAttempts = prev[currentTest.id]?.attempts || 0;
+            const newProgress = { ...prev, [currentTest.id]: { completed: true, score: correctAnswers, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken, attempts: currentAttempts + 1 } };
             
             const config = (getTestConfigs(testMode) as any)[selectedClass];
             const allTestsCompleted = config.tests.every((t: any) => newProgress[t.id]?.completed);
@@ -518,21 +537,40 @@ export default function AiTestPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                     {config.tests.map((test: any) => {
                         const testProgress = progress[test.id];
+                        const attempts = testProgress?.attempts || 0;
+                        const isLocked = attempts >= 2;
                         return (
                             <Card key={test.id} className="flex flex-col bg-card">
-                                <CardHeader><CardTitle>{test.subject}</CardTitle><CardDescription>{test.questions} प्रश्न, {test.isQualifying ? 'क्वालीफाइंग' : `${test.questions * test.marksPerQuestion} अंक`}</CardDescription></CardHeader>
+                                <CardHeader>
+                                    <CardTitle>{test.subject}</CardTitle>
+                                    <CardDescription>{test.questions} प्रश्न, {test.isQualifying ? 'क्वालीफाइंग' : `${test.questions * test.marksPerQuestion} अंक`}</CardDescription>
+                                </CardHeader>
                                 <CardContent className="flex-grow">
                                     {testProgress?.completed ? (
                                         <div className="flex items-center gap-2 text-green-500">
                                             <CheckCircle className="w-5 h-5"/>
                                             <div>
-                                                <p className="font-semibold">पूरा हुआ! स्कोर: {testProgress.score * test.marksPerQuestion} / {test.questions * test.marksPerQuestion}</p>
+                                                <p className="font-semibold">पिछला स्कोर: {testProgress.score * test.marksPerQuestion} / {test.questions * test.marksPerQuestion}</p>
                                                 {test.isQualifying && <p className={`text-sm font-bold ${testProgress.score * test.marksPerQuestion >= test.qualifyingMarks! ? 'text-green-500' : 'text-red-500'}`}>{testProgress.score * test.marksPerQuestion >= test.qualifyingMarks! ? 'योग्य' : 'योग्य नहीं'}</p>}
                                             </div>
                                         </div>
                                     ) : ( <div className="flex items-center gap-2 text-muted-foreground"><p>अभी तक शुरू नहीं किया गया।</p></div> )}
                                 </CardContent>
-                                <CardFooter className="flex justify-between"><Button variant="outline" disabled={!testProgress?.completed} onClick={() => setSolutionSheet({open: true, testId: test.id})}>हल देखें</Button><Button onClick={() => handleStartMockTest(test.id)}>{testProgress?.completed ? 'पुनः प्रयास करें' : 'टेस्ट शुरू करें'}</Button></CardFooter>
+                                <CardFooter className="flex justify-between items-center">
+                                    <Button variant="outline" disabled={!testProgress?.completed} onClick={() => setSolutionSheet({open: true, testId: test.id})}>हल देखें</Button>
+                                    <Button onClick={() => handleStartMockTest(test.id)} disabled={isLocked || isLoading}>
+                                        {testProgress?.completed ? `पुनः प्रयास करें (${attempts}/2)` : `टेस्ट शुरू करें (${attempts}/2)`}
+                                    </Button>
+                                </CardFooter>
+                                {isLocked && (
+                                    <CardFooter className="flex-col items-start gap-2 pt-4 border-t">
+                                        <p className="text-sm font-semibold text-destructive">प्रयास समाप्त। अधिक प्रयासों के लिए अनलॉक करें।</p>
+                                        <div className="flex gap-2">
+                                            <Button size="sm" variant="outline" onClick={() => toast({ title: 'सुविधा जल्द ही आ रही है'})}>विज्ञापन देखें</Button>
+                                            <Button size="sm" onClick={() => toast({ title: 'सुविधा जल्द ही आ रही है'})}>₹10 का प्रीमियम लें (2 महीने)</Button>
+                                        </div>
+                                    </CardFooter>
+                                )}
                             </Card>
                         );
                     })}

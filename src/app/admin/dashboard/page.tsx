@@ -33,6 +33,7 @@ export default function AdminDashboardPage() {
     const [videos, setVideos] = useState<ListItem[]>([]);
     const [currentAffairs, setCurrentAffairs] = useState<ListItem[]>([]);
     const [courses, setCourses] = useState<ListItem[]>([]);
+    const [posts, setPosts] = useState<ListItem[]>([]);
     
     // Form States
     const [notifTitle, setNotifTitle] = useState('');
@@ -58,6 +59,10 @@ export default function AdminDashboardPage() {
     const [courseLink, setCourseLink] = useState('');
     const [courseImageFile, setCourseImageFile] = useState<File | null>(null);
     const [courseImagePreview, setCourseImagePreview] = useState<string | null>(null);
+    const [postTitle, setPostTitle] = useState('');
+    const [postContent, setPostContent] = useState('');
+    const [postImageFile, setPostImageFile] = useState<File | null>(null);
+    const [postImagePreview, setPostImagePreview] = useState<string | null>(null);
 
     const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
@@ -69,6 +74,7 @@ export default function AdminDashboardPage() {
             { name: "videos", setter: setVideos },
             { name: "currentAffairs", setter: setCurrentAffairs },
             { name: "courses", setter: setCourses },
+            { name: "posts", setter: setPosts },
         ];
         const unsubscribes = collections.map(({ name, setter }) => {
             const q = query(collection(db, name), orderBy("createdAt", "desc"));
@@ -165,6 +171,25 @@ export default function AdminDashboardPage() {
         finally { setIsSubmitting(null); }
     };
 
+    const handlePostSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsSubmitting('posts');
+        try {
+            let imageUrl = '';
+            if (postImageFile) {
+                imageUrl = await readFileAsDataURL(postImageFile);
+            }
+            await addDoc(collection(db, 'posts'), { title: postTitle, content: postContent, imageUrl, createdAt: serverTimestamp() });
+            toast({ title: 'पोस्ट जोड़ा गया!' });
+            setPostTitle(''); setPostContent(''); setPostImageFile(null); setPostImagePreview(null);
+            (document.getElementById('post-image') as HTMLInputElement).value = '';
+        } catch (error) { 
+            console.error("Post submission error: ", error);
+            toast({ variant: 'destructive', title: 'त्रुटि', description: 'पोस्ट जोड़ने में विफल।' }); 
+        }
+        finally { setIsSubmitting(null); }
+    };
+
     const renderList = (items: ListItem[], collectionName: string) => (
         <ul className="space-y-2 max-h-60 overflow-y-auto pr-2">
             {items.map(item => (
@@ -187,6 +212,27 @@ export default function AdminDashboardPage() {
             <div className="space-y-6">
                 <h2 className="text-xl font-headline font-bold border-b pb-2">सामग्री प्रबंधन</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><Newspaper /> पोस्ट प्रबंधन</CardTitle></CardHeader>
+                        <CardContent>
+                            <form onSubmit={handlePostSubmit}>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="space-y-4 min-w-0">
+                                        <div><Label htmlFor="post-title">पोस्ट का शीर्षक</Label><Input id="post-title" value={postTitle} onChange={e => setPostTitle(e.target.value)} required /></div>
+                                        <div><Label htmlFor="post-content">सामग्री</Label><Textarea id="post-content" value={postContent} onChange={e => setPostContent(e.target.value)} required /></div>
+                                        <div>
+                                            <Label htmlFor="post-image">इमेज (वैकल्पिक)</Label>
+                                            <Input id="post-image" type="file" accept="image/*" onChange={(e) => handleFileChange(e, setPostImageFile, setPostImagePreview)} />
+                                            {postImagePreview && <Image src={postImagePreview} alt="पोस्ट प्रीव्यू" width={100} height={100} className="mt-2 rounded-md border" />}
+                                        </div>
+                                        <Button type="submit" disabled={isSubmitting === 'posts'}>{isSubmitting === 'posts' && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>} पोस्ट जोड़ें</Button>
+                                    </div>
+                                    <div className="min-w-0"><h4 className="font-semibold mb-2">हाल की पोस्ट्स</h4>{renderList(posts, 'posts')}</div>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
 
                     <Card>
                         <CardHeader><CardTitle className="flex items-center gap-2"><BookMarked /> कोर्स प्रबंधन</CardTitle></CardHeader>
