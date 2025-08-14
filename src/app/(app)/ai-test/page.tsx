@@ -18,7 +18,7 @@ import { useUser } from '@/context/user-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { addNotification } from '@/lib/notifications';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 type PageState = 'enrollment' | 'mode-selection' | 'class-selection' | 'subject-test-setup' | 'test-dashboard' | 'test-in-progress' | 'certificate';
 type TestMode = 'sainik' | 'rms' | 'jnv' | 'olympiad' | 'rtse' | 'devnarayan';
@@ -68,7 +68,7 @@ export default function AiTestPage() {
     const [testMode, setTestMode] = useState<TestMode | null>(null);
     const [selectedClass, setSelectedClass] = useState<string | null>(null);
     const [progress, setProgress] = useState<ClassProgress | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [currentTest, setCurrentTest] = useState<{ id: TestId; subject: string; questions: AiQuestion[], language: string, classLevel: string, time: number, examContext?: string } | null>(null);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswers, setUserAnswers] = useState<string[]>([]);
@@ -76,7 +76,7 @@ export default function AiTestPage() {
     const [isConfirming, setIsConfirming] = useState(false);
     const [confirmAction, setConfirmAction] = useState<{ title: string, description: string, onConfirm: () => void } | null>(null);
     const [solutionSheet, setSolutionSheet] = useState<{ open: boolean, testId: TestId | null }>({ open: false, testId: null });
-    const { user } = useUser();
+    const { user, firebaseUser } = useUser();
     const { toast } = useToast();
     const certificateRef = useRef<HTMLDivElement>(null);
     const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
@@ -86,59 +86,59 @@ export default function AiTestPage() {
     const [subjectTestConfig, setSubjectTestConfig] = useState<any>(null);
     
     useEffect(() => {
-      if (user?.email) {
-        const enrollmentStatus = localStorage.getItem(`ai-test-enrolled-${user.email}`);
-        if (enrollmentStatus === 'true') {
-          setIsEnrolled(true);
-          setPageState('mode-selection');
-        } else {
-          setPageState('enrollment');
-        }
-      }
-    }, [user?.email]);
+        const checkEnrollment = async () => {
+            if (firebaseUser) {
+                const enrollmentDocRef = doc(db, 'aiTestEnrollees', firebaseUser.uid);
+                const enrollmentDoc = await getDoc(enrollmentDocRef);
+                if (enrollmentDoc.exists()) {
+                    setIsEnrolled(true);
+                    setPageState('mode-selection');
+                } else {
+                    setPageState('enrollment');
+                }
+            } else {
+                setPageState('enrollment');
+            }
+            setIsLoading(false);
+        };
+        checkEnrollment();
+    }, [firebaseUser]);
 
     useEffect(() => {
-        if (isEnrolled && testMode && selectedClass && user?.email) {
-            const savedProgressRaw = localStorage.getItem(`${testMode}-progress-${selectedClass}-${user.email}`);
-            if (savedProgressRaw) {
-                try {
-                    const savedProgress = JSON.parse(savedProgressRaw);
-                    // Ensure attempts property exists
+        const loadProgress = async () => {
+            if (isEnrolled && testMode && selectedClass && firebaseUser) {
+                const progressDocRef = doc(db, 'aiTestProgress', firebaseUser.uid, `${testMode}_${selectedClass}`);
+                const progressDoc = await getDoc(progressDocRef);
+                if (progressDoc.exists()) {
+                    const savedProgress = progressDoc.data() as ClassProgress;
                     const initialProgress = getInitialProgress(testMode, selectedClass);
-                    Object.keys(initialProgress).forEach(testId => {
+                     Object.keys(initialProgress).forEach(testId => {
                         if (!savedProgress[testId] || typeof savedProgress[testId].attempts === 'undefined') {
                             savedProgress[testId] = { ...initialProgress[testId], ...savedProgress[testId], attempts: savedProgress[testId]?.attempts || 0 };
                         }
                     });
                     setProgress(savedProgress);
-                } catch (e) {
-                    console.error("Failed to parse progress from localStorage", e);
+                } else {
                     setProgress(getInitialProgress(testMode, selectedClass));
                 }
-            } else {
-                setProgress(getInitialProgress(testMode, selectedClass));
             }
-        }
-    }, [isEnrolled, testMode, selectedClass, user?.email]);
+        };
+        loadProgress();
+    }, [isEnrolled, testMode, selectedClass, firebaseUser]);
 
-    useEffect(() => {
-        if (progress && testMode && selectedClass && user?.email) {
-            localStorage.setItem(`${testMode}-progress-${selectedClass}-${user.email}`, JSON.stringify(progress));
-        }
-    }, [progress, testMode, selectedClass, user?.email]);
 
     const handleEnroll = async () => {
-      if (!user) {
+      if (!user || !firebaseUser) {
         toast({ variant: 'destructive', title: 'त्रुटि', description: 'कृपया पहले लॉगिन करें।' });
         return;
       }
       setIsLoading(true);
       try {
-        await addDoc(collection(db, 'aiTestEnrollees'), {
+        const enrollmentDocRef = doc(db, 'aiTestEnrollees', firebaseUser.uid);
+        await setDoc(enrollmentDocRef, {
           ...user,
           enrolledAt: serverTimestamp(),
         });
-        localStorage.setItem(`ai-test-enrolled-${user.email}`, 'true');
         setIsEnrolled(true);
         setPageState('mode-selection');
         toast({ title: 'पंजीकरण सफल!', description: 'अब आप AI टेस्ट दे सकते हैं।' });
@@ -199,8 +199,8 @@ export default function AiTestPage() {
         }
     };
     
-    const handleFinishMockTest = useCallback(() => {
-        if (!currentTest || !selectedClass || !user || !testMode) return;
+    const handleFinishMockTest = useCallback(async () => {
+        if (!currentTest || !selectedClass || !user || !firebaseUser || !testMode) return;
         
         const testConfig = ((getTestConfigs(testMode) as any)[selectedClass]?.tests || []).find((t: any) => t.id === currentTest.id);
         const marksPerQuestion = testConfig?.marksPerQuestion || 1;
@@ -218,50 +218,50 @@ export default function AiTestPage() {
             timestamp: new Date().toISOString(),
         });
 
-        setProgress(prev => {
-            if (!prev) return getInitialProgress(testMode, selectedClass);
-            const currentAttempts = prev[currentTest.id]?.attempts || 0;
-            const newProgress = { ...prev, [currentTest.id]: { completed: true, score: correctAnswers, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken, attempts: currentAttempts + 1 } };
-            
-            const config = (getTestConfigs(testMode) as any)[selectedClass];
-            const allTestsCompleted = config.tests.every((t: any) => newProgress[t.id]?.completed);
+        const currentAttempts = progress?.[currentTest.id]?.attempts || 0;
+        const newProgressForTest = { completed: true, score: correctAnswers, answers: userAnswers, questions: currentTest.questions, timeTaken: timeTaken, attempts: currentAttempts + 1 };
+        
+        const updatedProgress = { ...progress, [currentTest.id]: newProgressForTest };
+        setProgress(updatedProgress);
 
-            if (allTestsCompleted) {
-                const totalScoreObtained = config.tests.reduce((sum: number, test: any) => {
-                    if (test.isQualifying) return sum;
-                    const testProgress = newProgress[test.id];
-                    return sum + (testProgress.score * test.marksPerQuestion);
-                }, 0);
-                const percentage = (totalScoreObtained / config.totalMarks) * 100;
-                
-                const newOverallTopper = { 
-                    name: user.name, 
-                    class: selectedClass, 
-                    percentage: percentage, 
-                    date: new Date().toISOString(), 
-                    photo: '', 
-                    hint: 'student portrait', 
-                    testMode: testMode 
-                };
-                
-                const storageKey = `mock-test-toppers`;
-                const overallToppersRaw = localStorage.getItem(storageKey);
-                const overallToppers = overallToppersRaw ? JSON.parse(overallToppersRaw) : [];
-                const otherToppers = overallToppers.filter((t: any) => !(t.name === user.name && t.class === selectedClass && t.testMode === testMode));
-                const updatedToppers = [...otherToppers, newOverallTopper];
-                updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
-                const toppersToSave = updatedToppers.slice(0, 20).map(t => ({...t, photo: ''}));
-                localStorage.setItem(storageKey, JSON.stringify(toppersToSave));
-            }
-            return newProgress;
-        });
+        // Save progress to Firestore
+        const progressDocRef = doc(db, 'aiTestProgress', firebaseUser.uid, `${testMode}_${selectedClass}`);
+        await setDoc(progressDocRef, updatedProgress, { merge: true });
+
+        const config = (getTestConfigs(testMode) as any)[selectedClass];
+        const allTestsCompleted = config.tests.every((t: any) => updatedProgress[t.id]?.completed);
+
+        if (allTestsCompleted) {
+            const totalScoreObtained = config.tests.reduce((sum: number, test: any) => {
+                if (test.isQualifying) return sum;
+                const testProgress = updatedProgress[test.id];
+                return sum + (testProgress.score * test.marksPerQuestion);
+            }, 0);
+            const percentage = (totalScoreObtained / config.totalMarks) * 100;
+            
+            const topperId = `${firebaseUser.uid}_${testMode}_${selectedClass}`;
+            const topperDocRef = doc(db, 'toppers', 'mock-test', 'users', topperId);
+            
+            const topperData = { 
+                userId: firebaseUser.uid,
+                name: user.name,
+                class: selectedClass, 
+                percentage: percentage, 
+                date: new Date().toISOString(), 
+                photo: user.profilePhotoUrl || '',
+                hint: 'student portrait', 
+                testMode: testMode 
+            };
+            await setDoc(topperDocRef, topperData, { merge: true });
+        }
+        
         setPageState('test-dashboard');
         setCurrentTest(null);
         toast({ title: 'टेस्ट पूरा हुआ!', description: `${currentTest.subject} का आपका परिणाम सेव कर लिया गया है।` });
-    }, [currentTest, userAnswers, timeLeft, selectedClass, user, toast, testMode]);
+    }, [currentTest, userAnswers, timeLeft, selectedClass, user, firebaseUser, toast, testMode, progress]);
     
-    const handleFinishSubjectTest = useCallback(() => {
-        if (!subjectTest || !user || !testMode) return;
+    const handleFinishSubjectTest = useCallback(async () => {
+        if (!subjectTest || !user || !firebaseUser || !testMode) return;
         let score = 0;
         subjectTest.questions.forEach((q, i) => { if (q.correctAnswer === subjectTestAnswers[i]) score++; });
         
@@ -294,24 +294,21 @@ export default function AiTestPage() {
           }]
         };
         setCertificateData(certData);
-
-        const topper = {
+        
+        const topperId = `${firebaseUser.uid}_${testMode}_${subjectTest.config.classLevel}_${subjectTest.subject}`;
+        const topperDocRef = doc(db, 'toppers', 'practice-test', 'users', topperId);
+        
+        const topperData = {
+            userId: firebaseUser.uid,
             name: user.name, class: subjectTest.config.classLevel, percentage: percentage,
-            date: new Date().toISOString(), photo: '', hint: 'student portrait',
+            date: new Date().toISOString(), photo: user.profilePhotoUrl || '', hint: 'student portrait',
             testMode: testMode, subject: subjectTest.subject,
         };
-        const storageKey = `practice-test-toppers`;
-        const toppersRaw = localStorage.getItem(storageKey);
-        const toppers = toppersRaw ? JSON.parse(toppersRaw) : [];
-        const otherToppers = toppers.filter((t: any) => !(t.name === user.name && t.testMode === testMode && t.subject === topper.subject && t.class === topper.class));
-        const updatedToppers = [...otherToppers, topper];
-        updatedToppers.sort((a: any, b: any) => b.percentage - a.percentage);
-        const toppersToSave = updatedToppers.slice(0, 20).map(t => ({...t, photo: ''}));
-        localStorage.setItem(storageKey, JSON.stringify(toppersToSave));
+        await setDoc(topperDocRef, topperData, { merge: true });
 
         setPageState('certificate');
         setSubjectTest(null);
-    }, [subjectTest, subjectTestAnswers, user, testMode]);
+    }, [subjectTest, subjectTestAnswers, user, firebaseUser, testMode]);
 
 
     useEffect(() => {
@@ -337,10 +334,12 @@ export default function AiTestPage() {
     const handleResetProgress = () => {
         setConfirmAction({
             title: 'क्या आप निश्चित हैं?', description: `यह कक्षा ${selectedClass} के लिए आपकी सभी ${testMode} परीक्षा प्रगति को रीसेट कर देगा। यह क्रिया पूर्ववत नहीं की जा सकती।`,
-            onConfirm: () => {
-                if(selectedClass && user?.email && testMode){
-                    localStorage.removeItem(`${testMode}-progress-${selectedClass}-${user.email}`);
-                    setProgress(getInitialProgress(testMode, selectedClass));
+            onConfirm: async () => {
+                if(selectedClass && firebaseUser && testMode){
+                    const progressDocRef = doc(db, 'aiTestProgress', firebaseUser.uid, `${testMode}_${selectedClass}`);
+                    const newProgress = getInitialProgress(testMode, selectedClass);
+                    await setDoc(progressDocRef, newProgress);
+                    setProgress(newProgress);
                     toast({ title: 'प्रगति रीसेट', description: ` आपकी प्रगति रीसेट कर दी गई है।` });
                 }
             }
@@ -367,7 +366,7 @@ export default function AiTestPage() {
         return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
     };
 
-    const handleStartSubjectTest = async (values: { subject: string, classLevel: string }) => {
+    const handleStartSubjectTest = async (values: { subject: string; classLevel: string }) => {
         if (!user || !testMode) return;
         const testConfigMap: any = {
             olympiad: { subjects: ["Maths", "Science", "English", "General Knowledge"], questions: 25, time: 1800 },
@@ -464,9 +463,9 @@ export default function AiTestPage() {
             </p>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleEnroll} disabled={isLoading}>
+            <Button className="w-full" onClick={handleEnroll} disabled={isLoading || !firebaseUser}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              अभी नामांकन करें
+              {!firebaseUser ? "पहले लॉगिन करें" : "अभी नामांकन करें"}
             </Button>
           </CardFooter>
         </Card>

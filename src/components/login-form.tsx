@@ -13,7 +13,8 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -38,6 +39,7 @@ export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const auth = getAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,60 +48,68 @@ export function LoginForm() {
     },
   });
 
+  const readFileAsDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    const handleLogin = async (profilePhotoUrl: string) => {
-      try {
-        const { profilePhoto, ...userData } = values;
-        const user = { ...userData, profilePhotoUrl };
-        
-        // Save user to localStorage for session management
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        // Save user details to Firestore
-        await addDoc(collection(db, 'students'), {
-            ...user,
-            createdAt: serverTimestamp(),
-        });
+    try {
+      // Step 1: Sign in the user anonymously with Firebase Auth
+      const userCredential = await signInAnonymously(auth);
+      const firebaseUser = userCredential.user;
 
-        toast({
-          title: 'लॉगिन सफल',
-          description: `स्वागत है, ${values.name}!`,
-        });
-        router.push('/dashboard');
-      } catch (error) {
-        console.error("Error during login or saving data: ", error);
-        toast({
-          variant: 'destructive',
-          title: 'लॉगिन विफल',
-          description: 'एक त्रुटि हुई। कृपया पुनः प्रयास करें।',
-        });
-      } finally {
-        setIsLoading(false);
+      // Step 2: Handle photo upload if present
+      let profilePhotoUrl = '';
+      const photoFile = values.profilePhoto?.[0];
+      if (photoFile) {
+        try {
+            profilePhotoUrl = await readFileAsDataURL(photoFile);
+        } catch (photoError) {
+             toast({
+                variant: 'destructive',
+                title: 'फोटो अपलोड विफल',
+                description: 'चयनित फोटो को पढ़ा नहीं जा सका।',
+            });
+        }
       }
-    };
 
-    const photoFile = values.profilePhoto?.[0];
+      // Step 3: Prepare user data for Firestore
+      const { profilePhoto, ...userData } = values;
+      const userForDb = { 
+          ...userData, 
+          profilePhotoUrl,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+      };
+      
+      // Step 4: Save user data to Firestore with UID as document ID
+      await setDoc(doc(db, "students", firebaseUser.uid), userForDb);
+      
+      // Step 5: Save user data to localStorage for quick access
+      localStorage.setItem('user', JSON.stringify({ ...userData, profilePhotoUrl }));
 
-    if (photoFile) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleLogin(reader.result as string);
-      };
-      reader.onerror = () => {
-        toast({
-          variant: 'destructive',
-          title: 'फोटो अपलोड विफल',
-          description: 'चयनित फोटो को पढ़ा नहीं जा सका। कृपया बिना फोटो के जारी रखें।',
-        });
-        handleLogin(''); // Provide empty string for URL
-      };
-      reader.readAsDataURL(photoFile);
-    } else {
-      setTimeout(() => {
-        handleLogin(''); // Provide empty string for URL
-      }, 500);
+      toast({
+        title: 'लॉगिन सफल',
+        description: `स्वागत है, ${values.name}!`,
+      });
+      router.push('/dashboard');
+
+    } catch (error) {
+      console.error("Error during login or saving data: ", error);
+      toast({
+        variant: 'destructive',
+        title: 'लॉगिन विफल',
+        description: 'एक त्रुटि हुई। कृपया पुनः प्रयास करें।',
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 

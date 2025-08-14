@@ -66,7 +66,7 @@ export default function ScholarshipFormPage() {
   const [signaturePreview, setSignaturePreview] =useState<string | null>(null);
 
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
   const certificateRef = useRef<HTMLDivElement>(null);
   
   const form = useForm<FormValues>({
@@ -76,11 +76,19 @@ export default function ScholarshipFormPage() {
   });
   
   useEffect(() => {
-    if (user) {
+    if (user && !form.formState.isDirty) {
       form.reset({
-        name: user.name, mobile: user.mobile, email: user.email, class: user.class,
-        village: user.village, district: user.district, pincode: user.pincode, state: user.state,
-        fatherName: '', age: undefined, school: '',
+        name: user.name || '',
+        mobile: user.mobile || '', 
+        email: user.email || '',
+        class: user.class || '',
+        village: user.village || '', 
+        district: user.district || '',
+        pincode: user.pincode || '',
+        state: user.state || '',
+        fatherName: '',
+        age: undefined,
+        school: '',
       });
     }
   }, [user, form]);
@@ -201,6 +209,14 @@ export default function ScholarshipFormPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (isUserLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
   }
   
   if (submittedData) {

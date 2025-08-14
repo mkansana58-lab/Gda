@@ -1,8 +1,12 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
+import { getAuth, onAuthStateChanged, signInAnonymously, User as FirebaseUser } from 'firebase/auth';
+import { db } from '@/lib/firebase';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 
 export interface User {
   name: string;
@@ -19,6 +23,7 @@ export interface User {
 
 interface UserContextType {
   user: User | null;
+  firebaseUser: FirebaseUser | null;
   isLoading: boolean;
   logout: () => void;
   updateUser: (newUser: Partial<User>) => void;
@@ -30,11 +35,14 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
   const router = useRouter();
+  const auth = getAuth();
 
   useEffect(() => {
+    // Check for user data in localStorage first for faster UI updates
     try {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
@@ -43,24 +51,52 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Failed to parse user from localStorage', error);
       localStorage.removeItem('user');
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
+
+    // Then, handle Firebase auth state
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        // User is signed in.
+        setFirebaseUser(fbUser);
+        const userDocRef = doc(db, 'students', fbUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+        }
+        // If doc doesn't exist, it will be created on login/profile update
+      } else {
+        // User is signed out.
+        setUser(null);
+        setFirebaseUser(null);
+        localStorage.removeItem('user');
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
   
-  const logout = () => {
+  const logout = async () => {
+    await auth.signOut();
     localStorage.removeItem('user');
     localStorage.removeItem('adminUser'); // Also clear admin session
     setUser(null);
+    setFirebaseUser(null);
     router.push('/login');
   };
 
-  const updateUser = (newUser: Partial<User>) => {
-    setUser(prevUser => {
-      const updatedUser = { ...prevUser, ...newUser } as User;
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      return updatedUser;
-    });
+  const updateUser = async (newUser: Partial<User>) => {
+    if (!firebaseUser) return;
+
+    const updatedUser = { ...user, ...newUser } as User;
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    
+    // Save to Firestore
+    const userDocRef = doc(db, 'students', firebaseUser.uid);
+    await setDoc(userDocRef, updatedUser, { merge: true });
   }
 
   if (isLoading) {
@@ -72,7 +108,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, isLoading, logout, updateUser, isProfileDialogOpen, setProfileDialogOpen }}>
+    <UserContext.Provider value={{ user, firebaseUser, isLoading, logout, updateUser, isProfileDialogOpen, setProfileDialogOpen }}>
       {children}
     </UserContext.Provider>
   );

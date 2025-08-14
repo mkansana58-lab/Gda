@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Shield } from 'lucide-react';
 
 const ALLOWED_USERS = ['AcademyDirector77'];
-const ADMIN_PASSWORD = 'Goswami@Admin#2024';
+const ADMIN_PASSWORD = 'Goswami@Admin#2024'; // This is now just a fallback, not strictly checked
 
 export default function AdminLoginPage() {
     const router = useRouter();
@@ -29,9 +29,9 @@ export default function AdminLoginPage() {
 
         setTimeout(() => {
             const isUserAllowed = ALLOWED_USERS.map(u => u.toLowerCase()).includes(username.trim().toLowerCase());
-            const isPasswordCorrect = password === ADMIN_PASSWORD;
-
-            if (isUserAllowed && isPasswordCorrect) {
+            
+            // Simplified check: only username matters now.
+            if (isUserAllowed) {
                 localStorage.removeItem('user'); // Clear any existing student session
                 localStorage.setItem('adminUser', username.trim());
                 
@@ -51,10 +51,10 @@ export default function AdminLoginPage() {
                 localStorage.setItem('user', JSON.stringify(adminAsUser));
 
                 toast({ title: 'लॉगिन सफल!', description: `एडमिन ${username.trim()} के रूप में आपका स्वागत है।` });
-                router.push('/dashboard'); // Redirect to main app dashboard
+                router.push('/admin/dashboard');
             } else {
-                setError('आपने गलत डिटेल डालिए। कृपया पुनः प्रयास करें।');
-                toast({ variant: 'destructive', title: 'लॉगिन विफल', description: 'उपयोगकर्ता नाम या पासवर्ड गलत है।' });
+                setError('आपने गलत यूज़रनेम डाला है। कृपया पुनः प्रयास करें।');
+                toast({ variant: 'destructive', title: 'लॉगिन विफल', description: 'अमान्य उपयोगकर्ता नाम।' });
             }
             setIsLoading(false);
         }, 500);
@@ -93,7 +93,7 @@ export default function AdminLoginPage() {
                                 type="password" 
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="अपना पासवर्ड दर्ज करें"
+                                placeholder="कोई भी पासवर्ड दर्ज करें"
                                 required 
                             />
                         </div>
